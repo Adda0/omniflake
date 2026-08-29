@@ -64,6 +64,11 @@ with open("resolved.jsonl", "w") as fh:
 rm -f resolved.new.jsonl manual.resolved.jsonl
 echo "    $(wc -l < resolved.jsonl) flakes in the database"
 
+# A one-line description per repo, for the site's search. Only rows that
+# lack one are asked about.
+echo "==> describing"
+python3 tools/describe.py 2>&1 | tail -1
+
 echo "==> splitting off personal-configuration repos"
 python3 tools/classify.py --rejected personal.jsonl < resolved.jsonl > library.jsonl
 
@@ -72,6 +77,12 @@ python3 tools/classify.py --rejected personal.jsonl < resolved.jsonl > library.j
 # only what is new since the last run.
 echo "==> pinning with Nix"
 python3 tools/pin.py --jobs "${PIN_JOBS:-16}" 2> >(tee pin.log >&2)
+
+# A flake whose stale lock names a branch needs the GitHub API to resolve
+# it, and that is quota-limited without a token, so the first pass runs
+# without one and the failures get a second, authenticated pass.
+echo "==> retrying failures with a token"
+python3 tools/pin.py --jobs 8 --retry-failed --use-token 2> >(tee -a pin.log >&2)
 
 echo "==> generating index.json"
 python3 tools/generate.py
