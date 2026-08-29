@@ -1,6 +1,11 @@
-filtered.jsonl
+# Derived from resolved.jsonl by tools/classify.py on every run.
 library.jsonl
-resolved.top.jsonl
+personal.jsonl
+# Run logs.
 harvest.log
 resolve.log
+pin.log
+# Build outputs and caches.
 result
+__pycache__/
+.mypy_cache/

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Refresh omniflake. resolved.jsonl is a database that is kept and added to,
-# so the default run only discovers and resolves flakes we do not already
-# know about. Harvesting every repo from scratch is not the normal path.
+# so the default run only discovers and pins flakes it does not already
+# know about. Nothing here regenerates flake.nix: that file is static, and
+# the artifact that changes is index.json.
 #
-#   ./tools/update.sh              discover new flakes, keep existing pins
+#   ./tools/update.sh              discover new flakes, pin them, regenerate
 #   ./tools/update.sh --refresh    also re-pin everything already known
-#   ./tools/update.sh --no-harvest regenerate and lock from the current data
+#   ./tools/update.sh --no-harvest skip GitHub search; pin and regenerate
 #
-# OMNIFLAKE_TOP=300 limits the built tier to the top N by stars.
+# PIN_JOBS controls how many `nix flake metadata` processes run at once.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -48,43 +49,32 @@ if [[ -f manual.resolved.jsonl ]]; then
   cat manual.resolved.jsonl >> resolved.new.jsonl
 fi
 python3 -c '
-import json,sys
-seen={}
+import json
+seen = {}
 for line in open("resolved.new.jsonl"):
-    line=line.strip()
-    if not line or line.startswith("#"): continue
-    e=json.loads(line); seen[(e["owner"],e["repo"])]=e
-for e in seen.values(): print(json.dumps(e))
-' > resolved.jsonl
+    line = line.strip()
+    if not line or line.startswith("#"):
+        continue
+    e = json.loads(line)
+    seen[(e["owner"], e["repo"])] = e
+with open("resolved.jsonl", "w") as fh:
+    for e in seen.values():
+        fh.write(json.dumps(e) + "\n")
+'
 rm -f resolved.new.jsonl manual.resolved.jsonl
 echo "    $(wc -l < resolved.jsonl) flakes in the database"
 
 echo "==> splitting off personal-configuration repos"
 python3 tools/classify.py --rejected personal.jsonl < resolved.jsonl > library.jsonl
 
-SRC=library.jsonl
-if [[ -n "${OMNIFLAKE_TOP:-}" ]]; then
-  echo "==> limiting to top ${OMNIFLAKE_TOP} by stars"
-  python3 -c 'import sys,json;rows=[json.loads(l) for l in open(sys.argv[1])];rows.sort(key=lambda r:-r["stars"]);[print(json.dumps(r)) for r in rows[:int(sys.argv[2])]]' \
-    library.jsonl "${OMNIFLAKE_TOP}" > resolved.top.jsonl
-  SRC=resolved.top.jsonl
-fi
+# Every flake is pinned by its own `nix flake metadata` run, in parallel.
+# A revision already in pins.jsonl is never fetched again, so this costs
+# only what is new since the last run.
+echo "==> pinning with Nix"
+python3 tools/pin.py --jobs "${PIN_JOBS:-16}" 2> >(tee pin.log >&2)
 
-# Pass 1 is shallow. It exists to produce a lock we can read the transitive
-# input graph out of, which is what the nested follows are derived from.
-echo "==> pass 1: shallow lock"
-./tools/lock.sh "$SRC"
+echo "==> generating index.json"
+python3 tools/generate.py
 
-# A subflake with a relative path: input locks here but breaks consumers.
-echo "==> auditing for consumer breakage"
-python3 tools/audit.py flake.lock >> blocklist.txt
-sort -u blocklist.txt -o blocklist.txt
-
-echo "==> deriving nested follows"
-python3 tools/deepen.py flake.lock > deep-follows.json
-
-echo "==> pass 2: deep lock"
-rm -f flake.lock
-DEEP_FOLLOWS=deep-follows.json ./tools/lock.sh "$SRC"
-
-echo "==> done: $(python3 -c 'import json;print(len(json.load(open("flake.lock"))["nodes"])-1)') lock nodes"
+echo "==> checking that the index evaluates"
+echo "    $(nix eval .#lib.count) flakes indexed"
