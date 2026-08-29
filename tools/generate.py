@@ -1,108 +1,148 @@
 #!/usr/bin/env python3
-"""Generate omniflake's flake.nix from resolved.jsonl.
+"""Generate index.json from the library and its pins.
 
-Two things matter here and both are deliberate.
+flake.nix is static. What changes between releases is index.json: one line
+per flake, mapping its attribute name to the `locked` attributes fetchTree
+needs and a flag saying whether a computed lock is stored under locks/.
+One entry per line keeps a diff readable when a flake is added, removed or
+re-pinned.
 
-First, `follows` is emitted into flake.nix rather than rewritten into
-flake.lock. A consumer re-locks from our flake.nix, so a lock-level
-rewrite (what nix-auto-follow does) is discarded downstream and the
-unification is lost. Declaring it here is what lets a consumer redirect
-every subflake's nixpkgs with a single `follows` line.
+A library row without a pin is left out: either tools/pin.py has not seen
+its revision yet, or it failed and is in failures.jsonl.
 
-Second, only the inputs in UNIFY are redirected. Following an arbitrary
-subflake would pin it to a version its dependents never tested against;
-these few are the ones where sharing is routinely safe.
+Also prunes what nothing references any more: pins and failures for
+revisions no longer in the library, and stored locks no index entry uses.
 """
-import argparse, json, sys
 
-# Foundational inputs that are safe to share across every subflake.
-UNIFY = {
-    "nixpkgs":      "github:NixOS/nixpkgs/nixos-unstable",
-    "flake-utils":  "github:numtide/flake-utils",
-    "systems":      "github:nix-systems/default",
-    "flake-parts":  "github:hercules-ci/flake-parts",
-    "flake-compat": "github:edolstra/flake-compat",
-}
+import argparse, json, os, re, sys
 
-# Aliases some flakes use for the same underlying input.
-ALIASES = {
-    "nixpkgs-unstable": "nixpkgs",
-    "nixpkgs_2": "nixpkgs",
-    "utils": "flake-utils",
-    "flakeUtils": "flake-utils",
-    "flake-utils_2": "flake-utils",
-}
+from pin import FOUNDATIONS, flake_ref, lock_key, read_jsonl
+
+# Markers around the status block in README.md.
+STATUS_BEGIN = "<!-- BEGIN index-status -->"
+STATUS_END = "<!-- END index-status -->"
+
+
+def load_blocklist(path):
+    if not os.path.exists(path):
+        return set()
+    return {l.strip() for l in open(path) if l.strip() and not l.startswith("#")}
+
+
+def write_jsonl(path, rows):
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        for row in rows:
+            fh.write(json.dumps(row, sort_keys=True) + "\n")
+    os.replace(tmp, path)
+
+
+def write_index(path, index):
+    """One entry per line, sorted by name, so diffs stay per-flake."""
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        fh.write("{\n")
+        names = sorted(index)
+        for i, name in enumerate(names):
+            entry = json.dumps(index[name], sort_keys=True)
+            sep = "," if i + 1 < len(names) else ""
+            fh.write(f"  {json.dumps(name)}: {entry}{sep}\n")
+        fh.write("}\n")
+    os.replace(tmp, path)
+
+
+def prune_locks(locks_dir, keys_in_use):
+    removed = 0
+    if not os.path.isdir(locks_dir):
+        return removed
+    for fname in os.listdir(locks_dir):
+        if not fname.endswith(".json"):
+            continue
+        if fname[: -len(".json")] not in keys_in_use:
+            os.remove(os.path.join(locks_dir, fname))
+            removed += 1
+    return removed
+
+
+def update_readme(path, stats):
+    """Rewrite the status block between the markers, if the file has one."""
+    if not os.path.exists(path):
+        return
+    text = open(path).read()
+    pattern = re.compile(re.escape(STATUS_BEGIN) + ".*?" + re.escape(STATUS_END), re.S)
+    if not pattern.search(text):
+        return
+    block = "\n".join(
+        [
+            STATUS_BEGIN,
+            f"- **{stats['indexed']:,} flakes** in the index, from "
+            f"**{stats['library']:,} in the library tier** "
+            f"({stats['failed']:,} could not be pinned, {stats['unpinned']:,} not yet pinned)",
+            f"- {stats['stored_locks']:,} ship no usable lock file and use one computed by Nix",
+            f"- One `follows` line in your flake redirects `nixpkgs` in every one of them",
+            STATUS_END,
+        ]
+    )
+    open(path, "w").write(pattern.sub(block, text))
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--deep-follows",
-                    help="JSON from deepen.py: nested follows paths to emit")
+    ap.add_argument("--library", default="library.jsonl")
+    ap.add_argument("--pins", default="pins.jsonl")
+    ap.add_argument("--failures", default="failures.jsonl")
+    ap.add_argument("--locks", default="locks")
+    ap.add_argument("--blocklist", default="blocklist.txt")
+    ap.add_argument("--index", default="index.json")
+    ap.add_argument("--readme", default="README.md")
     args = ap.parse_args()
 
-    # A top-level follows only reaches a subflake's direct inputs. These paths
-    # reach the duplicates sitting below them.
-    deep = {}
-    if args.deep_follows:
-        deep = json.load(open(args.deep_follows))
+    blocked = load_blocklist(args.blocklist)
+    pins = {p["ref"]: p for p in read_jsonl(args.pins)}
+    failures = {f["ref"]: f for f in read_jsonl(args.failures)}
 
-    entries = [json.loads(l) for l in sys.stdin if l.strip() and not l.startswith("#")]
-    # Deterministic output: sort by attribute name.
-    entries.sort(key=lambda e: e["name"])
-    names = {e["name"] for e in entries}
-
-    out = ["{"]
-    out.append('  description = "omniflake: a very large number of Nix flakes, fetched lazily";')
-    out.append("")
-    out.append("  inputs = {")
-
-    # Shared foundations first.
-    for n, url in UNIFY.items():
-        out.append(f'    {n}.url = "{url}";')
-    out.append("")
-
-    follows = 0
-    for e in entries:
-        name = e["name"]
-        if name in UNIFY:
+    index = {}
+    library_refs = {}
+    stats = {"library": 0, "indexed": 0, "failed": 0, "unpinned": 0, "stored_locks": 0}
+    for row in read_jsonl(args.library):
+        name = row["name"]
+        if name in blocked or name in FOUNDATIONS:
             continue
-        # Pin an exact rev: no HEAD lookup, so consumers inherit a fixed graph.
-        # Manually added flakes carry an explicit url; they may not be on GitHub.
-        url = e.get("url") or f'github:{e["owner"]}/{e["repo"]}/{e["rev"]}'
-        out.append(f'    {name}.url = "{url}";')
-        seen = set()
-        for dep in e.get("inputs", []):
-            target = ALIASES.get(dep, dep)
-            if target not in UNIFY or dep in seen:
+        ref = flake_ref(row)
+        library_refs[ref] = name
+        stats["library"] += 1
+
+        pin = pins.get(ref)
+        if pin is None:
+            stats["failed" if ref in failures else "unpinned"] += 1
+            continue
+
+        entry = {"locked": pin["locked"]}
+        if pin.get("lock"):
+            entry["lock"] = True
+            stats["stored_locks"] += 1
+        index[name] = entry
+        stats["indexed"] += 1
+
+    write_index(args.index, index)
+
+    # Keep the databases to what the library still references, and carry
+    # the current name on each row so the files read well on their own.
+    def current(rows):
+        kept = []
+        for ref, row in rows.items():
+            if ref not in library_refs:
                 continue
-            seen.add(dep)
-            out.append(f'    {name}.inputs.{dep}.follows = "{target}";')
-            follows += 1
+            kept.append({**row, "name": library_refs[ref]})
+        return sorted(kept, key=lambda r: r["name"])
 
-        # Nested paths reach foundations buried below a direct input.
-        for path, base in deep.get(name, []):
-            chain = ".inputs.".join(path)
-            out.append(f'    {name}.inputs.{chain}.follows = "{base}";')
-            follows += 1
+    write_jsonl(args.pins, current(pins))
+    write_jsonl(args.failures, current(failures))
+    keys_in_use = {lock_key(e["locked"]) for e in index.values() if e.get("lock")}
+    stats["pruned_locks"] = prune_locks(args.locks, keys_in_use)
 
-    out.append("  };")
-    out.append("")
-    out.append("  outputs = { self, ... }@inputs: let")
-    out.append('    flakes = builtins.removeAttrs inputs [ "self" ];')
-    out.append("  in {")
-    out.append("    # Every subflake, reachable as omniflake.flakes.<name>.")
-    out.append("    inherit flakes;")
-    out.append("")
-    out.append("    # Metadata that does not force any input to be fetched.")
-    out.append("    lib = {")
-    out.append("      names = builtins.attrNames flakes;")
-    out.append("      count = builtins.length (builtins.attrNames flakes);")
-    out.append("    };")
-    out.append("  };")
-    out.append("}")
-
-    sys.stdout.write("\n".join(out) + "\n")
-    print(f"# subflakes={len(entries)} follows={follows}", file=sys.stderr)
+    update_readme(args.readme, stats)
+    print("# " + json.dumps(stats), file=sys.stderr)
 
 
 if __name__ == "__main__":
