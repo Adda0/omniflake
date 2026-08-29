@@ -15,6 +15,30 @@ const STORE_PATH = "__STORE_PATH__";
 const REV_ABBREV = 12;
 const REPO = "https://github.com/fzakaria/omniflake";
 
+// The four headline numbers, each with the sentence a hover explains it with.
+const KPIS = [
+  {
+    label: "flakes indexed",
+    value: (d) => d.count,
+    tip: "Flakes reachable as omniflake.flakes.<name>. Each is a pinned revision with a NAR hash, fetched only when you evaluate something from it.",
+  },
+  {
+    label: "nodes added to your flake.lock",
+    value: () => 6,
+    tip: "What adding omniflake as an input costs: omniflake itself plus its five foundation inputs (nixpkgs, flake-utils, systems, flake-parts, flake-compat). The indexed flakes are not inputs, so this never grows.",
+  },
+  {
+    label: "use a lock computed by Nix",
+    value: (d) => d.storedLocks,
+    tip: "Flakes that ship no flake.lock, or one that no longer matches their flake.nix. Nix resolved their inputs when they were pinned, and that lock is stored here; inputs named by branch were resolved then, not when the author last tested.",
+  },
+  {
+    label: "could not be pinned",
+    value: (d) => d.failures.length,
+    tip: "Flakes in the library that nix flake metadata could not lock: a deleted repository, an input that no longer resolves, a syntax error. See the 'Not pinnable' tab for each reason.",
+  },
+];
+
 /* ---------- helpers ---------- */
 
 function isoDate(seconds) {
@@ -132,22 +156,13 @@ function Index({ data }) {
 
   return html`
     <div class="kpis">
-      <div class="kpi">
-        <div class="v">${data.count.toLocaleString()}</div>
-        <div class="l">flakes indexed</div>
-      </div>
-      <div class="kpi">
-        <div class="v">6</div>
-        <div class="l">nodes added to your flake.lock</div>
-      </div>
-      <div class="kpi">
-        <div class="v">${data.storedLocks.toLocaleString()}</div>
-        <div class="l">use a lock computed by Nix</div>
-      </div>
-      <div class="kpi">
-        <div class="v">${data.failures.length.toLocaleString()}</div>
-        <div class="l">could not be pinned</div>
-      </div>
+      ${KPIS.map(
+        (k) =>
+          html`<div class="kpi" title=${k.tip}>
+            <div class="v">${k.value(data).toLocaleString()}</div>
+            <div class="l">${k.label}</div>
+          </div>`,
+      )}
     </div>
 
     <${Command} text=${'inputs.omniflake.url = "github:fzakaria/omniflake";'} />
