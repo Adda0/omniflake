@@ -28,7 +28,9 @@ for line in open(sys.argv[1]):
         continue
     print(line)
 PY
-  python3 tools/generate.py < filtered.jsonl > flake.nix 2>/dev/null
+  # DEEP_FOLLOWS, when set, adds the nested follows derived by deepen.py.
+  python3 tools/generate.py ${DEEP_FOLLOWS:+--deep-follows "$DEEP_FOLLOWS"} \
+    < filtered.jsonl > flake.nix 2>/dev/null
   git add -N flake.nix >/dev/null 2>&1
 
   err=$(nix flake lock 2>&1)

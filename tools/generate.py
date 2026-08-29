@@ -13,7 +13,7 @@ Second, only the inputs in UNIFY are redirected. Following an arbitrary
 subflake would pin it to a version its dependents never tested against;
 these few are the ones where sharing is routinely safe.
 """
-import json, sys
+import argparse, json, sys
 
 # Foundational inputs that are safe to share across every subflake.
 UNIFY = {
@@ -35,6 +35,17 @@ ALIASES = {
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--deep-follows",
+                    help="JSON from deepen.py: nested follows paths to emit")
+    args = ap.parse_args()
+
+    # A top-level follows only reaches a subflake's direct inputs. These paths
+    # reach the duplicates sitting below them.
+    deep = {}
+    if args.deep_follows:
+        deep = json.load(open(args.deep_follows))
+
     entries = [json.loads(l) for l in sys.stdin if l.strip() and not l.startswith("#")]
     # Deterministic output: sort by attribute name.
     entries.sort(key=lambda e: e["name"])
@@ -56,7 +67,9 @@ def main():
         if name in UNIFY:
             continue
         # Pin an exact rev: no HEAD lookup, so consumers inherit a fixed graph.
-        out.append(f'    {name}.url = "github:{e["owner"]}/{e["repo"]}/{e["rev"]}";')
+        # Manually added flakes carry an explicit url; they may not be on GitHub.
+        url = e.get("url") or f'github:{e["owner"]}/{e["repo"]}/{e["rev"]}'
+        out.append(f'    {name}.url = "{url}";')
         seen = set()
         for dep in e.get("inputs", []):
             target = ALIASES.get(dep, dep)
@@ -65,7 +78,12 @@ def main():
             seen.add(dep)
             out.append(f'    {name}.inputs.{dep}.follows = "{target}";')
             follows += 1
-        # A flake that declares no inputs still needs no follows; nothing to do.
+
+        # Nested paths reach foundations buried below a direct input.
+        for path, base in deep.get(name, []):
+            chain = ".inputs.".join(path)
+            out.append(f'    {name}.inputs.{chain}.follows = "{base}";')
+            follows += 1
 
     out.append("  };")
     out.append("")

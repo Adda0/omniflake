@@ -1,0 +1,5 @@
+# Flakes added by hand, outside GitHub search. See tools/manual.py.
+# One per line: "owner/repo", or any flake ref Nix can fetch.
+
+fzakaria/nix-auto-follow
+fzakaria/nixpkgs-multiverse

@@ -79,6 +79,10 @@ subflake that depended on something newer or older.
 
 ## Caveats
 
+- **Locking here does not mean consumers can lock.** A subflake with a relative
+  `path:` input resolves it against the root flake, so it points inside
+  omniflake's own tree. Our lock succeeds and the consumer's fails.
+  `tools/audit.py` catches these and quarantines them.
 - **Trust.** One input line means delegating the pinning of a very large number
   of repositories to this repository.
 - **`nix flake check` forces everything.** Consumers are lazy; this repo's own CI
@@ -96,12 +100,46 @@ tools/harvest.py    GitHub search, partitioned by topic and star range,
 tools/resolve.py    one GraphQL round trip per 40 repos, returning HEAD oid,
                     whether flake.nix exists, and flake.lock (whose root node
                     lists each flake's declared input names)
+tools/manual.py     adds flakes by hand from manual.txt, including ones
+                    that are not on GitHub at all
 tools/classify.py   splits off personal machine configurations, which make
                     poor library members and fail locking disproportionately
 tools/generate.py   emits flake.nix with pinned revs and follows lines
 tools/lock.sh       locks, quarantining members that cannot be locked
-tools/update.sh     runs all of the above
+tools/audit.py      finds subflakes that lock here but break consumers
+tools/deepen.py     derives nested follows from a lock produced by pass 1
+tools/update.sh     runs all of the above, in two passes
 ```
+
+### Adding a flake by hand
+
+Search only finds what people remembered to tag, and it cannot see GitLab or
+sourcehut at all. `manual.txt` is committed and read on every run:
+
+```
+nix-community/disko          a GitHub repo, pinned to its default branch
+github:owner/repo/v1.2.3     pinned to a ref you choose
+gitlab:owner/repo            anything else Nix can fetch
+```
+
+A bare `owner/repo` becomes a candidate and is pinned by `resolve.py` like any
+harvested repo. Anything else is resolved with `nix flake metadata` and pinned
+to an exact revision.
+
+### Why two passes
+
+A top-level `follows` only redirects a subflake's *direct* inputs. Most
+duplicate foundations sit below that, unreachable from the top. Nix accepts
+arbitrary depth:
+
+```nix
+agenix.inputs.home-manager.inputs.nixpkgs.follows = "nixpkgs";
+```
+
+So pass 1 locks shallowly, purely to produce a lock whose transitive graph can
+be read; `deepen.py` walks it and emits a nested `follows` for every path down
+to a foundation; pass 2 relocks with those. On a 50-flake tier this took nixpkgs
+copies from 54 to 19 and the graph from 726 nodes to 602.
 
 A naive harvest is about 28% personal configurations (616 of 2188 in one run).
 They expose nothing worth importing and they are the most likely to break, so
