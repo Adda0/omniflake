@@ -10,6 +10,7 @@ nobody else ever exercises.
 Reads resolved.jsonl on stdin. Writes the kept tier to stdout, and the
 rejected entries to the path given by --rejected (if provided).
 """
+
 import argparse, json, re, sys
 
 # Repository names that indicate a personal machine configuration.
@@ -29,8 +30,11 @@ def is_personal(entry):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rejected", help="write filtered-out entries here")
-    ap.add_argument("--invert", action="store_true",
-                    help="keep the personal tier instead of the library tier")
+    ap.add_argument(
+        "--invert",
+        action="store_true",
+        help="keep the personal tier instead of the library tier",
+    )
     args = ap.parse_args()
 
     kept, dropped = [], []

@@ -19,6 +19,7 @@ and emitted as a finished database entry.
     --candidates FILE   append bare owner/repo entries here
     --resolved FILE     append fully-resolved entries here
 """
+
 import argparse, json, re, subprocess, sys
 
 BARE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -35,11 +36,17 @@ def sanitize(name):
 def resolve_ref(url):
     """Pin an arbitrary flake ref with `nix flake metadata`."""
     try:
-        out = subprocess.run(["nix", "flake", "metadata", "--json", url],
-                             capture_output=True, text=True, timeout=300)
+        out = subprocess.run(
+            ["nix", "flake", "metadata", "--json", url],
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
         if out.returncode != 0:
-            print(f"# could not resolve {url}: {out.stderr.strip()[:120]}",
-                  file=sys.stderr)
+            print(
+                f"# could not resolve {url}: {out.stderr.strip()[:120]}",
+                file=sys.stderr,
+            )
             return None
         meta = json.loads(out.stdout)
     except Exception as e:
@@ -48,8 +55,11 @@ def resolve_ref(url):
 
     locked = meta.get("locked", {})
     # The root node of its own lock names the flake's declared inputs.
-    inputs = sorted((meta.get("locks", {}).get("nodes", {})
-                     .get("root", {}).get("inputs", {})).keys())
+    inputs = sorted(
+        (
+            meta.get("locks", {}).get("nodes", {}).get("root", {}).get("inputs", {})
+        ).keys()
+    )
     name = sanitize(locked.get("repo") or url.rstrip("/").split("/")[-1])
 
     # Pin to the exact revision. An unpinned url would re-resolve on every
@@ -112,8 +122,10 @@ def main():
             for r in resolved:
                 fh.write(json.dumps(r) + "\n")
 
-    print(f"# manual: {len(candidates)} candidate(s), {len(resolved)} resolved",
-          file=sys.stderr)
+    print(
+        f"# manual: {len(candidates)} candidate(s), {len(resolved)} resolved",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":

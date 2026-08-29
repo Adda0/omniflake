@@ -7,6 +7,7 @@ stays under the cap, and the union across slices approximates the full set.
 
 Output: JSON lines of {owner, repo, stars}, deduplicated, on stdout.
 """
+
 import json, os, subprocess, sys, time
 import urllib.error, urllib.parse, urllib.request
 
@@ -15,15 +16,32 @@ import urllib.error, urllib.parse, urllib.request
 # languages, which language:Nix would miss entirely.
 QUERIES = [
     "language:Nix",
-    "topic:nix-flake", "topic:nix-flakes", "topic:nixos-config",
-    "topic:flakes", "topic:flake", "topic:nix", "topic:nixos",
-    "topic:home-manager", "topic:nix-darwin", "topic:nixpkgs",
+    "topic:nix-flake",
+    "topic:nix-flakes",
+    "topic:nixos-config",
+    "topic:flakes",
+    "topic:flake",
+    "topic:nix",
+    "topic:nixos",
+    "topic:home-manager",
+    "topic:nix-darwin",
+    "topic:nixpkgs",
 ]
 
 # Disjoint star buckets keep every slice below GitHub's 1000-result cap.
 STAR_RANGES = [
-    ">=1000", "500..999", "200..499", "100..199", "50..99",
-    "20..49", "10..19", "5..9", "3..4", "2", "1", "0",
+    ">=1000",
+    "500..999",
+    "200..499",
+    "100..199",
+    "50..99",
+    "20..49",
+    "10..19",
+    "5..9",
+    "3..4",
+    "2",
+    "1",
+    "0",
 ]
 
 PER_PAGE = 100
@@ -32,8 +50,12 @@ MAX_PAGES = 10  # 10 * 100 = the 1000-result cap
 # The 0- and 1-star buckets are far larger than the cap, so they are split
 # again by when the repo was last pushed.
 DATE_SLICES = [
-    "<2021-01-01", "2021-01-01..2022-06-30", "2022-07-01..2023-06-30",
-    "2023-07-01..2024-06-30", "2024-07-01..2025-06-30", ">=2025-07-01",
+    "<2021-01-01",
+    "2021-01-01..2022-06-30",
+    "2022-07-01..2023-06-30",
+    "2023-07-01..2024-06-30",
+    "2024-07-01..2025-06-30",
+    ">=2025-07-01",
 ]
 
 
@@ -48,8 +70,9 @@ def read_token():
     if token:
         return token.strip()
     try:
-        out = subprocess.run(["gh", "auth", "token"],
-                             capture_output=True, text=True, timeout=60)
+        out = subprocess.run(
+            ["gh", "auth", "token"], capture_output=True, text=True, timeout=60
+        )
         if out.returncode == 0:
             return out.stdout.strip()
     except Exception:
@@ -88,8 +111,7 @@ def search(query, stars, pushed=None):
     if pushed:
         q += f" pushed:{pushed}"
     for page in range(1, MAX_PAGES + 1):
-        data = api("/search/repositories",
-                   {"q": q, "per_page": PER_PAGE, "page": page})
+        data = api("/search/repositories", {"q": q, "per_page": PER_PAGE, "page": page})
         if not data:
             return
         items = data.get("items", [])
@@ -112,19 +134,25 @@ def emit(items, seen):
             continue
         seen.add(full)
         owner, repo = full.split("/", 1)
-        print(json.dumps({
-            "owner": owner,
-            "repo": repo,
-            "stars": it.get("stargazers_count", 0),
-        }), flush=True)
+        print(
+            json.dumps(
+                {
+                    "owner": owner,
+                    "repo": repo,
+                    "stars": it.get("stargazers_count", 0),
+                }
+            ),
+            flush=True,
+        )
         new += 1
     return new
 
 
 def main():
     if not TOKEN:
-        print("# warning: no token; unauthenticated search is 10 req/min",
-              file=sys.stderr)
+        print(
+            "# warning: no token; unauthenticated search is 10 req/min", file=sys.stderr
+        )
     seen = set()
     for query in QUERIES:
         for stars in STAR_RANGES:
@@ -132,8 +160,11 @@ def main():
             slices = DATE_SLICES if stars in ("0", "1", "2") else [None]
             for pushed in slices:
                 emit(search(query, stars, pushed), seen)
-            print(f"# {query} stars:{stars} -> {len(seen)} total",
-                  file=sys.stderr, flush=True)
+            print(
+                f"# {query} stars:{stars} -> {len(seen)} total",
+                file=sys.stderr,
+                flush=True,
+            )
 
 
 if __name__ == "__main__":
