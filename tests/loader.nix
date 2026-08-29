@@ -1,8 +1,8 @@
 # Exercises lib/load.nix on real flakes, which fetches their trees at
 # evaluation time. Three shapes: a flake that ships a current lock (nh), one
-# that ships no lock and uses a stored one (sops-nix), and one with a
-# nested input whose nixpkgs the default policy has to reach (agenix ->
-# home-manager -> nixpkgs).
+# whose inputs the default policy leaves alone under `pinned` (sops-nix), and
+# one with a nested input whose nixpkgs the default policy has to reach
+# (agenix -> home-manager -> nixpkgs).
 { self, system }:
 let
   ours = self.inputs.nixpkgs.rev;
@@ -21,7 +21,7 @@ assert nh.inputs.nixpkgs.rev == ours;
 assert agenix.inputs.home-manager.inputs.nixpkgs.rev == ours;
 # An input the policy does not name keeps the author's pin.
 assert agenix.inputs.darwin.rev != ours;
-# A stored lock makes a lock-less flake evaluable...
+# A flake evaluates from its own lock...
 assert sops ? nixosModules.sops;
 # ...and `pinned` leaves even nixpkgs on what that lock says.
 assert pinnedSops.inputs.nixpkgs.rev != ours;

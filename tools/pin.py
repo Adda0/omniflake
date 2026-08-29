@@ -91,8 +91,8 @@ def flake_ref(row):
     return row.get("url") or f"github:{row['owner']}/{row['repo']}/{row['rev']}"
 
 
-def run_metadata(ref, use_token):
-    """Run `nix flake metadata --json` for one ref; return (json or None, error)."""
+def nix_env(use_token):
+    """The environment every nix invocation runs under."""
     env = dict(os.environ)
     config = [NIX_CONFIG_FEATURES]
     if not use_token:
@@ -102,6 +102,12 @@ def run_metadata(ref, use_token):
         token = env.get("GH_TOKEN") or env.get("GITHUB_TOKEN")
         config.append(f"access-tokens = github.com={token}")
     env["NIX_CONFIG"] = "\n".join(config)
+    return env
+
+
+def run_metadata(ref, use_token):
+    """Run `nix flake metadata --json` for one ref; return (json or None, error)."""
+    env = nix_env(use_token)
     # Registries stay enabled: an input written as a bare "nixpkgs" is an
     # indirect reference that Nix resolves through the global registry, and
     # a lock computed without one would fail where `nix flake lock` succeeds.
@@ -194,15 +200,42 @@ def repack_tarball_cache():
     )
 
 
-def committed_lock(store_path):
-    """The flake.lock shipped in the fetched tree, or None if absent/invalid."""
+def committed_lock(store_path, locked, env):
+    """The flake.lock shipped in the fetched tree, or None if absent/invalid.
+
+    `nix flake metadata` reports a store path, but a Nix with lazy trees
+    never materialises it, so the file is read through fetchTree instead
+    when the path is not on disk. The tree is already in the fetch cache,
+    so this costs an evaluation and no download.
+    """
     path = os.path.join(store_path, "flake.lock")
-    if not os.path.exists(path):
+    if os.path.isdir(store_path):
+        if not os.path.exists(path):
+            return None
+        try:
+            with open(path) as fh:
+                return json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            return None
+
+    expr = (
+        "let t = builtins.fetchTree (builtins.fromJSON %s); "
+        'in if builtins.pathExists (t + "/flake.lock") '
+        'then builtins.readFile (t + "/flake.lock") else null'
+    ) % json.dumps(json.dumps(locked))
+    proc = subprocess.run(
+        ["nix", "eval", "--json", "--expr", expr],
+        capture_output=True,
+        text=True,
+        timeout=TIMEOUT_SECONDS,
+        env=env,
+    )
+    if proc.returncode != 0:
         return None
     try:
-        with open(path) as fh:
-            return json.load(fh)
-    except (OSError, json.JSONDecodeError):
+        text = json.loads(proc.stdout)
+        return json.loads(text) if text else None
+    except (json.JSONDecodeError, TypeError):
         return None
 
 
@@ -234,7 +267,7 @@ def pin_one(row, use_token, locks_dir):
 
     locked = {k: v for k, v in meta["locked"].items() if k not in INTERNAL_LOCKED_ATTRS}
     nix_lock = meta.get("locks") or {}
-    shipped = committed_lock(meta["path"])
+    shipped = committed_lock(meta["path"], locked, nix_env(use_token))
 
     # The committed lock is authoritative whenever Nix agrees with it. A
     # stored copy is needed only where Nix had to repair something, or
