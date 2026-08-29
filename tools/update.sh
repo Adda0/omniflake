@@ -1,36 +1,57 @@
 #!/usr/bin/env bash
-# Regenerate omniflake from scratch: harvest -> resolve -> generate -> lock.
+# Refresh omniflake. resolved.jsonl is a database that is kept and added to,
+# so the default run only discovers and resolves flakes we do not already
+# know about. Harvesting every repo from scratch is not the normal path.
 #
-# Locking fetches every subflake's source (nix must read each flake.nix to
-# discover its inputs), so a full run downloads a lot and takes a while.
-# Set OMNIFLAKE_TOP to build a smaller tier instead, e.g. OMNIFLAKE_TOP=300.
+#   ./tools/update.sh              discover new flakes, keep existing pins
+#   ./tools/update.sh --refresh    also re-pin everything already known
+#   ./tools/update.sh --no-harvest regenerate and lock from the current data
+#
+# OMNIFLAKE_TOP=300 limits the built tier to the top N by stars.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "==> harvesting candidates from GitHub"
-python3 tools/harvest.py > candidates.jsonl 2> harvest.log
+HARVEST=1
+REFRESH=""
+for arg in "$@"; do
+  case "$arg" in
+    --refresh)    REFRESH="--refresh" ;;
+    --no-harvest) HARVEST=0 ;;
+    *) echo "unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
 
-echo "==> resolving to pinned revisions"
-python3 tools/resolve.py < candidates.jsonl > resolved.jsonl 2> resolve.log
+if [[ $HARVEST -eq 1 ]]; then
+  echo "==> harvesting candidates from GitHub"
+  python3 tools/harvest.py > candidates.new.jsonl 2> harvest.log
+
+  # Union with what we already had; discovery is cumulative.
+  if [[ -f candidates.jsonl ]]; then
+    sort -u candidates.jsonl candidates.new.jsonl > candidates.merged.jsonl
+    mv candidates.merged.jsonl candidates.jsonl
+  else
+    cp candidates.new.jsonl candidates.jsonl
+  fi
+  rm -f candidates.new.jsonl
+  echo "    $(wc -l < candidates.jsonl) candidates known"
+fi
+
+echo "==> resolving (incremental; names are sticky)"
+python3 tools/resolve.py --known resolved.jsonl $REFRESH \
+  < candidates.jsonl > resolved.new.jsonl 2> resolve.log
+mv resolved.new.jsonl resolved.jsonl
+echo "    $(wc -l < resolved.jsonl) flakes in the database"
 
 echo "==> splitting off personal-configuration repos"
 python3 tools/classify.py --rejected personal.jsonl < resolved.jsonl > library.jsonl
-mv library.jsonl resolved.jsonl
 
+SRC=library.jsonl
 if [[ -n "${OMNIFLAKE_TOP:-}" ]]; then
   echo "==> limiting to top ${OMNIFLAKE_TOP} by stars"
-  sort -t: -k2 -rn < resolved.jsonl \
-    | python3 -c 'import sys,json;rows=[json.loads(l) for l in sys.stdin];rows.sort(key=lambda r:-r["stars"]);[print(json.dumps(r)) for r in rows[:int(sys.argv[1])]]' \
-    "${OMNIFLAKE_TOP}" > resolved.top.jsonl
+  python3 -c 'import sys,json;rows=[json.loads(l) for l in open(sys.argv[1])];rows.sort(key=lambda r:-r["stars"]);[print(json.dumps(r)) for r in rows[:int(sys.argv[2])]]' \
+    library.jsonl "${OMNIFLAKE_TOP}" > resolved.top.jsonl
   SRC=resolved.top.jsonl
-else
-  SRC=resolved.jsonl
 fi
 
-echo "==> generating flake.nix"
-python3 tools/generate.py < "$SRC" > flake.nix
-
-echo "==> locking (this is the slow part)"
+echo "==> generating and locking"
 ./tools/lock.sh "$SRC"
-
-echo "==> done: $(python3 -c 'import json;print(len(json.load(open("flake.lock"))["nodes"])-1)') lock nodes"

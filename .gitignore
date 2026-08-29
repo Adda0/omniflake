@@ -1,5 +1,5 @@
-candidates.jsonl
-resolved.jsonl
+filtered.jsonl
+library.jsonl
 resolved.top.jsonl
 harvest.log
 resolve.log

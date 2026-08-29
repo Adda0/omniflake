@@ -6,9 +6,18 @@ trip per batch: the default branch commit (to pin a rev), whether a root
 flake.nix exists (to reject non-flakes), and flake.lock (whose root node
 lists the flake's declared input names, which is what `follows` needs).
 
+This is incremental. resolved.jsonl is a database that is kept and added
+to, not regenerated: pass --known to skip repos already in it, and
+--refresh to additionally re-pin the ones already known.
+
+Attribute names are sticky, which matters because they are API. A name
+already assigned in the known set keeps its owner forever, so a repo that
+later gains stars cannot take a bare name out from under a consumer that
+already writes omniflake.flakes.<name>.
+
 Output: JSON lines of {name, owner, repo, rev, inputs, stars}.
 """
-import json, subprocess, sys, collections
+import argparse, json, subprocess, sys, collections
 
 BATCH = 40
 # Skip absurd locks; they are almost always vendored monorepos.
@@ -56,10 +65,49 @@ def sanitize(repo):
     return out
 
 
+def load_known(path):
+    """Read an existing resolved.jsonl into (by_repo, taken_names)."""
+    by_repo, taken = {}, {}
+    if not path:
+        return by_repo, taken
+    try:
+        fh = open(path)
+    except FileNotFoundError:
+        return by_repo, taken
+    with fh:
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            e = json.loads(line)
+            by_repo[(e["owner"], e["repo"])] = e
+            # Remember which repo owns each name so it stays put.
+            taken[e["name"]] = (e["owner"], e["repo"])
+    return by_repo, taken
+
+
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--known", help="existing resolved.jsonl to extend")
+    ap.add_argument("--refresh", action="store_true",
+                    help="also re-pin repos already present in --known")
+    args = ap.parse_args()
+
+    known, taken = load_known(args.known)
+
     cands = [json.loads(l) for l in sys.stdin if l.strip() and not l.startswith("#")]
-    # Highest-starred first, so the better-known flake wins any name clash.
+    # Highest-starred first, so the better-known flake wins any *new* name clash.
     cands.sort(key=lambda c: -c.get("stars", 0))
+
+    # Re-emit everything already known, so stdout is always the full database.
+    skipped = 0
+    if not args.refresh:
+        for entry in known.values():
+            print(json.dumps(entry), flush=True)
+        cands = [c for c in cands if (c["owner"], c["repo"]) not in known]
+        skipped = len(known)
+        print(f"# carried over {skipped} known, resolving {len(cands)} new",
+              file=sys.stderr, flush=True)
 
     used = collections.Counter()
     emitted = 0
@@ -92,10 +140,21 @@ def main():
                 except Exception:
                     inputs = []
 
-            # Disambiguate attribute names across different owners.
-            base = sanitize(cand["repo"])
-            used[base] += 1
-            name = base if used[base] == 1 else f"{base}-{sanitize(cand['owner'])}"
+            # Names are sticky: a repo keeps the name it was first given, and
+            # never takes one another repo already holds.
+            prior = known.get((cand["owner"], cand["repo"]))
+            if prior:
+                name = prior["name"]
+            else:
+                base = sanitize(cand["repo"])
+                owner_qualified = f"{base}-{sanitize(cand['owner'])}"
+                holder = taken.get(base)
+                if holder in (None, (cand["owner"], cand["repo"])) and used[base] == 0:
+                    name = base
+                else:
+                    name = owner_qualified
+                used[base] += 1
+                taken[name] = (cand["owner"], cand["repo"])
 
             print(json.dumps({
                 "name": name,
