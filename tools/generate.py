@@ -140,7 +140,8 @@ def main():
         return sorted(kept, key=lambda r: r["name"])
 
     write_jsonl(args.pins, current(pins))
-    write_jsonl(args.failures, current(failures))
+    # A failure that was later retried successfully is superseded by its pin.
+    write_jsonl(args.failures, [f for f in current(failures) if f["ref"] not in pins])
     keys_in_use = {lock_key(e["locked"]) for e in index.values() if e.get("lock")}
     stats["pruned_locks"] = prune_locks(args.locks, keys_in_use)
 

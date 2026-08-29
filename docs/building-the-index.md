@@ -58,10 +58,21 @@ instead; 19,655 packs folded into one in 45 seconds.
 
 ### GitHub's API quota
 
-Run without a GitHub token in Nix's `access-tokens`: with one, Nix downloads
-from `api.github.com`, which is subject to the 5,000 requests per hour quota.
-Without one it uses the archive endpoint, which is not. `pin.py` unsets it by
-default (`--use-token` keeps it).
+Two quotas matter. With a token in Nix's `access-tokens`, Nix downloads
+tarballs from `api.github.com`, which counts against the 5,000 requests per
+hour quota; without one it uses the archive endpoint, which does not. But a
+flake whose lock is stale and names a _branch_ needs one API call per such
+input to resolve it to a revision, and that call is limited to 60 per hour
+without a token.
+
+So `pin.py` unsets the token by default, which pins the large majority in one
+pass, and the failures that read `API rate limit exceeded` are then retried
+with it:
+
+```console
+$ ./tools/pin.py --jobs 64                          # bulk, no token
+$ ./tools/pin.py --jobs 16 --retry-failed --use-token
+```
 
 ## Continuous integration
 

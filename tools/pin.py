@@ -97,6 +97,10 @@ def run_metadata(ref, use_token):
     config = [NIX_CONFIG_FEATURES]
     if not use_token:
         config.append(NIX_CONFIG_NO_TOKEN)
+    elif env.get("GH_TOKEN") or env.get("GITHUB_TOKEN"):
+        # In CI the token is in the environment, not in nix.conf.
+        token = env.get("GH_TOKEN") or env.get("GITHUB_TOKEN")
+        config.append(f"access-tokens = github.com={token}")
     env["NIX_CONFIG"] = "\n".join(config)
     # Registries stay enabled: an input written as a bare "nixpkgs" is an
     # indirect reference that Nix resolves through the global registry, and
@@ -265,7 +269,7 @@ def main():
     ap.add_argument(
         "--use-token",
         action="store_true",
-        help="keep Nix's access-tokens (subject to the API quota)",
+        help="keep Nix's access-tokens, or use $GH_TOKEN (subject to the API quota)",
     )
     args = ap.parse_args()
 
