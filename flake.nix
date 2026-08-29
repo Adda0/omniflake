@@ -135,6 +135,19 @@
 
       formatter = forAllSystems (system: (treefmtFor system).config.build.wrapper);
 
+      # `nix build .#site` is the tree the pages workflow deploys; `.#docs`
+      # is the rendered documentation alone.
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        {
+          site = import ./nix/site.nix { inherit pkgs self; };
+          docs = import ./nix/docs.nix { inherit pkgs; };
+        }
+      );
+
       checks = forAllSystems (
         system:
         import ./nix/checks.nix {
@@ -155,6 +168,19 @@
           program = "${tools.wrappers.${name}}/bin/${name}";
           meta = { inherit description; };
         }) tools.descriptions
+        // {
+          # `nix run .#serve [port]` — the built site on a local port.
+          serve = {
+            type = "app";
+            program = "${
+              import ./nix/serve.nix {
+                pkgs = pkgsFor system;
+                site = self.packages.${system}.site;
+              }
+            }/bin/serve-site";
+            meta.description = "Serve the built site locally for testing";
+          };
+        }
       );
 
       devShells = forAllSystems (

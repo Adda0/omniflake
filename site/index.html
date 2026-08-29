@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>omniflake</title>
+    <meta
+      name="description"
+      content="Thousands of Nix flakes behind one input. Search the index, find the attribute name, and copy the line that uses it."
+    />
+    <link rel="canonical" href="https://fzakaria.github.io/omniflake/" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪐</text></svg>"
+    />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#16181d"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="omniflake" />
+    <meta
+      property="og:title"
+      content="omniflake — thousands of Nix flakes behind one input"
+    />
+    <meta
+      property="og:description"
+      content="Search the index, find the attribute name, and copy the line that uses it."
+    />
+    <meta property="og:url" content="https://fzakaria.github.io/omniflake/" />
+
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* The index table: name, description, stars, pinned date. */
+      .flakes .head,
+      .flakes .row {
+        grid-template-columns: minmax(10rem, 16rem) minmax(0, 1fr) 4.5rem 6rem;
+      }
+      .flakes .row {
+        border-bottom: 1px solid var(--line);
+      }
+      .flakes .num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .flakes .name {
+        font-family: ui-monospace, monospace;
+        font-size: 13px;
+      }
+      .failures .head,
+      .failures .row {
+        grid-template-columns: minmax(10rem, 16rem) minmax(0, 1fr);
+      }
+      .failures .row {
+        border-bottom: 1px solid var(--line);
+        font-size: 13px;
+      }
+      .err {
+        font-family: ui-monospace, monospace;
+        color: var(--muted);
+      }
+      .controls {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+        margin: 0.6rem 0;
+      }
+      .controls select {
+        font: inherit;
+        background: var(--bg);
+        color: var(--fg);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 0.4rem;
+      }
+      .tag {
+        font-size: 11px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 0 0.3rem;
+        color: var(--muted);
+        margin-left: 0.4rem;
+        vertical-align: middle;
+      }
+    </style>
+
+    <!-- Preact + htm in one pinned, integrity-checked file (~13 KB). -->
+    <script type="importmap">
+      {
+        "imports": {
+          "htm/preact": "https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.module.js"
+        },
+        "integrity": {
+          "https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.module.js": "sha384-StNNHifqKmppGEDNqrv+YtX8PD3mhAhLtNbioQ4QxbPNqaTnktcDjsIPGjcDoiKa"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site">
+      <h1><a href=".">omniflake</a></h1>
+      <nav class="site">
+        <a class="active" href=".">Index</a>
+        <a href="docs/">Documentation</a>
+        <a href="https://github.com/fzakaria/omniflake">GitHub</a>
+      </nav>
+    </header>
+
+    <div id="app"><p class="muted">Loading index…</p></div>
+
+    <footer class="muted">
+      Made with ❤️ by
+      <a href="https://fzakaria.com">Farid Zakaria</a>
+      ·
+      <a href="https://github.com/fzakaria/omniflake/blob/main/LICENSE">MIT</a>
+      <span id="provenance"></span>
+    </footer>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>

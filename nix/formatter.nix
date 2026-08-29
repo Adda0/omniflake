@@ -11,9 +11,10 @@ treefmt-nix.lib.evalModule pkgs {
   # nobody argues about where a call wraps.
   programs.black.enable = true;
 
-  # Markdown and the workflow files, at the width the docs are written to.
-  # proseWrap stays at its default of preserving line breaks: the docs are
-  # hand-wrapped prose, and reflowing them makes every diff a whole-file diff.
+  # Markdown, the workflow files and the site, at the width the docs are
+  # written to. proseWrap stays at its default of preserving line breaks: the
+  # docs are hand-wrapped prose, and reflowing them makes every diff a
+  # whole-file diff.
   programs.prettier.enable = true;
   settings.formatter.prettier = {
     options = [
@@ -23,6 +24,9 @@ treefmt-nix.lib.evalModule pkgs {
     includes = [
       "*.md"
       "*.yml"
+      "*.js"
+      "*.css"
+      "*.html"
     ];
   };
 
