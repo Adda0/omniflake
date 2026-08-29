@@ -72,9 +72,12 @@ def update_readme(path, stats):
     pattern = re.compile(re.escape(STATUS_BEGIN) + ".*?" + re.escape(STATUS_END), re.S)
     if not pattern.search(text):
         return
+    # The blank line after the opening marker is what prettier wants, and
+    # `nix fmt` runs over this file in CI.
     block = "\n".join(
         [
             STATUS_BEGIN,
+            "",
             f"- **{stats['indexed']:,} flakes** in the index, from "
             f"**{stats['library']:,} in the library tier** "
             f"({stats['failed']:,} could not be pinned, {stats['unpinned']:,} not yet pinned)",

@@ -36,7 +36,9 @@ dependency; reach in for what you need and pay nothing for the rest.
 
 <!-- BEGIN index-status -->
 
-- **0 flakes** in the index
+- **12 flakes** in the index, from **12,207 in the library tier** (0 could not be pinned, 12,195 not yet pinned)
+- 7 ship no usable lock file and use one computed by Nix
+- One `follows` line in your flake redirects `nixpkgs` in every one of them
 <!-- END index-status -->
 
 ## Quickstart
