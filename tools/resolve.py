@@ -17,7 +17,8 @@ already writes omniflake.flakes.<name>.
 
 Output: JSON lines of {name, owner, repo, rev, inputs, stars}.
 """
-import argparse, json, subprocess, sys, collections
+import argparse, json, os, subprocess, sys, time, collections
+import urllib.error, urllib.parse, urllib.request
 
 BATCH = 40
 # Skip absurd locks; they are almost always vendored monorepos.
@@ -39,20 +40,49 @@ def repo_fragment(alias, owner, repo):
   }}'''
 
 
+def read_token():
+    """Read the GitHub token once, in-process.
+
+    Every `gh` invocation asks the system keyring to unlock, so shelling out
+    per batch means one prompt per batch. Read it once instead.
+    """
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    if token:
+        return token.strip()
+    try:
+        out = subprocess.run(["gh", "auth", "token"],
+                             capture_output=True, text=True, timeout=60)
+        if out.returncode == 0:
+            return out.stdout.strip()
+    except Exception:
+        pass
+    return ""
+
+
+TOKEN = read_token()
+
+
 def run_batch(batch):
     """Issue one GraphQL query for up to BATCH repos; return the data map."""
     parts = [repo_fragment(f"r{i}", b["owner"], b["repo"]) for i, b in enumerate(batch)]
     query = QUERY_HEAD + "\n".join(parts) + QUERY_TAIL
-    try:
-        out = subprocess.run(
-            ["gh", "api", "graphql", "-f", f"query={query}"],
-            capture_output=True, text=True, timeout=120,
-        )
-        if out.returncode != 0:
+    body = json.dumps({"query": query}).encode()
+    req = urllib.request.Request("https://api.github.com/graphql", data=body)
+    req.add_header("Content-Type", "application/json")
+    if TOKEN:
+        req.add_header("Authorization", f"Bearer {TOKEN}")
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as fh:
+                return (json.loads(fh.read().decode()) or {}).get("data") or {}
+        except urllib.error.HTTPError as e:
+            if e.code in (403, 429, 502):
+                time.sleep(10 * (attempt + 1))
+                continue
             return {}
-        return (json.loads(out.stdout) or {}).get("data") or {}
-    except Exception:
-        return {}
+        except Exception:
+            time.sleep(3)
+    return {}
 
 
 def sanitize(repo):
