@@ -1,0 +1,51 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1767313136,
+        "narHash": "sha256-16KkgfdYqjaeRGBaYsNrhPRRENs0qzkQVUooNHtoy2w=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ac62194c3917d5f474c1a844b6fd6da2db95077d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ac62194c3917d5f474c1a844b6fd6da2db95077d",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "yubikey-guide": "yubikey-guide"
+      }
+    },
+    "yubikey-guide": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "dir": "nix",
+        "lastModified": 1785013201,
+        "narHash": "sha256-+lSWNaCVjwaEtsY/M0nC3IUlJxjdN0PXQgYWj4o/8Fs=",
+        "owner": "drduh",
+        "repo": "YubiKey-Guide",
+        "rev": "01b413cd0049c3fc16fa34597db486bfa3890f4c",
+        "type": "github"
+      },
+      "original": {
+        "dir": "nix",
+        "owner": "drduh",
+        "repo": "YubiKey-Guide",
+        "rev": "01b413cd0049c3fc16fa34597db486bfa3890f4c",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

@@ -1,0 +1,43 @@
+{
+  "nodes": {
+    "dhcpcanon-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1523819632,
+        "narHash": "sha256-qOmkXokR9ThlrO0o8N+y/PCbqkj4eP1jHIbfIBBq/LI=",
+        "ref": "master",
+        "rev": "9f51a29e57fe93dc93fb22bb0ed12fcfe9557e59",
+        "revCount": 248,
+        "type": "git",
+        "url": "https://github.com/juga0/dhcpcanon.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/juga0/dhcpcanon.git"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1591200341,
+        "narHash": "sha256-6RiqKKyvQAYNbmCdQq/b7umkJS4jymfrqLMERyoRCHE=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "05a32d8e771dc39438835ba0e3141d68ad4e3068",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-20.03",
+        "type": "indirect"
+      }
+    },
+    "root": {
+      "inputs": {
+        "dhcpcanon-src": "dhcpcanon-src",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

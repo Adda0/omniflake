@@ -1,0 +1,43 @@
+{
+  "nodes": {
+    "goatcounter-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1588132874,
+        "narHash": "sha256-xAvNbsysjzUphhB+i6QBgtWuvRrk9KXihAqavXQkMRg=",
+        "ref": "master",
+        "rev": "57449f3ac591c1fa6acc83e1eedc4445b22a77ba",
+        "revCount": 733,
+        "type": "git",
+        "url": "https://github.com/zgoat/goatcounter"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/zgoat/goatcounter"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1590065248,
+        "narHash": "sha256-3esyFp9OOySnoIUOrMez2a6kCR7kpwPK4OmPXRQGJUg=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6d68b920eb2df73d68a9355f9d572dbf97add5f5",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-20.03",
+        "type": "indirect"
+      }
+    },
+    "root": {
+      "inputs": {
+        "goatcounter-src": "goatcounter-src",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

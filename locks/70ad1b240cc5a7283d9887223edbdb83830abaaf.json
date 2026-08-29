@@ -1,0 +1,234 @@
+{
+  "nodes": {
+    "cim": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": "nixpkgs",
+        "online_lib": [
+          "eigen_integrations"
+        ]
+      },
+      "locked": {
+        "lastModified": 1667129607,
+        "narHash": "sha256-+h9YO0syZWpcIXn7KutCEUxysde07SWC31k93vYXcdo=",
+        "owner": "PositThesis",
+        "repo": "ContourIntegralMethod",
+        "rev": "c341c7356ca8b78622c80c0273f2fe0ea17da821",
+        "type": "github"
+      },
+      "original": {
+        "owner": "PositThesis",
+        "repo": "ContourIntegralMethod",
+        "type": "github"
+      }
+    },
+    "eigen_integrations": {
+      "inputs": {
+        "flake-utils": "flake-utils_2",
+        "nixpkgs": "nixpkgs_2",
+        "universal_patch": "universal_patch",
+        "universal_src": "universal_src"
+      },
+      "locked": {
+        "lastModified": 1666725971,
+        "narHash": "sha256-jWxeptX/Vq7Znd40ILRqYdqbm+ekuX+s0C4sl7q8X8s=",
+        "ref": "master",
+        "rev": "2505bcd9f959b92ba4f8d48eadefef34b4cfcf9f",
+        "revCount": 31,
+        "type": "git",
+        "url": "http://10.0.0.1:3000/aethan/EigenPositIntegration"
+      },
+      "original": {
+        "type": "git",
+        "url": "http://10.0.0.1:3000/aethan/EigenPositIntegration"
+      }
+    },
+    "flake-utils": {
+      "locked": {
+        "lastModified": 1656928814,
+        "narHash": "sha256-RIFfgBuKz6Hp89yRr7+NR5tzIAbn52h8vT6vXkYjZoM=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "7e2a3b3dfd9af950a856d66b0a7d01e3c18aa249",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_2": {
+      "locked": {
+        "lastModified": 1656928814,
+        "narHash": "sha256-RIFfgBuKz6Hp89yRr7+NR5tzIAbn52h8vT6vXkYjZoM=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "7e2a3b3dfd9af950a856d66b0a7d01e3c18aa249",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_3": {
+      "locked": {
+        "lastModified": 1656928814,
+        "narHash": "sha256-RIFfgBuKz6Hp89yRr7+NR5tzIAbn52h8vT6vXkYjZoM=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "7e2a3b3dfd9af950a856d66b0a7d01e3c18aa249",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_4": {
+      "locked": {
+        "lastModified": 1659877975,
+        "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "c0e246b9b83f637f4681389ecabcb2681b4f3af0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "manual_krylov": {
+      "inputs": {
+        "flake-utils": "flake-utils_4",
+        "nixpkgs": "nixpkgs_3",
+        "online_lib": [
+          "eigen_integrations"
+        ]
+      },
+      "locked": {
+        "lastModified": 1667128724,
+        "narHash": "sha256-SEfHgPL2/TJfUG7vZap4/0yGYjAxpLsq4o4ScxxOVc0=",
+        "owner": "PositThesis",
+        "repo": "CustomSolvers",
+        "rev": "5247198bfb4f6de58c3066891fa45886eb19bcd6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "PositThesis",
+        "repo": "CustomSolvers",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1657125275,
+        "narHash": "sha256-fTAsYM5Zc+57kaiHH7jRskls5YkKTyyQBBWv0BXF3XM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "5754b3bf616465dc79b0d2ae2075283722bcd39d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "release-22.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1656955776,
+        "narHash": "sha256-1aMu67m+orlGxVwfiX3RxTEVFoq/RmKa/L5u9zU3UNQ=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "cc16da2c92041cbe817c40f62aac87c99104e9c2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "release-22.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1663494212,
+        "narHash": "sha256-gUJir35fXQB7jQKCTffM8str9N6N2soaOL0TqQfJod4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b47d4447dc2ba34f793436e6631fbdd56b12934a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "release-22.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
+        "lastModified": 1657497229,
+        "narHash": "sha256-au1DERJ/lByijut4hdRcnU9FqL/BONWQWUJ/QbHH/dc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1b69bbdd35d168d51aa0fc647c584cf00ba62454",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "release-22.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "cim": "cim",
+        "eigen_integrations": "eigen_integrations",
+        "flake-utils": "flake-utils_3",
+        "manual_krylov": "manual_krylov",
+        "nixpkgs": "nixpkgs_4"
+      }
+    },
+    "universal_patch": {
+      "flake": false,
+      "locked": {
+        "path": "./patch",
+        "type": "path"
+      },
+      "original": {
+        "path": "./patch",
+        "type": "path"
+      },
+      "parent": [
+        "eigen_integrations"
+      ]
+    },
+    "universal_src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1656966993,
+        "narHash": "sha256-jm6tRYMlmv+SxbNkaVCH6GmkcfHmwq3PEqwBMzJBySo=",
+        "owner": "stillwater-sc",
+        "repo": "universal",
+        "rev": "3504810583f4625f9bce998ae5346a6a2ae430ab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "stillwater-sc",
+        "repo": "universal",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

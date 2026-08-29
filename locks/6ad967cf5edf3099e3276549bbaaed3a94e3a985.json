@@ -1,0 +1,62 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787736819,
+        "narHash": "sha256-cV5xEJJK3BvhU8rEd4mC9UsmDi5qscv/kzGPhBRC5WA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9fbb54b33e91ee4ca368e35a78e0613c720600b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1700204040,
+        "narHash": "sha256-xSVcS5HBYnD3LTer7Y2K8ZQCDCXMa3QUD1MzRjHzuhI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "c757e9bd77b16ca2e03c89bf8bc9ecb28e0c06ad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "skyrim": "skyrim"
+      }
+    },
+    "skyrim": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1700601772,
+        "narHash": "sha256-3iyXdpYC9xJe+ot0xp3Q7RM3/ZRdXuNDHGBZP3qciVg=",
+        "owner": "Rucadi",
+        "repo": "NixSkyrimAE",
+        "rev": "08343a293ca65dac3d653d65d32f56aeadedbb8f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Rucadi",
+        "repo": "NixSkyrimAE",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

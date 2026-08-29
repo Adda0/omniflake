@@ -1,0 +1,96 @@
+{
+  "nodes": {
+    "flops": {
+      "locked": {
+        "lastModified": 1776642281,
+        "narHash": "sha256-hHJm9bQD4BrpGKnivYuw/fpuzAByAafR/z/XY6eLiIg=",
+        "owner": "tao3k",
+        "repo": "flops",
+        "rev": "da56b2ef33725f2ea6677b923b79027543900c06",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tao3k",
+        "repo": "flops",
+        "type": "github"
+      }
+    },
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1787797243,
+        "narHash": "sha256-8+Q7NOB7RPajRjA4pbCDLzqH+MTjnG9x6LUPLfL2joA=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "99c9ec63390f1d8c14d95d9e8b17cc29cfbd4e11",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "nixos-unstable": {
+      "locked": {
+        "lastModified": 1787994130,
+        "narHash": "sha256-fcaFTLuyHlYKRKBjZ2TKE9+aC8s05v+JjN1X7X/EQJY=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "413a9b88e4284b6f118f8e565b3442ade07336ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable-small",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787209939,
+        "narHash": "sha256-WvvHR4kSQLAbtouMC/ruZ5UpLwlUcY3K4FAllMN+yGk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "391b592eb44808b3bd0cb80bb71b63a5a118b8bb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "omnibus": {
+      "inputs": {
+        "flops": "flops"
+      },
+      "locked": {
+        "lastModified": 1776662521,
+        "narHash": "sha256-v3QEVP49yJxEfQw96jO38N4Gk1vqRSfiuCETVLrraCY=",
+        "owner": "gtrunsec",
+        "repo": "omnibus",
+        "rev": "28982e8f7794aac8750e7f2f850598da6cbe6ea5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gtrunsec",
+        "repo": "omnibus",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "home-manager": "home-manager",
+        "nixos-unstable": "nixos-unstable",
+        "omnibus": "omnibus"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

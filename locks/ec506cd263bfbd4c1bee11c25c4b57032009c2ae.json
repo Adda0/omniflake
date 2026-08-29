@@ -1,0 +1,359 @@
+{
+  "nodes": {
+    "base16-schemes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1696158499,
+        "narHash": "sha256-5yIHgDTPjoX/3oDEfLSQ0eJZdFL1SaCfb9d6M0RmOTM=",
+        "owner": "tinted-theming",
+        "repo": "base16-schemes",
+        "rev": "a9112eaae86d9dd8ee6bb9445b664fba2f94037a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tinted-theming",
+        "repo": "base16-schemes",
+        "type": "github"
+      }
+    },
+    "colors": {
+      "inputs": {
+        "nix-colors": "nix-colors"
+      },
+      "locked": {
+        "path": "colors/",
+        "type": "path"
+      },
+      "original": {
+        "path": "colors/",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "helix": {
+      "inputs": {
+        "helix-base16-themes": "helix-base16-themes",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "applications/helix",
+        "type": "path"
+      },
+      "original": {
+        "path": "applications/helix",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "helix-base16-themes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1713662431,
+        "narHash": "sha256-0VQCU0gTnNjG+uQqctvTF/nUlAActrIUkzBYnSYC1Uc=",
+        "owner": "tinted-theming",
+        "repo": "base16-helix",
+        "rev": "dd6156153e2a6825061d4777231d0fed6683a6d3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tinted-theming",
+        "repo": "base16-helix",
+        "type": "github"
+      }
+    },
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1743267068,
+        "narHash": "sha256-G7866vbO5jgqMcYJzgbxej40O6mBGQMGt6gM0himjoA=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "b431496538b0e294fbe44a1441b24ae8195c63f0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "nix-colors": {
+      "inputs": {
+        "base16-schemes": "base16-schemes",
+        "nixpkgs-lib": "nixpkgs-lib"
+      },
+      "locked": {
+        "lastModified": 1707825078,
+        "narHash": "sha256-hTfge2J2W+42SZ7VHXkf4kjU+qzFqPeC9k66jAUBMHk=",
+        "owner": "misterio77",
+        "repo": "nix-colors",
+        "rev": "b01f024090d2c4fc3152cd0cf12027a7b8453ba1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "misterio77",
+        "repo": "nix-colors",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1743095683,
+        "narHash": "sha256-gWd4urRoLRe8GLVC/3rYRae1h+xfQzt09xOfb0PaHSk=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "5e5402ecbcb27af32284d4a62553c019a3a49ea6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-lib": {
+      "locked": {
+        "lastModified": 1697935651,
+        "narHash": "sha256-qOfWjQ2JQSQL15KLh6D7xQhx0qgZlYZTYlcEiRuAMMw=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "e1e11fdbb01113d85c7f41cada9d2847660e3902",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "p-anysize": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-fGK8Vk8WQ/wjmeIz81ZZpVRJegFH3vVk5HKtiMETsm0=",
+        "type": "file",
+        "url": "https://st.suckless.org/patches/anysize/st-expected-anysize-0.9.diff"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://st.suckless.org/patches/anysize/st-expected-anysize-0.9.diff"
+      }
+    },
+    "p-appsync": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-8kWBYzw7qvrGIC6XYUvu/drZxL6PnDFbDfv89kJhVLI=",
+        "type": "file",
+        "url": "https://st.suckless.org/patches/sync/st-appsync-20200618-b27a383.diff"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://st.suckless.org/patches/sync/st-appsync-20200618-b27a383.diff"
+      }
+    },
+    "p-font2": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-3bYkYm8e3ukVgvjeiCkYpcgGqUWVhwmCqWy56fgC0Yc=",
+        "type": "file",
+        "url": "https://st.suckless.org/patches/font2/st-font2-0.8.5.diff"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://st.suckless.org/patches/font2/st-font2-0.8.5.diff"
+      }
+    },
+    "p-fullscreen": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-wjSGoFuk71q+vWKVpWxMVtJjjim0E5E2VU3igHDrbsw=",
+        "type": "file",
+        "url": "https://st.suckless.org/patches/fullscreen/st-fullscreen-0.8.5.diff"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://st.suckless.org/patches/fullscreen/st-fullscreen-0.8.5.diff"
+      }
+    },
+    "p-ligature": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-MYQrA67JUzWagRa5+WH4NjAeL+kETxtzrwgyveBvBaI=",
+        "type": "file",
+        "url": "https://st.suckless.org/patches/ligatures/0.9/st-ligatures-20240105-0.9.diff"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://st.suckless.org/patches/ligatures/0.9/st-ligatures-20240105-0.9.diff"
+      }
+    },
+    "root": {
+      "inputs": {
+        "colors": "colors",
+        "helix": "helix",
+        "home-manager": "home-manager",
+        "nixpkgs": "nixpkgs",
+        "st": "st",
+        "zsh": "zsh"
+      }
+    },
+    "st": {
+      "inputs": {
+        "p-anysize": "p-anysize",
+        "p-appsync": "p-appsync",
+        "p-font2": "p-font2",
+        "p-fullscreen": "p-fullscreen",
+        "p-ligature": "p-ligature"
+      },
+      "locked": {
+        "path": "applications/st",
+        "type": "path"
+      },
+      "original": {
+        "path": "applications/st",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "zplug-fast-syntax-highlighting": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1688591419,
+        "narHash": "sha256-RVX9ZSzjBW3LpFs2W86lKI6vtcvDWP6EPxzeTcRZua4=",
+        "owner": "zdharma-continuum",
+        "repo": "fast-syntax-highlighting",
+        "rev": "cf318e06a9b7c9f2219d78f41b46fa6e06011fd9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zdharma-continuum",
+        "repo": "fast-syntax-highlighting",
+        "type": "github"
+      }
+    },
+    "zplug-fzf-source": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1714116151,
+        "narHash": "sha256-g/3/igZSlA0AOFPa9Zs6YOGZ/tHlOi/ZUJWW65VAgq8=",
+        "owner": "Freed-Wu",
+        "repo": "fzf-tab-source",
+        "rev": "3b17d4167c59d2fb8e4dd38cafbae373a0d576b9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Freed-Wu",
+        "repo": "fzf-tab-source",
+        "type": "github"
+      }
+    },
+    "zplug-fzf-tab": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1714099824,
+        "narHash": "sha256-Qv8zAiMtrr67CbLRrFjGaPzFZcOiMVEFLg1Z+N6VMhg=",
+        "owner": "Aloxaf",
+        "repo": "fzf-tab",
+        "rev": "c7fb028ec0bbc1056c51508602dbd61b0f475ac3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Aloxaf",
+        "repo": "fzf-tab",
+        "type": "github"
+      }
+    },
+    "zplug-nix-shell": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1704028593,
+        "narHash": "sha256-Rtg8kWVLhXRuD2/Ctbtgz9MQCtKZOLpAIdommZhXKdE=",
+        "owner": "chisui",
+        "repo": "zsh-nix-shell",
+        "rev": "82ca15e638cc208e6d8368e34a1625ed75e08f90",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chisui",
+        "repo": "zsh-nix-shell",
+        "type": "github"
+      }
+    },
+    "zplug-nix-zsh-completions": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1710446778,
+        "narHash": "sha256-bgbMc4HqigqgdkvUe/CWbUclwxpl17ESLzCIP8Sz+F8=",
+        "owner": "spwhitt",
+        "repo": "nix-zsh-completions",
+        "rev": "6e782b97091b07eb849b58953eb200ccc56ef833",
+        "type": "github"
+      },
+      "original": {
+        "owner": "spwhitt",
+        "repo": "nix-zsh-completions",
+        "type": "github"
+      }
+    },
+    "zplug-spaceship-prompt": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1714480311,
+        "narHash": "sha256-xUrn9dZIJUCGPE/nQXdA2LwHC6xA6ro6nofdMAewzOY=",
+        "owner": "spaceship-prompt",
+        "repo": "spaceship-prompt",
+        "rev": "2d703e180bafcfc9e99aaeaa376b7af03d573b8b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "spaceship-prompt",
+        "repo": "spaceship-prompt",
+        "type": "github"
+      }
+    },
+    "zplug-you-should-use": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1681926346,
+        "narHash": "sha256-lKs6DhG3x/oRA5AxnRT+odCZFenpS86wPnPqxLonV2E=",
+        "owner": "MichaelAquilina",
+        "repo": "zsh-you-should-use",
+        "rev": "1f9cb008076d4f2011d5f814dfbcfbece94a99e0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "MichaelAquilina",
+        "repo": "zsh-you-should-use",
+        "type": "github"
+      }
+    },
+    "zsh": {
+      "inputs": {
+        "zplug-fast-syntax-highlighting": "zplug-fast-syntax-highlighting",
+        "zplug-fzf-source": "zplug-fzf-source",
+        "zplug-fzf-tab": "zplug-fzf-tab",
+        "zplug-nix-shell": "zplug-nix-shell",
+        "zplug-nix-zsh-completions": "zplug-nix-zsh-completions",
+        "zplug-spaceship-prompt": "zplug-spaceship-prompt",
+        "zplug-you-should-use": "zplug-you-should-use"
+      },
+      "locked": {
+        "path": "applications/zsh",
+        "type": "path"
+      },
+      "original": {
+        "path": "applications/zsh",
+        "type": "path"
+      },
+      "parent": []
+    }
+  },
+  "root": "root",
+  "version": 7
+}

@@ -1,0 +1,149 @@
+{
+  "nodes": {
+    "metronome-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1596638345,
+        "narHash": "sha256-SLBN/l+unrKRH75g2G8flwFEflTVfCsvBhNp+PO6lus=",
+        "owner": "maranda",
+        "repo": "metronome",
+        "rev": "882bf6fb22145d0c2624285a2f6f8249d576a681",
+        "type": "github"
+      },
+      "original": {
+        "owner": "maranda",
+        "repo": "metronome",
+        "type": "github"
+      }
+    },
+    "moulinette-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1596034984,
+        "narHash": "sha256-lu65BaW0VEkUEBJxNNYD/F1movh3MEK7LcY0q6xnDh0=",
+        "owner": "YunoHost",
+        "repo": "moulinette",
+        "rev": "711c2114409babbfb4c7c5a465652b517584d338",
+        "type": "github"
+      },
+      "original": {
+        "owner": "YunoHost",
+        "ref": "buster-unstable",
+        "repo": "moulinette",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1599441668,
+        "narHash": "sha256-nkNnghnQIHxi9ImskoHTcNNSO0pEefrJ/I9G+GCw4cM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "42674051d12540d4a996504990c6ea3619505953",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-20.03",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1599510591,
+        "narHash": "sha256-rx6LLVncYqChBVVNopRY7tn59aP4qPqNjsAxt2X6/L8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "61525137fd1002f6f2a5eb0ea27d480713362cd5",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "poetry2nix": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1599401918,
+        "narHash": "sha256-xQ82LyapvoQ98cYsRL5hlLBa/LB+NswR84jOGxCrYkE=",
+        "owner": "nix-community",
+        "repo": "poetry2nix",
+        "rev": "7232ecef8f3768cd700e58693274fb4b7db22a62",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "poetry2nix",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "metronome-src": "metronome-src",
+        "moulinette-src": "moulinette-src",
+        "nixpkgs": "nixpkgs",
+        "poetry2nix": "poetry2nix",
+        "ssowat-src": "ssowat-src",
+        "yunohost-admin-src": "yunohost-admin-src",
+        "yunohost-src": "yunohost-src"
+      }
+    },
+    "ssowat-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1596035201,
+        "narHash": "sha256-GROZIfnOEAjkn2PzbKnK3trSI1il6o8LSNnzZuGQhNU=",
+        "owner": "YunoHost",
+        "repo": "SSOwat",
+        "rev": "3f362be3710c114af2bbff1fbf5d887d027d5614",
+        "type": "github"
+      },
+      "original": {
+        "owner": "YunoHost",
+        "ref": "buster-unstable",
+        "repo": "SSOwat",
+        "type": "github"
+      }
+    },
+    "yunohost-admin-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1596035352,
+        "narHash": "sha256-Gg0appQ/XkuwhYKmbntomA3CRc56Cj2oWXeYzBnJX/I=",
+        "owner": "YunoHost",
+        "repo": "yunohost-admin",
+        "rev": "f23e6aa14f0612e391e87bb39bbea52aab19096c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "YunoHost",
+        "ref": "buster-unstable",
+        "repo": "yunohost-admin",
+        "type": "github"
+      }
+    },
+    "yunohost-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1597756844,
+        "narHash": "sha256-aFyCUokVQVw1nOR8x+HI+p399SphIQcGtFEDFUCzb2E=",
+        "owner": "YunoHost",
+        "repo": "yunohost",
+        "rev": "159b5a045da5fc0a6cb2a5b205732c4dfa13ed63",
+        "type": "github"
+      },
+      "original": {
+        "owner": "YunoHost",
+        "ref": "buster-unstable",
+        "repo": "yunohost",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

@@ -1,0 +1,1256 @@
+{
+  "nodes": {
+    "asus-wmi-screenpad": {
+      "inputs": {
+        "flake-compat": [
+          "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source"
+        ],
+        "flake-utils": [
+          "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-w8n9gharrzi9wbpasbajrjybk1yv5v9f-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-w8n9gharrzi9wbpasbajrjybk1yv5v9f-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "aurebesh-fonts": {
+      "inputs": {
+        "aurabesh": [
+          "dep-yxj367qxlvhx560x4gz450r1krf9zzz5-source"
+        ],
+        "flake-utils": [
+          "dep-hwsdv71bmaqvzbii5viryxc8slw4vr5v-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-08pv96xbv7nyvlr6lv4hsnxfhkb6wk1s-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-08pv96xbv7nyvlr6lv4hsnxfhkb6wk1s-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "codium-theme": {
+      "inputs": {
+        "flake-utils": [
+          "dep-vi36jlvhxd1j235ccpdl0prmjhy94qga-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-1md8smqd67768l6mvb6rp924bpl9mkbi-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-1md8smqd67768l6mvb6rp924bpl9mkbi-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source": {
+      "inputs": {
+        "systems": [
+          "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-03c4i3h6aaym1al1mknaly7gd20dbmn9-source": {
+      "inputs": {
+        "crane": [
+          "dep-217zi2rys6iwaf2pid54i3rgb8kmqz8l-source"
+        ],
+        "flake-compat": [
+          "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source"
+        ],
+        "flake-parts": [
+          "dep-n9czz5ak3nnkgjvlywhaccjisjyaxhjy-source"
+        ],
+        "flake-utils": [
+          "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ],
+        "pre-commit-hooks-nix": [
+          "dep-ccr35si6hrhlzpqr34dd04jvnywhc9vd-source"
+        ],
+        "rust-overlay": [
+          "dep-zngnsd1l07vrv7yy3614bxknxvns9w0r-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-03c4i3h6aaym1al1mknaly7gd20dbmn9-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-03c4i3h6aaym1al1mknaly7gd20dbmn9-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-08pv96xbv7nyvlr6lv4hsnxfhkb6wk1s-source": {
+      "inputs": {
+        "aurabesh": [
+          "dep-yxj367qxlvhx560x4gz450r1krf9zzz5-source"
+        ],
+        "flake-utils": [
+          "dep-hwsdv71bmaqvzbii5viryxc8slw4vr5v-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-08pv96xbv7nyvlr6lv4hsnxfhkb6wk1s-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-08pv96xbv7nyvlr6lv4hsnxfhkb6wk1s-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-0gqwnbivnyh3maw495r22l6k6d8bl9hd-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-0gqwnbivnyh3maw495r22l6k6d8bl9hd-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-0gqwnbivnyh3maw495r22l6k6d8bl9hd-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-0hq61zzfixxbgyvfjf11swb7v371qsqz-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-0hq61zzfixxbgyvfjf11swb7v371qsqz-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-0hq61zzfixxbgyvfjf11swb7v371qsqz-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-1ln19610r9wyzp0hjszkbr7jnmww7yrk-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-1ln19610r9wyzp0hjszkbr7jnmww7yrk-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-1ln19610r9wyzp0hjszkbr7jnmww7yrk-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-1md8smqd67768l6mvb6rp924bpl9mkbi-source": {
+      "inputs": {
+        "flake-utils": [
+          "dep-vi36jlvhxd1j235ccpdl0prmjhy94qga-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-1md8smqd67768l6mvb6rp924bpl9mkbi-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-1md8smqd67768l6mvb6rp924bpl9mkbi-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-217zi2rys6iwaf2pid54i3rgb8kmqz8l-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-217zi2rys6iwaf2pid54i3rgb8kmqz8l-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-217zi2rys6iwaf2pid54i3rgb8kmqz8l-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-27fhcmf4yhky9s25bi39y6qmi4yfr8pc-source": {
+      "inputs": {
+        "home-manager": [
+          "dep-ra73hcmlxam2knmrznya595fwnrk6ssc-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-27fhcmf4yhky9s25bi39y6qmi4yfr8pc-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-27fhcmf4yhky9s25bi39y6qmi4yfr8pc-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-27rg15w6bjjh2hkbdqajhvqd7b02v5cb-source": {
+      "locked": {
+        "path": "./deps/dep-27rg15w6bjjh2hkbdqajhvqd7b02v5cb-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-27rg15w6bjjh2hkbdqajhvqd7b02v5cb-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-370lq6yq2y8wjbq3h20byflvmbrayaxa-source": {
+      "inputs": {
+        "flake-parts": [
+          "dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-370lq6yq2y8wjbq3h20byflvmbrayaxa-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-370lq6yq2y8wjbq3h20byflvmbrayaxa-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-4gbsm8fcdg5720skzjxhpf95y2nirs82-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-4gbsm8fcdg5720skzjxhpf95y2nirs82-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-4gbsm8fcdg5720skzjxhpf95y2nirs82-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-8z4fnazqyjkrha6f4rmsdpn5gkmvwqd4-source": {
+      "inputs": {
+        "flake-utils": [
+          "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-8z4fnazqyjkrha6f4rmsdpn5gkmvwqd4-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-8z4fnazqyjkrha6f4rmsdpn5gkmvwqd4-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-92khy67bgrzx85f6052pnw7xrs2jk1v6-source": {
+      "locked": {
+        "path": "./deps/dep-92khy67bgrzx85f6052pnw7xrs2jk1v6-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-92khy67bgrzx85f6052pnw7xrs2jk1v6-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-9axxyr2zy6l73r1d64sccqwb6b6xhhrv-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-9axxyr2zy6l73r1d64sccqwb6b6xhhrv-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-9axxyr2zy6l73r1d64sccqwb6b6xhhrv-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-9hwcixqhq2p60dkhv3qc80771z0hpkyy-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-9hwcixqhq2p60dkhv3qc80771z0hpkyy-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-9hwcixqhq2p60dkhv3qc80771z0hpkyy-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-9zrkrj7cfwswgn03s53f4rwr545d848r-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-9zrkrj7cfwswgn03s53f4rwr545d848r-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-9zrkrj7cfwswgn03s53f4rwr545d848r-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-blrdcq96cni538qspqibgr0yhrqkxrfc-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-blrdcq96cni538qspqibgr0yhrqkxrfc-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-blrdcq96cni538qspqibgr0yhrqkxrfc-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-bmacbj2p1qmgagysmhf6wczprw1i5wx2-source": {
+      "inputs": {
+        "flake-utils": [
+          "dep-fy3x5qk811q1kjilcv1416p311pfh1a5-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-bmacbj2p1qmgagysmhf6wczprw1i5wx2-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-bmacbj2p1qmgagysmhf6wczprw1i5wx2-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-ccr35si6hrhlzpqr34dd04jvnywhc9vd-source": {
+      "inputs": {
+        "flake-compat": [
+          "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source"
+        ],
+        "gitignore": [
+          "dep-g5v3sgqy6a0fsmas7mnapc196flrplix-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ],
+        "nixpkgs-stable": [
+          "dep-27rg15w6bjjh2hkbdqajhvqd7b02v5cb-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-ccr35si6hrhlzpqr34dd04jvnywhc9vd-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-ccr35si6hrhlzpqr34dd04jvnywhc9vd-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-df32wawf53sqqpxvawppr11knd07rr9p-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-df32wawf53sqqpxvawppr11knd07rr9p-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-df32wawf53sqqpxvawppr11knd07rr9p-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-f980haphiwmp5qjm79l833sygabrkafs-source": {
+      "inputs": {
+        "flake-parts": [
+          "dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source"
+        ],
+        "hercules-ci-effects": [
+          "dep-370lq6yq2y8wjbq3h20byflvmbrayaxa-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-f980haphiwmp5qjm79l833sygabrkafs-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-f980haphiwmp5qjm79l833sygabrkafs-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-fy3x5qk811q1kjilcv1416p311pfh1a5-source": {
+      "locked": {
+        "path": "./deps/dep-fy3x5qk811q1kjilcv1416p311pfh1a5-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-fy3x5qk811q1kjilcv1416p311pfh1a5-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-g5v3sgqy6a0fsmas7mnapc196flrplix-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-g5v3sgqy6a0fsmas7mnapc196flrplix-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-g5v3sgqy6a0fsmas7mnapc196flrplix-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-ghsmnb95y0f1ywcvfv2dj5la83k96flg-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-ghsmnb95y0f1ywcvfv2dj5la83k96flg-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-ghsmnb95y0f1ywcvfv2dj5la83k96flg-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-glsqq1xn5al7d528hvlbm4hl3ladxmka-source": {
+      "inputs": {
+        "darwin": [
+          "dep-wki8fh5iv47w07xpw1ly5xliz6bdbh26-source"
+        ],
+        "home-manager": [
+          "dep-blrdcq96cni538qspqibgr0yhrqkxrfc-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ],
+        "systems": [
+          "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-glsqq1xn5al7d528hvlbm4hl3ladxmka-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-glsqq1xn5al7d528hvlbm4hl3ladxmka-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-hbzxmzg3n7z0kdmahpcr0qwgp66ym8f7-source": {
+      "locked": {
+        "path": "./deps/dep-hbzxmzg3n7z0kdmahpcr0qwgp66ym8f7-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-hbzxmzg3n7z0kdmahpcr0qwgp66ym8f7-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-hwsdv71bmaqvzbii5viryxc8slw4vr5v-source": {
+      "inputs": {
+        "systems": [
+          "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-hwsdv71bmaqvzbii5viryxc8slw4vr5v-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-hwsdv71bmaqvzbii5viryxc8slw4vr5v-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-jiph2jyfn1bjq6r0fw9m5yp4imb9aich-source": {
+      "locked": {
+        "path": "./deps/dep-jiph2jyfn1bjq6r0fw9m5yp4imb9aich-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-jiph2jyfn1bjq6r0fw9m5yp4imb9aich-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source": {
+      "locked": {
+        "path": "./deps/dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-n9czz5ak3nnkgjvlywhaccjisjyaxhjy-source": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-n9czz5ak3nnkgjvlywhaccjisjyaxhjy-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-n9czz5ak3nnkgjvlywhaccjisjyaxhjy-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source": {
+      "inputs": {
+        "systems": [
+          "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-ncl0z7dd11fpjg4abdn0hc00j25gkfw7-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-ncl0z7dd11fpjg4abdn0hc00j25gkfw7-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-ncl0z7dd11fpjg4abdn0hc00j25gkfw7-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source": {
+      "locked": {
+        "path": "./deps/dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-ra73hcmlxam2knmrznya595fwnrk6ssc-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-ra73hcmlxam2knmrznya595fwnrk6ssc-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-ra73hcmlxam2knmrznya595fwnrk6ssc-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-vi36jlvhxd1j235ccpdl0prmjhy94qga-source": {
+      "inputs": {
+        "systems": [
+          "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-vi36jlvhxd1j235ccpdl0prmjhy94qga-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-vi36jlvhxd1j235ccpdl0prmjhy94qga-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-vl05k11r2mfrnnd1nh121d2k51f7ds13-source": {
+      "inputs": {
+        "agenix": [
+          "dep-glsqq1xn5al7d528hvlbm4hl3ladxmka-source"
+        ],
+        "crane": [
+          "dep-jiph2jyfn1bjq6r0fw9m5yp4imb9aich-source"
+        ],
+        "flake-utils": [
+          "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ],
+        "rust-overlay": [
+          "dep-df32wawf53sqqpxvawppr11knd07rr9p-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-vl05k11r2mfrnnd1nh121d2k51f7ds13-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-vl05k11r2mfrnnd1nh121d2k51f7ds13-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-w8n9gharrzi9wbpasbajrjybk1yv5v9f-source": {
+      "inputs": {
+        "flake-compat": [
+          "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source"
+        ],
+        "flake-utils": [
+          "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-w8n9gharrzi9wbpasbajrjybk1yv5v9f-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-w8n9gharrzi9wbpasbajrjybk1yv5v9f-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-wki8fh5iv47w07xpw1ly5xliz6bdbh26-source": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-wki8fh5iv47w07xpw1ly5xliz6bdbh26-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-wki8fh5iv47w07xpw1ly5xliz6bdbh26-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source": {
+      "locked": {
+        "path": "./deps/dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-yxj367qxlvhx560x4gz450r1krf9zzz5-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-yxj367qxlvhx560x4gz450r1krf9zzz5-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-yxj367qxlvhx560x4gz450r1krf9zzz5-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-z4dvq6v7inif096967s8m3hbz5gh6ypw-source": {
+      "inputs": {
+        "flake-utils": [
+          "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ],
+        "original-owl": [
+          "dep-z80j0sn7cnfzx18xcsfwl8xh65hrhccv-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-z4dvq6v7inif096967s8m3hbz5gh6ypw-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-z4dvq6v7inif096967s8m3hbz5gh6ypw-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-z80j0sn7cnfzx18xcsfwl8xh65hrhccv-source": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-z80j0sn7cnfzx18xcsfwl8xh65hrhccv-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-z80j0sn7cnfzx18xcsfwl8xh65hrhccv-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-zngnsd1l07vrv7yy3614bxknxvns9w0r-source": {
+      "inputs": {
+        "flake-utils": [
+          "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-zngnsd1l07vrv7yy3614bxknxvns9w0r-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-zngnsd1l07vrv7yy3614bxknxvns9w0r-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "dep-zzxxnkdqc6rdycxkylwrs2pg8ahj3cny-source": {
+      "inputs": {
+        "nixlib": [
+          "dep-92khy67bgrzx85f6052pnw7xrs2jk1v6-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-zzxxnkdqc6rdycxkylwrs2pg8ahj3cny-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-zzxxnkdqc6rdycxkylwrs2pg8ahj3cny-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "discord-css": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-9hwcixqhq2p60dkhv3qc80771z0hpkyy-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-9hwcixqhq2p60dkhv3qc80771z0hpkyy-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "disko": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-0gqwnbivnyh3maw495r22l6k6d8bl9hd-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-0gqwnbivnyh3maw495r22l6k6d8bl9hd-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "firefox-gnome-theme": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-9axxyr2zy6l73r1d64sccqwb6b6xhhrv-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-9axxyr2zy6l73r1d64sccqwb6b6xhhrv-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "firefox-mods": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-4gbsm8fcdg5720skzjxhpf95y2nirs82-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-4gbsm8fcdg5720skzjxhpf95y2nirs82-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": [
+          "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "gnome-accent-colors": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-ghsmnb95y0f1ywcvfv2dj5la83k96flg-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-ghsmnb95y0f1ywcvfv2dj5la83k96flg-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-9zrkrj7cfwswgn03s53f4rwr545d848r-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-9zrkrj7cfwswgn03s53f4rwr545d848r-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "impermanence": {
+      "locked": {
+        "path": "./deps/dep-hbzxmzg3n7z0kdmahpcr0qwgp66ym8f7-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-hbzxmzg3n7z0kdmahpcr0qwgp66ym8f7-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "kvlibadwaita": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-ncl0z7dd11fpjg4abdn0hc00j25gkfw7-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-ncl0z7dd11fpjg4abdn0hc00j25gkfw7-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "lanzaboote": {
+      "inputs": {
+        "crane": [
+          "dep-217zi2rys6iwaf2pid54i3rgb8kmqz8l-source"
+        ],
+        "flake-compat": [
+          "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source"
+        ],
+        "flake-parts": [
+          "dep-n9czz5ak3nnkgjvlywhaccjisjyaxhjy-source"
+        ],
+        "flake-utils": [
+          "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ],
+        "pre-commit-hooks-nix": [
+          "dep-ccr35si6hrhlzpqr34dd04jvnywhc9vd-source"
+        ],
+        "rust-overlay": [
+          "dep-zngnsd1l07vrv7yy3614bxknxvns9w0r-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-03c4i3h6aaym1al1mknaly7gd20dbmn9-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-03c4i3h6aaym1al1mknaly7gd20dbmn9-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "mozilla-theme": {
+      "inputs": {
+        "flake-utils": [
+          "dep-fy3x5qk811q1kjilcv1416p311pfh1a5-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-bmacbj2p1qmgagysmhf6wczprw1i5wx2-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-bmacbj2p1qmgagysmhf6wczprw1i5wx2-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "nixos-generators": {
+      "inputs": {
+        "nixlib": [
+          "dep-92khy67bgrzx85f6052pnw7xrs2jk1v6-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-zzxxnkdqc6rdycxkylwrs2pg8ahj3cny-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-zzxxnkdqc6rdycxkylwrs2pg8ahj3cny-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "nixpak": {
+      "inputs": {
+        "flake-parts": [
+          "dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source"
+        ],
+        "hercules-ci-effects": [
+          "dep-370lq6yq2y8wjbq3h20byflvmbrayaxa-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-f980haphiwmp5qjm79l833sygabrkafs-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-f980haphiwmp5qjm79l833sygabrkafs-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "nixpkgsStable": {
+      "locked": {
+        "path": "./deps/dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "nixpkgsUnstable": {
+      "locked": {
+        "path": "./deps/dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "owl-patched": {
+      "inputs": {
+        "flake-utils": [
+          "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ],
+        "original-owl": [
+          "dep-z80j0sn7cnfzx18xcsfwl8xh65hrhccv-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-z4dvq6v7inif096967s8m3hbz5gh6ypw-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-z4dvq6v7inif096967s8m3hbz5gh6ypw-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "plasma-manager": {
+      "inputs": {
+        "home-manager": [
+          "dep-ra73hcmlxam2knmrznya595fwnrk6ssc-source"
+        ],
+        "nixpkgs": [
+          "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-27fhcmf4yhky9s25bi39y6qmi4yfr8pc-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-27fhcmf4yhky9s25bi39y6qmi4yfr8pc-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "ragenix": {
+      "inputs": {
+        "agenix": [
+          "dep-glsqq1xn5al7d528hvlbm4hl3ladxmka-source"
+        ],
+        "crane": [
+          "dep-jiph2jyfn1bjq6r0fw9m5yp4imb9aich-source"
+        ],
+        "flake-utils": [
+          "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ],
+        "rust-overlay": [
+          "dep-df32wawf53sqqpxvawppr11knd07rr9p-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-vl05k11r2mfrnnd1nh121d2k51f7ds13-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-vl05k11r2mfrnnd1nh121d2k51f7ds13-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "root": {
+      "inputs": {
+        "asus-wmi-screenpad": "asus-wmi-screenpad",
+        "aurebesh-fonts": "aurebesh-fonts",
+        "codium-theme": "codium-theme",
+        "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source": "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source",
+        "dep-03c4i3h6aaym1al1mknaly7gd20dbmn9-source": "dep-03c4i3h6aaym1al1mknaly7gd20dbmn9-source",
+        "dep-08pv96xbv7nyvlr6lv4hsnxfhkb6wk1s-source": "dep-08pv96xbv7nyvlr6lv4hsnxfhkb6wk1s-source",
+        "dep-0gqwnbivnyh3maw495r22l6k6d8bl9hd-source": "dep-0gqwnbivnyh3maw495r22l6k6d8bl9hd-source",
+        "dep-0hq61zzfixxbgyvfjf11swb7v371qsqz-source": "dep-0hq61zzfixxbgyvfjf11swb7v371qsqz-source",
+        "dep-1ln19610r9wyzp0hjszkbr7jnmww7yrk-source": "dep-1ln19610r9wyzp0hjszkbr7jnmww7yrk-source",
+        "dep-1md8smqd67768l6mvb6rp924bpl9mkbi-source": "dep-1md8smqd67768l6mvb6rp924bpl9mkbi-source",
+        "dep-217zi2rys6iwaf2pid54i3rgb8kmqz8l-source": "dep-217zi2rys6iwaf2pid54i3rgb8kmqz8l-source",
+        "dep-27fhcmf4yhky9s25bi39y6qmi4yfr8pc-source": "dep-27fhcmf4yhky9s25bi39y6qmi4yfr8pc-source",
+        "dep-27rg15w6bjjh2hkbdqajhvqd7b02v5cb-source": "dep-27rg15w6bjjh2hkbdqajhvqd7b02v5cb-source",
+        "dep-370lq6yq2y8wjbq3h20byflvmbrayaxa-source": "dep-370lq6yq2y8wjbq3h20byflvmbrayaxa-source",
+        "dep-4gbsm8fcdg5720skzjxhpf95y2nirs82-source": "dep-4gbsm8fcdg5720skzjxhpf95y2nirs82-source",
+        "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source": "dep-8kpx53qi52yhjai1vdw8zpa95iqa61bv-source",
+        "dep-8z4fnazqyjkrha6f4rmsdpn5gkmvwqd4-source": "dep-8z4fnazqyjkrha6f4rmsdpn5gkmvwqd4-source",
+        "dep-92khy67bgrzx85f6052pnw7xrs2jk1v6-source": "dep-92khy67bgrzx85f6052pnw7xrs2jk1v6-source",
+        "dep-9axxyr2zy6l73r1d64sccqwb6b6xhhrv-source": "dep-9axxyr2zy6l73r1d64sccqwb6b6xhhrv-source",
+        "dep-9hwcixqhq2p60dkhv3qc80771z0hpkyy-source": "dep-9hwcixqhq2p60dkhv3qc80771z0hpkyy-source",
+        "dep-9zrkrj7cfwswgn03s53f4rwr545d848r-source": "dep-9zrkrj7cfwswgn03s53f4rwr545d848r-source",
+        "dep-blrdcq96cni538qspqibgr0yhrqkxrfc-source": "dep-blrdcq96cni538qspqibgr0yhrqkxrfc-source",
+        "dep-bmacbj2p1qmgagysmhf6wczprw1i5wx2-source": "dep-bmacbj2p1qmgagysmhf6wczprw1i5wx2-source",
+        "dep-ccr35si6hrhlzpqr34dd04jvnywhc9vd-source": "dep-ccr35si6hrhlzpqr34dd04jvnywhc9vd-source",
+        "dep-df32wawf53sqqpxvawppr11knd07rr9p-source": "dep-df32wawf53sqqpxvawppr11knd07rr9p-source",
+        "dep-f980haphiwmp5qjm79l833sygabrkafs-source": "dep-f980haphiwmp5qjm79l833sygabrkafs-source",
+        "dep-fy3x5qk811q1kjilcv1416p311pfh1a5-source": "dep-fy3x5qk811q1kjilcv1416p311pfh1a5-source",
+        "dep-g5v3sgqy6a0fsmas7mnapc196flrplix-source": "dep-g5v3sgqy6a0fsmas7mnapc196flrplix-source",
+        "dep-ghsmnb95y0f1ywcvfv2dj5la83k96flg-source": "dep-ghsmnb95y0f1ywcvfv2dj5la83k96flg-source",
+        "dep-glsqq1xn5al7d528hvlbm4hl3ladxmka-source": "dep-glsqq1xn5al7d528hvlbm4hl3ladxmka-source",
+        "dep-hbzxmzg3n7z0kdmahpcr0qwgp66ym8f7-source": "dep-hbzxmzg3n7z0kdmahpcr0qwgp66ym8f7-source",
+        "dep-hwsdv71bmaqvzbii5viryxc8slw4vr5v-source": "dep-hwsdv71bmaqvzbii5viryxc8slw4vr5v-source",
+        "dep-jiph2jyfn1bjq6r0fw9m5yp4imb9aich-source": "dep-jiph2jyfn1bjq6r0fw9m5yp4imb9aich-source",
+        "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source": "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source",
+        "dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source": "dep-m7h2sxjgpqq5yb6x3ygdir04lmv3hvwz-source",
+        "dep-n9czz5ak3nnkgjvlywhaccjisjyaxhjy-source": "dep-n9czz5ak3nnkgjvlywhaccjisjyaxhjy-source",
+        "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source": "dep-na7sykizsgkzh9i3wc8m8pz5xfqib2rv-source",
+        "dep-ncl0z7dd11fpjg4abdn0hc00j25gkfw7-source": "dep-ncl0z7dd11fpjg4abdn0hc00j25gkfw7-source",
+        "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source": "dep-r6g8ksyz42q28va8qjd021fwlxs010xw-source",
+        "dep-ra73hcmlxam2knmrznya595fwnrk6ssc-source": "dep-ra73hcmlxam2knmrznya595fwnrk6ssc-source",
+        "dep-vi36jlvhxd1j235ccpdl0prmjhy94qga-source": "dep-vi36jlvhxd1j235ccpdl0prmjhy94qga-source",
+        "dep-vl05k11r2mfrnnd1nh121d2k51f7ds13-source": "dep-vl05k11r2mfrnnd1nh121d2k51f7ds13-source",
+        "dep-w8n9gharrzi9wbpasbajrjybk1yv5v9f-source": "dep-w8n9gharrzi9wbpasbajrjybk1yv5v9f-source",
+        "dep-wki8fh5iv47w07xpw1ly5xliz6bdbh26-source": "dep-wki8fh5iv47w07xpw1ly5xliz6bdbh26-source",
+        "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source": "dep-yj1wxm9hh8610iyzqnz75kvs6xl8j3my-source",
+        "dep-yxj367qxlvhx560x4gz450r1krf9zzz5-source": "dep-yxj367qxlvhx560x4gz450r1krf9zzz5-source",
+        "dep-z4dvq6v7inif096967s8m3hbz5gh6ypw-source": "dep-z4dvq6v7inif096967s8m3hbz5gh6ypw-source",
+        "dep-z80j0sn7cnfzx18xcsfwl8xh65hrhccv-source": "dep-z80j0sn7cnfzx18xcsfwl8xh65hrhccv-source",
+        "dep-zngnsd1l07vrv7yy3614bxknxvns9w0r-source": "dep-zngnsd1l07vrv7yy3614bxknxvns9w0r-source",
+        "dep-zzxxnkdqc6rdycxkylwrs2pg8ahj3cny-source": "dep-zzxxnkdqc6rdycxkylwrs2pg8ahj3cny-source",
+        "discord-css": "discord-css",
+        "disko": "disko",
+        "firefox-gnome-theme": "firefox-gnome-theme",
+        "firefox-mods": "firefox-mods",
+        "flake-utils": "flake-utils",
+        "gnome-accent-colors": "gnome-accent-colors",
+        "home-manager": "home-manager",
+        "impermanence": "impermanence",
+        "kvlibadwaita": "kvlibadwaita",
+        "lanzaboote": "lanzaboote",
+        "mozilla-theme": "mozilla-theme",
+        "nixos-generators": "nixos-generators",
+        "nixpak": "nixpak",
+        "nixpkgsStable": "nixpkgsStable",
+        "nixpkgsUnstable": "nixpkgsUnstable",
+        "owl-patched": "owl-patched",
+        "plasma-manager": "plasma-manager",
+        "ragenix": "ragenix",
+        "sweet-kde": "sweet-kde",
+        "tpm-fido": "tpm-fido",
+        "zsh-nix-shell": "zsh-nix-shell"
+      }
+    },
+    "sweet-kde": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-0hq61zzfixxbgyvfjf11swb7v371qsqz-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-0hq61zzfixxbgyvfjf11swb7v371qsqz-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "tpm-fido": {
+      "inputs": {
+        "flake-utils": [
+          "dep-01x5k4nlxcpyd85nnr0b9gm89rm8ff4x-source"
+        ],
+        "nixpkgs": [
+          "dep-lc5bxq4vsgpjjc7i9phdm8s0bxjz0drm-source"
+        ]
+      },
+      "locked": {
+        "path": "./deps/dep-8z4fnazqyjkrha6f4rmsdpn5gkmvwqd4-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-8z4fnazqyjkrha6f4rmsdpn5gkmvwqd4-source",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "zsh-nix-shell": {
+      "flake": false,
+      "locked": {
+        "path": "./deps/dep-1ln19610r9wyzp0hjszkbr7jnmww7yrk-source",
+        "type": "path"
+      },
+      "original": {
+        "path": "./deps/dep-1ln19610r9wyzp0hjszkbr7jnmww7yrk-source",
+        "type": "path"
+      },
+      "parent": []
+    }
+  },
+  "root": "root",
+  "version": 7
+}

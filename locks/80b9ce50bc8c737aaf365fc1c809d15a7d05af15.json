@@ -1,0 +1,43 @@
+{
+  "nodes": {
+    "hoogle": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783159427,
+        "narHash": "sha256-6V4knmJAaKVPdyc5v2UtL1tcFmXsqTHIq9jvjmmQboo=",
+        "owner": "ndmitchell",
+        "repo": "hoogle",
+        "rev": "df554c496c676874a889cc6526e154c2d8b5bc7d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ndmitchell",
+        "repo": "hoogle",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1659884963,
+        "narHash": "sha256-t88sh+28CWe1Po+Xv/4Fx2utUmJZMVL39SrgHSmq7hs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2a172dcba992f4c19c0cdafafc12cd1e559a3b93",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "hoogle": "hoogle",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

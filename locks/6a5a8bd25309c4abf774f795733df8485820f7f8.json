@@ -1,0 +1,178 @@
+{
+  "nodes": {
+    "flake-utils": {
+      "locked": {
+        "lastModified": 1622445595,
+        "narHash": "sha256-m+JRe6Wc5OZ/mKw2bB3+Tl0ZbtyxxxfnAWln8Q5qs+Y=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "7d706970d94bc5559077eb1a6600afddcd25a7c8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_2": {
+      "locked": {
+        "lastModified": 1622445595,
+        "narHash": "sha256-m+JRe6Wc5OZ/mKw2bB3+Tl0ZbtyxxxfnAWln8Q5qs+Y=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "7d706970d94bc5559077eb1a6600afddcd25a7c8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "ginkou": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1623373940,
+        "narHash": "sha256-bN28qZ45qerie9Z8xwU8UE5+8lLMBLdON+qOhUmIMQs=",
+        "owner": "themeliolabs",
+        "repo": "ginkou",
+        "rev": "df7307a0a8e15d400fa627cb39e6980b114de0de",
+        "type": "github"
+      },
+      "original": {
+        "owner": "themeliolabs",
+        "repo": "ginkou",
+        "type": "github"
+      }
+    },
+    "melwalletd-flake": {
+      "inputs": {
+        "flake-utils": "flake-utils_2",
+        "mozilla": "mozilla",
+        "nixpkgs": "nixpkgs",
+        "selfDir": "selfDir"
+      },
+      "locked": {
+        "lastModified": 1623367683,
+        "narHash": "sha256-FongfJI3g2Q0MHIzNSgK+6CxquiYmelSxbjUp3VNYuQ=",
+        "owner": "themeliolabs",
+        "repo": "melwalletd",
+        "rev": "f0f4148bdba3448b359938ad528321824d6c69f1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "themeliolabs",
+        "repo": "melwalletd",
+        "type": "github"
+      }
+    },
+    "mozilla": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1622726979,
+        "narHash": "sha256-JCBPZVQ4aGe3cmnQc1tjJRwaxqz1b60piQz+/F9CMtc=",
+        "owner": "mozilla",
+        "repo": "nixpkgs-mozilla",
+        "rev": "3f3fba4e2066f28a1ad7ac60e86a688a92eb5b5f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mozilla",
+        "repo": "nixpkgs-mozilla",
+        "type": "github"
+      }
+    },
+    "mozilla_2": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1622726979,
+        "narHash": "sha256-JCBPZVQ4aGe3cmnQc1tjJRwaxqz1b60piQz+/F9CMtc=",
+        "owner": "mozilla",
+        "repo": "nixpkgs-mozilla",
+        "rev": "3f3fba4e2066f28a1ad7ac60e86a688a92eb5b5f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mozilla",
+        "repo": "nixpkgs-mozilla",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1623225763,
+        "narHash": "sha256-Mo0szTSr3rST1FHqCnrZw7UKNK26NmB9uyI7783LAE8=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "85ed11208f8c7c981071cc6e33a5fc60c396c38f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-20.09",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1623124193,
+        "narHash": "sha256-SIwXuoJC6lwXPz8N5ca6rRlyiCH+D3x8V4J6TL54/qU=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "1a40a7254eaedb560b47096c7b1ae368ad716279",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-20.09",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "ginkou": "ginkou",
+        "melwalletd-flake": "melwalletd-flake",
+        "mozilla": "mozilla_2",
+        "nixpkgs": "nixpkgs_2",
+        "tauriSrc": "tauriSrc"
+      }
+    },
+    "selfDir": {
+      "flake": false,
+      "locked": {
+        "path": ".",
+        "type": "path"
+      },
+      "original": {
+        "path": ".",
+        "type": "path"
+      },
+      "parent": [
+        "melwalletd-flake"
+      ]
+    },
+    "tauriSrc": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1620911895,
+        "narHash": "sha256-KzDMWhn2GgWVZgYl0IxIg/XbPcJNrI8QCWCujKBbHm8=",
+        "owner": "tauri-apps",
+        "repo": "tauri",
+        "rev": "39f8f269164d2fda3d5b614a193b12bb266e4b4b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "tauri-apps",
+        "ref": "cli.js-v1.0.0-beta.2",
+        "repo": "tauri",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

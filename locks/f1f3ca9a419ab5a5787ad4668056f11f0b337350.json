@@ -1,0 +1,72 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787874478,
+        "narHash": "sha256-mm3axqWht8JL0/6rpAzQBxcJgOrbN4rgkN6s4AjZBOk=",
+        "rev": "7d1a7c21a4c00ea653fc7ed5c083d261340f185f",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixpkgs/nixpkgs-26.11pre1063175.7d1a7c21a4c0/nixexprs.tar.xz"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1787446598,
+        "narHash": "sha256-KwmV3oPGhcbho4BX4Y7MHWoVj5aIKNMmSKT4pwoZxog=",
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "rev": "851e6b53aaa57ec51f1e0622e5469fdeb84a19ee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixpkgs.lib",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "src": "src",
+        "utils": "utils"
+      }
+    },
+    "src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1618626485,
+        "narHash": "sha256-xlplbkeptXMBlRnSsc5NgGJfT8aoZxTRgTwTOd7aiWg=",
+        "type": "tarball",
+        "url": "https://gitlab.com/interception/linux/plugins/dual-function-keys/-/archive/1.4.0/dual-function-keys-1.4.0.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://gitlab.com/interception/linux/plugins/dual-function-keys/-/archive/1.4.0/dual-function-keys-1.4.0.tar.gz"
+      }
+    },
+    "utils": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1644616305,
+        "narHash": "sha256-yxr3yyDa5NqIuXPWLIS91BLJCCJkzeCzNzOUqpnwAaU=",
+        "owner": "kreisys",
+        "repo": "flake-utils",
+        "rev": "1c76d00ac669224a92079fe10086133a6922adee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kreisys",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

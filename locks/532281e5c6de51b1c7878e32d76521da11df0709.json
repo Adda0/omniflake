@@ -1,0 +1,63 @@
+{
+  "nodes": {
+    "autocrypt-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1567414975,
+        "narHash": "sha256-4vD/poM6CCYpOjP2jNcI38lZYTNn0dItvlzIpw0mptE=",
+        "owner": "autocrypt-thunderbird",
+        "repo": "autocrypt-thunderbird",
+        "rev": "3953dda07ad8b0d99beab1c9e61da147bcaf3ff5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "autocrypt-thunderbird",
+        "ref": "master",
+        "repo": "autocrypt-thunderbird",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1592495204,
+        "narHash": "sha256-+AdAIr4FJCb2ltFY1YsUQYrloBEB8l/snAAmwLvCRhA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2b417708c282d84316366f4125b00b29c49df10f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-20.03",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "autocrypt-src": "autocrypt-src",
+        "nixpkgs": "nixpkgs",
+        "tbsync-src": "tbsync-src"
+      }
+    },
+    "tbsync-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1588096965,
+        "narHash": "sha256-wZaVX+3YB9ZfZ4Cx8TP0MzuTPDrslinUDNdoBFaNcNk=",
+        "owner": "jobisoft",
+        "repo": "TbSync",
+        "rev": "70d160f5db064ec19930d405a5835a061a7d5d15",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jobisoft",
+        "ref": "master",
+        "repo": "TbSync",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

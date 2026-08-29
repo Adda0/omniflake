@@ -1,0 +1,26 @@
+{
+  "nodes": {
+    "moonlight": {
+      "locked": {
+        "lastModified": 1736373859,
+        "narHash": "sha256-ySaex8BNiI+ObHV7OJKKa/yb0MDPnaPrF2SUZQmNtdU=",
+        "owner": "keysmashes",
+        "repo": "null",
+        "rev": "272ef3a1b4b4aa30f53b838649713a4b02930259",
+        "type": "github"
+      },
+      "original": {
+        "owner": "keysmashes",
+        "repo": "null",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "moonlight": "moonlight"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

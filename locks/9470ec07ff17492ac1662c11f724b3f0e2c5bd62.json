@@ -1,0 +1,61 @@
+{
+  "nodes": {
+    "kakapo": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1710069853,
+        "narHash": "sha256-0NiAx2O7KzVlkq+Lv8/3nv4zCb1kDrW9Nci5GFT96ms=",
+        "owner": "adisbladis",
+        "repo": "kakapo",
+        "rev": "5f50b6b52549410691d28b4ee52d94adac511a89",
+        "type": "github"
+      },
+      "original": {
+        "owner": "adisbladis",
+        "repo": "kakapo",
+        "type": "github"
+      }
+    },
+    "nixHtml": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1664352151,
+        "narHash": "sha256-oHd3Nmdmv24H9q3zRAUfuktC+o8ebYTDDQuug/XyoXU=",
+        "ref": "refs/heads/canon",
+        "rev": "eba827c887144d0e8463cf114f16f61c982289ae",
+        "revCount": 3,
+        "type": "git",
+        "url": "https://code.tvl.fyi/depot.git:workspace%3Dusers/sterni/nix/html.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://code.tvl.fyi/depot.git:workspace%3Dusers/sterni/nix/html.git"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1709703039,
+        "narHash": "sha256-6hqgQ8OK6gsMu1VtcGKBxKQInRLHtzulDo9Z5jxHEFY=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "9df3e30ce24fd28c7b3e2de0d986769db5d6225d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "kakapo": "kakapo",
+        "nixHtml": "nixHtml",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

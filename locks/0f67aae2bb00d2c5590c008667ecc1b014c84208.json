@@ -1,0 +1,60 @@
+{
+  "nodes": {
+    "kanagawa-paper-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779776933,
+        "narHash": "sha256-yzu0EvZseFlLB1Flho6WigMnuLL3inLIflxPU3LUPv0=",
+        "owner": "thesimonho",
+        "repo": "kanagawa-paper.nvim",
+        "rev": "ecf19801a2673054c19421d82b766f7641688320",
+        "type": "github"
+      },
+      "original": {
+        "owner": "thesimonho",
+        "repo": "kanagawa-paper.nvim",
+        "type": "github"
+      }
+    },
+    "nixCats": {
+      "locked": {
+        "lastModified": 1743813212,
+        "narHash": "sha256-zGOCFAPS2MhrLCVuxGN84hurNJfeyW8IWcQ2Fk3FXXA=",
+        "owner": "BirdeeHub",
+        "repo": "nixCats-nvim",
+        "rev": "939881a6126c5b03673f9eab0b00854c92698c01",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BirdeeHub",
+        "repo": "nixCats-nvim",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1743938762,
+        "narHash": "sha256-UgFYn8sGv9B8PoFpUfCa43CjMZBl1x/ShQhRDHBFQdI=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "74a40410369a1c35ee09b8a1abee6f4acbedc059",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "kanagawa-paper-nvim": "kanagawa-paper-nvim",
+        "nixCats": "nixCats",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

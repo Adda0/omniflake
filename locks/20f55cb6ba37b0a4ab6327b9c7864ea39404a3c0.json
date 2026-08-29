@@ -1,0 +1,130 @@
+{
+  "nodes": {
+    "chainsaw": {
+      "inputs": {
+        "nixpkgs": [
+          "rednix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1733698430,
+        "narHash": "sha256-Se8R+IJtVmKleOXCKOpw7lJGq+eEjHwcyHu59t1bbWE=",
+        "owner": "WithSecureLabs",
+        "repo": "chainsaw",
+        "rev": "e10cd98d6b69e63ac8d0e9ab9c92dd06e386342b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "WithSecureLabs",
+        "repo": "chainsaw",
+        "type": "github"
+      }
+    },
+    "hackpkgs": {
+      "inputs": {
+        "flake-utils": [
+          "rednix",
+          "utils"
+        ],
+        "nixpkgs": [
+          "rednix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1658745217,
+        "narHash": "sha256-VyP2WOYmMZG5zmysQWDAXri8H1KwIQ0c+YU9eRiKjc0=",
+        "owner": "applePrincess",
+        "repo": "hackpkgs",
+        "rev": "dd31e977fb99a6f7226954d2cb1d6f48869d8a55",
+        "type": "github"
+      },
+      "original": {
+        "owner": "applePrincess",
+        "repo": "hackpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787736819,
+        "narHash": "sha256-cV5xEJJK3BvhU8rEd4mC9UsmDi5qscv/kzGPhBRC5WA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9fbb54b33e91ee4ca368e35a78e0613c720600b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "rednix": {
+      "inputs": {
+        "chainsaw": "chainsaw",
+        "hackpkgs": "hackpkgs",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "utils": "utils"
+      },
+      "locked": {
+        "lastModified": 1734387309,
+        "narHash": "sha256-oUkgm2WK1MI5xpSZlkL6TsuYxw/mi7bfiQwerWmJIeo=",
+        "owner": "redcode-labs",
+        "repo": "RedNix",
+        "rev": "44bdcefd2ad0495e981b9b3f387b1c110db103e4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "redcode-labs",
+        "repo": "RedNix",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "rednix": "rednix"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

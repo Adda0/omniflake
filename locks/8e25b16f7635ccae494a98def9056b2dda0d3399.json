@@ -1,0 +1,1069 @@
+{
+  "nodes": {
+    "A": {
+      "inputs": {
+        "x": [
+          "n65"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "T": {
+      "inputs": {
+        "x": [
+          "n84"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "a": {
+      "inputs": {
+        "x": [
+          "n97"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "an": {
+      "inputs": {
+        "x": [
+          "a"
+        ],
+        "y": [
+          "n"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "ans": {
+      "inputs": {
+        "x": [
+          "an"
+        ],
+        "y": [
+          "s"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "answ": {
+      "inputs": {
+        "x": [
+          "ans"
+        ],
+        "y": [
+          "w"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "answe": {
+      "inputs": {
+        "x": [
+          "answ"
+        ],
+        "y": [
+          "e"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "answer": {
+      "inputs": {
+        "x": [
+          "answe"
+        ],
+        "y": [
+          "r"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "answerPair": {
+      "inputs": {
+        "name": [
+          "answer"
+        ],
+        "value": [
+          "n42"
+        ]
+      },
+      "locked": {
+        "path": "nameValue",
+        "type": "path"
+      },
+      "original": {
+        "path": "nameValue",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "builtins": {
+      "locked": {
+        "path": "builtins",
+        "type": "path"
+      },
+      "original": {
+        "path": "builtins",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "e": {
+      "inputs": {
+        "x": [
+          "n101"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "fListToAttrs": {
+      "inputs": {
+        "attrs": [
+          "builtins"
+        ],
+        "name": [
+          "listToAttrs"
+        ]
+      },
+      "locked": {
+        "path": "getAttr",
+        "type": "path"
+      },
+      "original": {
+        "path": "getAttr",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "i": {
+      "inputs": {
+        "x": [
+          "n105"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "l": {
+      "inputs": {
+        "x": [
+          "n108"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "li": {
+      "inputs": {
+        "x": [
+          "l"
+        ],
+        "y": [
+          "i"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "lis": {
+      "inputs": {
+        "x": [
+          "li"
+        ],
+        "y": [
+          "s"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "list": {
+      "inputs": {
+        "x": [
+          "lis"
+        ],
+        "y": [
+          "t"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "listT": {
+      "inputs": {
+        "x": [
+          "list"
+        ],
+        "y": [
+          "T"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "listTo": {
+      "inputs": {
+        "x": [
+          "listT"
+        ],
+        "y": [
+          "o"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "listToA": {
+      "inputs": {
+        "x": [
+          "listTo"
+        ],
+        "y": [
+          "A"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "listToAt": {
+      "inputs": {
+        "x": [
+          "listToA"
+        ],
+        "y": [
+          "t"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "listToAtt": {
+      "inputs": {
+        "x": [
+          "listToAt"
+        ],
+        "y": [
+          "t"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "listToAttr": {
+      "inputs": {
+        "x": [
+          "listToAtt"
+        ],
+        "y": [
+          "r"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "listToAttrs": {
+      "inputs": {
+        "x": [
+          "listToAttr"
+        ],
+        "y": [
+          "s"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n": {
+      "inputs": {
+        "x": [
+          "n110"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n0": {
+      "locked": {
+        "path": "zero",
+        "type": "path"
+      },
+      "original": {
+        "path": "zero",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n1": {
+      "inputs": {
+        "x": [
+          "n0"
+        ]
+      },
+      "locked": {
+        "path": "succ",
+        "type": "path"
+      },
+      "original": {
+        "path": "succ",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n101": {
+      "inputs": {
+        "x": [
+          "n110"
+        ]
+      },
+      "locked": {
+        "path": "succ",
+        "type": "path"
+      },
+      "original": {
+        "path": "succ",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n105": {
+      "inputs": {
+        "x": [
+          "n108"
+        ],
+        "y": [
+          "n3"
+        ]
+      },
+      "locked": {
+        "path": "sub",
+        "type": "path"
+      },
+      "original": {
+        "path": "sub",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n108": {
+      "inputs": {
+        "x": [
+          "n36"
+        ],
+        "y": [
+          "n3"
+        ]
+      },
+      "locked": {
+        "path": "mul",
+        "type": "path"
+      },
+      "original": {
+        "path": "mul",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n110": {
+      "inputs": {
+        "x": [
+          "n108"
+        ],
+        "y": [
+          "n2"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n111": {
+      "inputs": {
+        "x": [
+          "n108"
+        ],
+        "y": [
+          "n3"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n114": {
+      "inputs": {
+        "x": [
+          "n115"
+        ],
+        "y": [
+          "n1"
+        ]
+      },
+      "locked": {
+        "path": "sub",
+        "type": "path"
+      },
+      "original": {
+        "path": "sub",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n115": {
+      "inputs": {
+        "x": [
+          "n108"
+        ],
+        "y": [
+          "n7"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n116": {
+      "inputs": {
+        "x": [
+          "n115"
+        ]
+      },
+      "locked": {
+        "path": "succ",
+        "type": "path"
+      },
+      "original": {
+        "path": "succ",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n119": {
+      "inputs": {
+        "x": [
+          "n110"
+        ],
+        "y": [
+          "n9"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n13": {
+      "inputs": {
+        "x": [
+          "n6"
+        ],
+        "y": [
+          "n7"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n2": {
+      "inputs": {
+        "x": [
+          "n1"
+        ]
+      },
+      "locked": {
+        "path": "succ",
+        "type": "path"
+      },
+      "original": {
+        "path": "succ",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n3": {
+      "inputs": {
+        "x": [
+          "n2"
+        ]
+      },
+      "locked": {
+        "path": "succ",
+        "type": "path"
+      },
+      "original": {
+        "path": "succ",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n36": {
+      "inputs": {
+        "x": [
+          "n6"
+        ],
+        "y": [
+          "n6"
+        ]
+      },
+      "locked": {
+        "path": "mul",
+        "type": "path"
+      },
+      "original": {
+        "path": "mul",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n42": {
+      "inputs": {
+        "x": [
+          "n36"
+        ],
+        "y": [
+          "n6"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n5": {
+      "inputs": {
+        "x": [
+          "n2"
+        ],
+        "y": [
+          "n3"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n6": {
+      "inputs": {
+        "x": [
+          "n5"
+        ]
+      },
+      "locked": {
+        "path": "succ",
+        "type": "path"
+      },
+      "original": {
+        "path": "succ",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n65": {
+      "inputs": {
+        "x": [
+          "n5"
+        ],
+        "y": [
+          "n13"
+        ]
+      },
+      "locked": {
+        "path": "mul",
+        "type": "path"
+      },
+      "original": {
+        "path": "mul",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n7": {
+      "inputs": {
+        "x": [
+          "n6"
+        ]
+      },
+      "locked": {
+        "path": "succ",
+        "type": "path"
+      },
+      "original": {
+        "path": "succ",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n84": {
+      "inputs": {
+        "x": [
+          "n42"
+        ],
+        "y": [
+          "n2"
+        ]
+      },
+      "locked": {
+        "path": "mul",
+        "type": "path"
+      },
+      "original": {
+        "path": "mul",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n9": {
+      "inputs": {
+        "x": [
+          "n3"
+        ],
+        "y": [
+          "n3"
+        ]
+      },
+      "locked": {
+        "path": "mul",
+        "type": "path"
+      },
+      "original": {
+        "path": "mul",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n91": {
+      "inputs": {
+        "x": [
+          "n7"
+        ],
+        "y": [
+          "n13"
+        ]
+      },
+      "locked": {
+        "path": "mul",
+        "type": "path"
+      },
+      "original": {
+        "path": "mul",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "n97": {
+      "inputs": {
+        "x": [
+          "n91"
+        ],
+        "y": [
+          "n6"
+        ]
+      },
+      "locked": {
+        "path": "add",
+        "type": "path"
+      },
+      "original": {
+        "path": "add",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "nil": {
+      "locked": {
+        "path": "nil",
+        "type": "path"
+      },
+      "original": {
+        "path": "nil",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "o": {
+      "inputs": {
+        "x": [
+          "n111"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "pairs": {
+      "inputs": {
+        "x": [
+          "answerPair"
+        ],
+        "xs": [
+          "nil"
+        ]
+      },
+      "locked": {
+        "path": "cons",
+        "type": "path"
+      },
+      "original": {
+        "path": "cons",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "r": {
+      "inputs": {
+        "x": [
+          "n114"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "result": {
+      "inputs": {
+        "f": [
+          "fListToAttrs"
+        ],
+        "x": [
+          "pairs"
+        ]
+      },
+      "locked": {
+        "path": "apply",
+        "type": "path"
+      },
+      "original": {
+        "path": "apply",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "root": {
+      "inputs": {
+        "A": "A",
+        "T": "T",
+        "a": "a",
+        "an": "an",
+        "ans": "ans",
+        "answ": "answ",
+        "answe": "answe",
+        "answer": "answer",
+        "answerPair": "answerPair",
+        "builtins": "builtins",
+        "e": "e",
+        "fListToAttrs": "fListToAttrs",
+        "i": "i",
+        "l": "l",
+        "li": "li",
+        "lis": "lis",
+        "list": "list",
+        "listT": "listT",
+        "listTo": "listTo",
+        "listToA": "listToA",
+        "listToAt": "listToAt",
+        "listToAtt": "listToAtt",
+        "listToAttr": "listToAttr",
+        "listToAttrs": "listToAttrs",
+        "n": "n",
+        "n0": "n0",
+        "n1": "n1",
+        "n101": "n101",
+        "n105": "n105",
+        "n108": "n108",
+        "n110": "n110",
+        "n111": "n111",
+        "n114": "n114",
+        "n115": "n115",
+        "n116": "n116",
+        "n119": "n119",
+        "n13": "n13",
+        "n2": "n2",
+        "n3": "n3",
+        "n36": "n36",
+        "n42": "n42",
+        "n5": "n5",
+        "n6": "n6",
+        "n65": "n65",
+        "n7": "n7",
+        "n84": "n84",
+        "n9": "n9",
+        "n91": "n91",
+        "n97": "n97",
+        "nil": "nil",
+        "o": "o",
+        "pairs": "pairs",
+        "r": "r",
+        "result": "result",
+        "s": "s",
+        "t": "t",
+        "w": "w"
+      }
+    },
+    "s": {
+      "inputs": {
+        "x": [
+          "n115"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "t": {
+      "inputs": {
+        "x": [
+          "n116"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "w": {
+      "inputs": {
+        "x": [
+          "n119"
+        ]
+      },
+      "locked": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "original": {
+        "path": "ascii",
+        "type": "path"
+      },
+      "parent": []
+    }
+  },
+  "root": "root",
+  "version": 7
+}

@@ -1,0 +1,26 @@
+{
+  "nodes": {
+    "root": {
+      "inputs": {
+        "stable-flakes": "stable-flakes"
+      }
+    },
+    "stable-flakes": {
+      "locked": {
+        "lastModified": 1759712104,
+        "narHash": "sha256-2PVwv5oFtm71yT5fIUJOwnoXqtZMlcrMujjwIu3JoZ8=",
+        "owner": "SomeoneSerge",
+        "repo": "stable-flakes",
+        "rev": "cea4946061afe52e45773e7d6a93f8d50277d56e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "SomeoneSerge",
+        "repo": "stable-flakes",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

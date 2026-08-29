@@ -1,0 +1,122 @@
+{
+  "nodes": {
+    "ac-library": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1746118113,
+        "narHash": "sha256-zV2G9Ur2v8elGVKuO9w7ampaB13wDod9qzo7+QXq6G4=",
+        "owner": "atcoder",
+        "repo": "ac-library",
+        "rev": "864245a00b00dd008d1abfdc239618fdb7d139da",
+        "type": "github"
+      },
+      "original": {
+        "owner": "atcoder",
+        "repo": "ac-library",
+        "type": "github"
+      }
+    },
+    "boost": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787598759,
+        "narHash": "sha256-yQAghWnX047glgl7dmhsrvdnLtr/kv7Q948QZfeCS9A=",
+        "owner": "boostorg",
+        "repo": "boost",
+        "rev": "df8eeb90846648464e3c8e378e312f0cec772e83",
+        "type": "github"
+      },
+      "original": {
+        "owner": "boostorg",
+        "repo": "boost",
+        "type": "github"
+      }
+    },
+    "eigen": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-vIw0opOxwqr+mxGqAhJN2tlMgxZr99i8eM5R8OU4ngA=",
+        "type": "file",
+        "url": "https://gitlab.com/libeigen/eigen/-/releases/3.4.0"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://gitlab.com/libeigen/eigen/-/releases/3.4.0"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1726560853,
+        "narHash": "sha256-X6rJYSESBVr3hBoH0WbKE5KvhPU5bloyZ2L4K60/fPQ=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "c1dfcf08411b08f6b8615f7d8971a2bfa81d5e8a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "my-cpp": {
+      "inputs": {
+        "ac-library": "ac-library",
+        "boost": "boost",
+        "eigen": "eigen"
+      },
+      "locked": {
+        "path": "./cpp",
+        "type": "path"
+      },
+      "original": {
+        "path": "./cpp",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1730272153,
+        "narHash": "sha256-B5WRZYsRlJgwVHIV6DvidFN7VX7Fg9uuwkRW9Ha8z+w=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2d2a9ddbe3f2c00747398f3dc9b05f7f2ebb0f53",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "my-cpp": "my-cpp",
+        "nixpkgs": "nixpkgs"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

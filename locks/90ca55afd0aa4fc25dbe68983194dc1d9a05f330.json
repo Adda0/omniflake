@@ -1,0 +1,11 @@
+{
+  "nodes": {
+    "root": {
+      "inputs": {
+        "target": []
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
