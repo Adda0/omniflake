@@ -96,9 +96,16 @@ tools/harvest.py    GitHub search, partitioned by topic and star range,
 tools/resolve.py    one GraphQL round trip per 40 repos, returning HEAD oid,
                     whether flake.nix exists, and flake.lock (whose root node
                     lists each flake's declared input names)
+tools/classify.py   splits off personal machine configurations, which make
+                    poor library members and fail locking disproportionately
 tools/generate.py   emits flake.nix with pinned revs and follows lines
-tools/update.sh     runs all of the above, then nix flake lock
+tools/lock.sh       locks, quarantining members that cannot be locked
+tools/update.sh     runs all of the above
 ```
+
+A naive harvest is about 28% personal configurations (616 of 2188 in one run).
+They expose nothing worth importing and they are the most likely to break, so
+they are filtered into their own tier rather than included.
 
 Regenerate:
 

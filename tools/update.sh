@@ -13,6 +13,10 @@ python3 tools/harvest.py > candidates.jsonl 2> harvest.log
 echo "==> resolving to pinned revisions"
 python3 tools/resolve.py < candidates.jsonl > resolved.jsonl 2> resolve.log
 
+echo "==> splitting off personal-configuration repos"
+python3 tools/classify.py --rejected personal.jsonl < resolved.jsonl > library.jsonl
+mv library.jsonl resolved.jsonl
+
 if [[ -n "${OMNIFLAKE_TOP:-}" ]]; then
   echo "==> limiting to top ${OMNIFLAKE_TOP} by stars"
   sort -t: -k2 -rn < resolved.jsonl \
@@ -27,6 +31,6 @@ echo "==> generating flake.nix"
 python3 tools/generate.py < "$SRC" > flake.nix
 
 echo "==> locking (this is the slow part)"
-nix flake lock
+./tools/lock.sh "$SRC"
 
 echo "==> done: $(python3 -c 'import json;print(len(json.load(open("flake.lock"))["nodes"])-1)') lock nodes"
