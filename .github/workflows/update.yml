@@ -1,0 +1,68 @@
+# Grow the index: discover new flakes on GitHub, pin them with Nix, and
+# open a pull request with the resulting index.json. Runs weekly, and on
+# demand. Pinning downloads every *new* revision once; an unchanged
+# revision is never fetched again, so a routine run is small.
+name: update index
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: "Re-pin every known flake to its current default branch"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v16
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update the index
+        env:
+          # GitHub search and GraphQL for harvest.py and resolve.py.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PIN_JOBS: "8"
+        run: |
+          if [ "${{ inputs.refresh }}" = "true" ]; then
+            ./tools/update.sh --refresh
+          else
+            ./tools/update.sh
+          fi
+
+      - name: Summarize
+        run: |
+          {
+            echo "## Index"
+            sed -n '/BEGIN index-status/,/END index-status/p' README.md | grep '^-'
+            echo
+            echo "## New failures"
+            git diff --no-color -U0 -- failures.jsonl | grep '^+{' | cut -c1-200 | head -50 || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bot/update-index
+          title: "Update index"
+          commit-message: |
+            Update index
+
+            Automated harvest, resolve and pin run. See the workflow summary
+            for the flakes that could not be pinned.
+          body: |
+            Automated run of `tools/update.sh`. Review `failures.jsonl` for
+            anything newly unpinnable before merging.
+          delete-branch: true

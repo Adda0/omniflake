@@ -1,0 +1,60 @@
+# Validate a change to the index or the tooling. Pinning is skipped on
+# pull requests that only touch manual.txt or blocklist.txt: those are
+# regenerated and committed by the add/remove workflow instead.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v16
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Lock and count
+        run: |
+          nix flake lock
+          git diff --exit-code flake.lock
+          echo "flakes indexed: $(nix eval .#lib.count)"
+
+      - name: Index matches the databases
+        # index.json is derived from pins.jsonl, failures.jsonl and the
+        # blocklist. A hand edit that drifts from them is caught here.
+        run: |
+          python3 tools/classify.py --rejected personal.jsonl < resolved.jsonl > library.jsonl
+          python3 tools/generate.py
+          git diff --exit-code -- index.json pins.jsonl failures.jsonl locks
+
+      - name: Evaluate a sample
+        # The loader is exercised on a few well-known flakes and on a
+        # random slice of the index, unified and as pinned.
+        run: |
+          set -euo pipefail
+          for name in disko nh home-manager sops-nix agenix; do
+            nix eval --raw ".#flakes.${name}.sourceInfo.rev" >/dev/null && echo "ok flakes.${name}"
+          done
+          nix eval --json .#lib.names | python3 -c '
+          import json, random, subprocess, sys
+          names = json.load(sys.stdin)
+          random.seed()
+          failed = 0
+          for name in random.sample(names, min(25, len(names))):
+              for attr in ("flakes", "pinned"):
+                  expr = f".#{attr}.{name}.sourceInfo.narHash"
+                  r = subprocess.run(["nix", "eval", "--raw", expr], capture_output=True, text=True)
+                  print(("ok " if r.returncode == 0 else "FAIL ") + expr)
+                  if r.returncode != 0:
+                      print(r.stderr[-800:])
+                      failed += 1
+          sys.exit(1 if failed else 0)
+          '
