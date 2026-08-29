@@ -2,36 +2,33 @@
 
 Read these before depending on this.
 
-**Trust.** One input line delegates the pinning of thousands of repositories to
-this repository.
+**Trust.** One input line delegates the pinning of thousands of repositories
+to this repository. Every pin carries a NAR hash, so what you fetch is what was
+pinned; whether what was pinned is any good is a different question.
 
-**Names are API.** Attribute names cannot be renamed without breaking consumers.
-See [Adding a flake](./adding-a-flake.md).
+**Names are API.** Attribute names cannot be renamed without breaking
+consumers. See [Adding a flake](./adding-a-flake.md).
 
-**Unification is a deviation.** Collapsing every subflake onto one nixpkgs is
-what you want for closure size and evaluation speed, and it is also not what
-each author tested against. Something will occasionally break for that reason.
+**Unification is a deviation.** Substituting your `nixpkgs` into every flake is
+what you want for modules and overlays, and it is also not what each author
+tested against. `omniflake.pinned.<name>` is there for when that matters. See
+[Unification](./unification.md).
 
-**Locking here does not mean consumers can lock.** A subflake with a relative
-`path:` input resolves it against the root flake, so it points inside
-omniflake's own tree. Our lock succeeds and the consumer's fails:
+**These are not flake inputs.** `nix flake metadata` lists five inputs, not
+thousands. `--override-input omniflake/foo` cannot reach a subflake, and
+`nix flake update` does not advance one; this repository's update job does. To
+substitute something into a flake, use `omniflake.lib.load` or
+`omniflake.lib.withOverrides`.
 
-```console
-error: Path 'flakes/apple-container/flake.nix' does not exist in
-Git repository ".../omniflake"
-```
+**A stale lock is repaired by Nix, at index time.** When a flake ships no
+`flake.lock`, or one that no longer matches its `flake.nix`, the lock Nix
+computes for it is stored here. Inputs that lock resolved from a moving branch
+were resolved when the index was built, not when the author last did.
 
-`tools/audit.py` catches these before they ship.
+**Some flakes need `pipe-operators`.** A `flake.nix` written with the pipe
+operator cannot be parsed without that experimental feature. Such flakes are
+pinned with it enabled, and evaluating one needs it enabled too.
 
-**A megaflake is only as lockable as its worst member.** Flakes in the wild fail
-for reasons outside our control — a stale committed `flake.lock` that forces
-re-resolution, a registry alias that no longer resolves, a deleted upstream. One
-aborts the entire lock, so `tools/lock.sh` quarantines and retries.
-
-**Evaluation used to be quadratic.** Serializing a large lock file was
-`O(n²)` in colliding node names, which a megaflake guarantees. Fixed in
-[NixOS/nix#16387](https://github.com/NixOS/nix/pull/16387); on 4000 inputs it
-took `nix eval` of a constant from 11.49s to 0.54s. Older Nix will be slow here.
-
-**`nix flake check` forces everything.** Consumers are lazy; this repo's CI is
-not, which is the point.
+**`nix flake check` here forces everything.** Consumers are lazy; this
+repository's checks evaluate a sample, and its formatter is one of its own
+flakes.
