@@ -41,6 +41,23 @@ revision costs one fetch. Twelve thousand flakes took a few hours on a large
 machine at 96 processes, dominated by Nix importing each tarball into its Git
 cache and hashing it. After that, a weekly run touches a few hundred revisions.
 
+### Nix's tarball cache needs repacking
+
+Nix unpacks every fetched tarball into a git-backed cache
+(`~/.cache/nix/tarball-cache-v2`) and writes one packfile per tarball, never
+repacking. libgit2 consults every pack index on every object lookup, so each
+fetch gets slower with every tarball ever fetched. The first run measured 190
+pins per minute at the start and 3 per minute once 60,000 packs had
+accumulated, with each Nix process holding 4,000 of them open.
+
+`pin.py` folds the cache into a geometric progression of packs every 500 pins
+(`--repack-every`; 0 disables). Not `git repack -a -d`: the cache has no refs,
+so to git every object is unreachable, and that command packs nothing and then
+deletes everything. `git repack --geometric=2 -d` works from the list of packs
+instead; 19,655 packs folded into one in 45 seconds.
+
+### GitHub's API quota
+
 Run without a GitHub token in Nix's `access-tokens`: with one, Nix downloads
 from `api.github.com`, which is subject to the 5,000 requests per hour quota.
 Without one it uses the archive endpoint, which is not. `pin.py` unsets it by
