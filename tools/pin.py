@@ -52,6 +52,15 @@ INTERNAL_LOCKED_ATTRS = {"__final"}
 # a flake needs the feature too, which docs/caveats.md says.
 NIX_CONFIG_FEATURES = "experimental-features = nix-command flakes pipe-operators"
 
+# Nix unpacks every tarball into a git-backed cache and writes one packfile
+# per tarball, never repacking. libgit2 consults every pack index on every
+# object lookup, so once tens of thousands of packs have accumulated each
+# fetch slows to a crawl: a run measured 190 pins/minute at the start and
+# 3/minute at 60,000 packs. Repacking into one pack restores the rate.
+TARBALL_CACHE_DIR = "nix/tarball-cache-v2"
+REPACK_EVERY = 500
+REPACK_THREADS = 32
+
 # Without an access token Nix downloads GitHub tarballs from the archive
 # endpoint, which is not subject to the 5000/hour REST API quota that
 # api.github.com/repos/.../tarball counts against. Twelve thousand
@@ -124,6 +133,63 @@ def run_metadata(ref, use_token):
     return None, "unreachable"
 
 
+def tarball_cache():
+    """Nix's git-backed tarball cache, or None if it does not exist yet."""
+    base = os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")
+    path = os.path.join(base, TARBALL_CACHE_DIR)
+    return path if os.path.isdir(os.path.join(path, "objects")) else None
+
+
+def repack_tarball_cache():
+    """Fold the tarball cache's packs into a geometric progression.
+
+    Not `git repack -a -d`: the cache has no refs, Nix addresses its trees by
+    hash, so to git every object is unreachable and that command packs
+    nothing and then deletes everything. `--geometric` works from the list
+    of packs instead of from reachability, and being incremental it costs
+    little as the cache grows: 19,655 packs folded into one in 45 seconds.
+
+    Safe to run while Nix processes use the cache: the new pack is complete
+    before any old one is removed, and a reader holding an old pack open
+    keeps it until done.
+    """
+    path = tarball_cache()
+    if path is None:
+        return
+    packs = os.path.join(path, "objects", "pack")
+    if not os.path.isdir(packs):
+        return
+    before = sum(1 for f in os.listdir(packs) if f.endswith(".pack"))
+    if before < 2:
+        return
+
+    started = time.time()
+    proc = subprocess.run(
+        [
+            "git",
+            "-C",
+            path,
+            "repack",
+            "--geometric=2",
+            "-d",
+            "-q",
+            "--window=0",
+            f"--threads={REPACK_THREADS}",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        print(f"warning: repack failed: {proc.stderr.strip()[-200:]}", file=sys.stderr)
+        return
+    after = sum(1 for f in os.listdir(packs) if f.endswith(".pack"))
+    print(
+        f"    repacked tarball cache: {before} packs -> {after} in {time.time() - started:.0f}s",
+        file=sys.stderr,
+        flush=True,
+    )
+
+
 def committed_lock(store_path):
     """The flake.lock shipped in the fetched tree, or None if absent/invalid."""
     path = os.path.join(store_path, "flake.lock")
@@ -191,6 +257,12 @@ def main():
         help="re-attempt refs recorded in the failures file",
     )
     ap.add_argument(
+        "--repack-every",
+        type=int,
+        default=REPACK_EVERY,
+        help="repack Nix's tarball cache after this many pins (0 disables)",
+    )
+    ap.add_argument(
         "--use-token",
         action="store_true",
         help="keep Nix's access-tokens (subject to the API quota)",
@@ -248,12 +320,28 @@ def main():
                     flush=True,
                 )
 
+    # One repack at a time, off the worker threads, so a slow repack never
+    # stalls the pinning and two never race each other.
+    repacker: dict = {"thread": None}
+
+    def maybe_repack(done):
+        if not args.repack_every or done % args.repack_every:
+            return
+        if repacker["thread"] is not None and repacker["thread"].is_alive():
+            return
+        repacker["thread"] = threading.Thread(target=repack_tarball_cache, daemon=True)
+        repacker["thread"].start()
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures = [
             pool.submit(pin_one, row, args.use_token, args.locks) for row in todo
         ]
         for fut in concurrent.futures.as_completed(futures):
             record(*fut.result())
+            maybe_repack(counts["ok"] + counts["fail"])
+
+    if repacker["thread"] is not None:
+        repacker["thread"].join()
 
     pins_fh.close()
     fail_fh.close()
