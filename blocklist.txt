@@ -1,0 +1,4 @@
+# Flakes excluded from the index by hand, one attribute name per line.
+# Flakes that merely fail to pin are recorded in failures.jsonl by
+# tools/pin.py and need no entry here. Use this for deliberate removals:
+# the row stays in resolved.jsonl so the name remains reserved.

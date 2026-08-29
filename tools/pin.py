@@ -1,0 +1,264 @@
+#!/usr/bin/env python3
+"""Pin every library flake with Nix itself, one process per flake, in parallel.
+
+A pin is what `builtins.fetchTree` needs to fetch a flake purely: the
+`locked` attribute set Nix produces for an exact revision (type, owner,
+repo, rev, narHash, lastModified). The only way to obtain a narHash is to
+download the tree, and `nix flake metadata --json` does exactly that. It
+also returns `locks`, the lock file Nix computes for the flake's own
+inputs: identical to the committed flake.lock when that lock is current,
+and a repaired one (stale inputs re-resolved by Nix's rules) when it is
+not. That computed lock is stored under locks/ only when it differs, so
+the loader can fall back to the committed file for the common case.
+
+This replaces `nix flake lock` over one enormous flake.nix, which fetched
+the same trees serially and aborted on the first member that could not be
+locked. Here every flake is independent: failures are recorded with their
+reason and the rest proceed.
+
+Incremental: a pin is keyed by its exact flake reference, and a revision
+never changes, so an existing pin is never recomputed. Re-running after a
+crash or with a grown library only touches what is new.
+
+Reads library rows ({name, owner, repo, rev, [url], stars, ...}) and writes:
+    pins.jsonl      {name, ref, locked, lock: bool}   appended per success
+    failures.jsonl  {name, ref, error}                appended per failure
+    locks/REV.json  Nix's computed lock, when it differs from the committed one
+
+Stored locks are keyed by revision, not by attribute name: a revision is
+immutable, two forks pinned at the same commit share one file, and
+renaming a flake cannot orphan its lock.
+"""
+
+import argparse, concurrent.futures, json, os, subprocess, sys, threading, time
+
+# Inputs that flake.nix declares itself; a library row by one of these
+# names would shadow the foundation, so it is never pinned.
+FOUNDATIONS = {"nixpkgs", "flake-utils", "systems", "flake-parts", "flake-compat"}
+
+# Per-flake wall clock bound. A nixpkgs fork takes about a minute to
+# download and hash; anything past this is stuck, not slow.
+TIMEOUT_SECONDS = 900
+# Retried once after a pause, since GitHub answers bursts with 429/503.
+RETRY_DELAY_SECONDS = 30
+# How much of a failing command's stderr is kept for the record.
+ERROR_TAIL_CHARS = 600
+
+# Attributes Nix adds to `locked` at fetch time that a lock file omits.
+INTERNAL_LOCKED_ATTRS = {"__final"}
+
+# pipe-operators is a parse-time feature some flake.nix files already use;
+# without it Nix cannot even read their inputs. A consumer evaluating such
+# a flake needs the feature too, which docs/caveats.md says.
+NIX_CONFIG_FEATURES = "experimental-features = nix-command flakes pipe-operators"
+
+# Without an access token Nix downloads GitHub tarballs from the archive
+# endpoint, which is not subject to the 5000/hour REST API quota that
+# api.github.com/repos/.../tarball counts against. Twelve thousand
+# downloads in an hour are only possible this way.
+NIX_CONFIG_NO_TOKEN = "access-tokens ="
+
+
+def read_jsonl(path):
+    """Yield parsed rows, tolerating comments and the odd corrupt line."""
+    if not path or not os.path.exists(path):
+        return
+    with open(path) as fh:
+        for lineno, line in enumerate(fh, 1):
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                yield json.loads(line)
+            except json.JSONDecodeError:
+                print(
+                    f"warning: {path}:{lineno}: skipping malformed line",
+                    file=sys.stderr,
+                )
+
+
+def flake_ref(row):
+    """The exact reference a row is pinned at. Manual rows carry a url."""
+    return row.get("url") or f"github:{row['owner']}/{row['repo']}/{row['rev']}"
+
+
+def run_metadata(ref, use_token):
+    """Run `nix flake metadata --json` for one ref; return (json or None, error)."""
+    env = dict(os.environ)
+    config = [NIX_CONFIG_FEATURES]
+    if not use_token:
+        config.append(NIX_CONFIG_NO_TOKEN)
+    env["NIX_CONFIG"] = "\n".join(config)
+    # Registries stay enabled: an input written as a bare "nixpkgs" is an
+    # indirect reference that Nix resolves through the global registry, and
+    # a lock computed without one would fail where `nix flake lock` succeeds.
+    cmd = ["nix", "flake", "metadata", "--json", "--no-write-lock-file", ref]
+    for attempt in range(2):
+        try:
+            proc = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=TIMEOUT_SECONDS, env=env
+            )
+        except subprocess.TimeoutExpired:
+            return None, f"timeout after {TIMEOUT_SECONDS}s"
+        if proc.returncode == 0:
+            try:
+                return json.loads(proc.stdout), ""
+            except json.JSONDecodeError as e:
+                return None, f"unparseable metadata: {e}"
+        err = proc.stderr.strip()
+        # A throttled GitHub is the one failure worth waiting out.
+        transient = any(
+            s in err
+            for s in (
+                "HTTP error 429",
+                "HTTP error 503",
+                "HTTP error 502",
+                "Could not resolve host",
+                "Failed to connect",
+                "rate limit",
+            )
+        )
+        if not transient or attempt == 1:
+            return None, err[-ERROR_TAIL_CHARS:]
+        time.sleep(RETRY_DELAY_SECONDS)
+    return None, "unreachable"
+
+
+def committed_lock(store_path):
+    """The flake.lock shipped in the fetched tree, or None if absent/invalid."""
+    path = os.path.join(store_path, "flake.lock")
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path) as fh:
+            return json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def lock_key(locked):
+    """The file name a computed lock is stored under: the revision, or the
+    narHash for the rare input type that has none."""
+    if locked.get("rev"):
+        return locked["rev"]
+    return locked["narHash"].replace("/", "_").replace("=", "")
+
+
+def write_lock(locks_dir, key, lock):
+    """Store a computed lock the way Nix formats one: two-space, sorted keys."""
+    os.makedirs(locks_dir, exist_ok=True)
+    path = os.path.join(locks_dir, f"{key}.json")
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        json.dump(lock, fh, indent=2, sort_keys=True)
+        fh.write("\n")
+    os.replace(tmp, path)
+
+
+def pin_one(row, use_token, locks_dir):
+    """Pin a single row. Returns ("ok", pin) or ("fail", failure)."""
+    ref = flake_ref(row)
+    meta, err = run_metadata(ref, use_token)
+    if meta is None:
+        return "fail", {"name": row["name"], "ref": ref, "error": err}
+
+    locked = {k: v for k, v in meta["locked"].items() if k not in INTERNAL_LOCKED_ATTRS}
+    nix_lock = meta.get("locks") or {}
+    shipped = committed_lock(meta["path"])
+
+    # The committed lock is authoritative whenever Nix agrees with it. A
+    # stored copy is needed only where Nix had to repair something, or
+    # where the flake ships no lock at all despite having inputs.
+    needs_lock = shipped != nix_lock
+    if needs_lock:
+        write_lock(locks_dir, lock_key(locked), nix_lock)
+
+    return "ok", {"name": row["name"], "ref": ref, "locked": locked, "lock": needs_lock}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--library", default="library.jsonl")
+    ap.add_argument("--pins", default="pins.jsonl")
+    ap.add_argument("--failures", default="failures.jsonl")
+    ap.add_argument("--locks", default="locks")
+    ap.add_argument("--blocklist", default="blocklist.txt")
+    ap.add_argument("--jobs", type=int, default=32)
+    ap.add_argument("--limit", type=int, help="pin at most N new flakes")
+    ap.add_argument(
+        "--retry-failed",
+        action="store_true",
+        help="re-attempt refs recorded in the failures file",
+    )
+    ap.add_argument(
+        "--use-token",
+        action="store_true",
+        help="keep Nix's access-tokens (subject to the API quota)",
+    )
+    args = ap.parse_args()
+
+    blocked = set()
+    if os.path.exists(args.blocklist):
+        blocked = {
+            l.strip()
+            for l in open(args.blocklist)
+            if l.strip() and not l.startswith("#")
+        }
+
+    # Everything already decided, by exact ref. Failures are remembered so
+    # a nightly run does not re-download the same broken flakes forever.
+    done = {p["ref"] for p in read_jsonl(args.pins)}
+    failed = (
+        set() if args.retry_failed else {f["ref"] for f in read_jsonl(args.failures)}
+    )
+
+    todo = []
+    for row in read_jsonl(args.library):
+        if row["name"] in blocked or row["name"] in FOUNDATIONS:
+            continue
+        ref = flake_ref(row)
+        if ref in done or ref in failed:
+            continue
+        todo.append(row)
+    if args.limit:
+        todo = todo[: args.limit]
+    print(
+        f"==> {len(done)} pinned, {len(failed)} known failures, {len(todo)} to pin",
+        file=sys.stderr,
+        flush=True,
+    )
+
+    # Results are appended as they arrive, so a killed run loses nothing.
+    lock = threading.Lock()
+    counts = {"ok": 0, "fail": 0}
+    pins_fh = open(args.pins, "a")
+    fail_fh = open(args.failures, "a")
+
+    def record(kind, payload):
+        with lock:
+            fh = pins_fh if kind == "ok" else fail_fh
+            fh.write(json.dumps(payload, sort_keys=True) + "\n")
+            fh.flush()
+            counts[kind] += 1
+            total = counts["ok"] + counts["fail"]
+            if total % 100 == 0 or total == len(todo):
+                print(
+                    f"    {total}/{len(todo)} ({counts['fail']} failed)",
+                    file=sys.stderr,
+                    flush=True,
+                )
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        futures = [
+            pool.submit(pin_one, row, args.use_token, args.locks) for row in todo
+        ]
+        for fut in concurrent.futures.as_completed(futures):
+            record(*fut.result())
+
+    pins_fh.close()
+    fail_fh.close()
+    print(f"==> pinned {counts['ok']}, failed {counts['fail']}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
