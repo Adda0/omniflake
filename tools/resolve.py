@@ -124,7 +124,14 @@ def main():
     ap.add_argument(
         "--refresh",
         action="store_true",
-        help="also re-pin repos already present in --known",
+        help="re-resolve every repo already present in --known",
+    )
+    ap.add_argument(
+        "--refresh-oldest",
+        type=int,
+        default=0,
+        metavar="N",
+        help="re-resolve the N known repos resolved longest ago",
     )
     args = ap.parse_args()
 
@@ -133,20 +140,38 @@ def main():
     cands = [json.loads(l) for l in sys.stdin if l.strip() and not l.startswith("#")]
     # Highest-starred first, so the better-known flake wins any *new* name clash.
     cands.sort(key=lambda c: -c.get("stars", 0))
+    cands = [c for c in cands if (c["owner"], c["repo"]) not in known]
 
-    # Re-emit everything already known, so stdout is always the full database.
-    skipped = 0
-    if not args.refresh:
-        for entry in known.values():
+    # Known rows to look at again: all of them, or the ones resolved longest
+    # ago. A rolling refresh keeps each run's work bounded while every row
+    # comes round on a fixed cadence.
+    if args.refresh:
+        refresh = list(known.values())
+    else:
+        by_age = sorted(known.values(), key=lambda r: r.get("resolved_at", 0))
+        refresh = by_age[: args.refresh_oldest]
+    refresh_keys = {(r["owner"], r["repo"]) for r in refresh}
+
+    # Re-emit what is not being refreshed, so stdout is always the full
+    # database.
+    for entry in known.values():
+        if (entry["owner"], entry["repo"]) not in refresh_keys:
             print(json.dumps(entry), flush=True)
-        cands = [c for c in cands if (c["owner"], c["repo"]) not in known]
-        skipped = len(known)
-        print(
-            f"# carried over {skipped} known, resolving {len(cands)} new",
-            file=sys.stderr,
-            flush=True,
-        )
+    print(
+        f"# carried over {len(known) - len(refresh)} known, "
+        f"refreshing {len(refresh)}, resolving {len(cands)} new",
+        file=sys.stderr,
+        flush=True,
+    )
 
+    # Refreshed rows are candidates like any other, resolved after the new
+    # ones so a new repo's name is decided first by stars as before.
+    cands += [
+        {"owner": r["owner"], "repo": r["repo"], "stars": r.get("stars", 0)}
+        for r in refresh
+    ]
+
+    now = int(time.time())
     used = collections.Counter()
     emitted = 0
 
@@ -154,15 +179,17 @@ def main():
         batch = cands[i : i + BATCH]
         data = run_batch(batch)
         for j, cand in enumerate(batch):
+            prior = known.get((cand["owner"], cand["repo"]))
             node = data.get(f"r{j}")
-            if not node:
-                continue
-            # Must be a real flake with a resolvable commit.
-            if not node.get("flakeNix"):
-                continue
-            ref = (node.get("defaultBranchRef") or {}).get("target") or {}
+            ref = ((node or {}).get("defaultBranchRef") or {}).get("target") or {}
             rev = ref.get("oid")
-            if not rev:
+
+            # Must be a real flake with a resolvable commit. A known row that
+            # fails now, whether the repo is gone or GitHub did not answer,
+            # is kept as it was: dropping it would release its name.
+            if not node or not node.get("flakeNix") or not rev:
+                if prior:
+                    print(json.dumps(prior), flush=True)
                 continue
 
             # The lock's root node names the flake's declared direct inputs.
@@ -182,7 +209,6 @@ def main():
 
             # Names are sticky: a repo keeps the name it was first given, and
             # never takes one another repo already holds.
-            prior = known.get((cand["owner"], cand["repo"]))
             if prior:
                 name = prior["name"]
             else:
@@ -196,19 +222,19 @@ def main():
                 used[base] += 1
                 taken[name] = (cand["owner"], cand["repo"])
 
-            print(
-                json.dumps(
-                    {
-                        "name": name,
-                        "owner": cand["owner"],
-                        "repo": cand["repo"],
-                        "rev": rev,
-                        "inputs": inputs,
-                        "stars": cand.get("stars", 0),
-                    }
-                ),
-                flush=True,
-            )
+            row = {
+                "name": name,
+                "owner": cand["owner"],
+                "repo": cand["repo"],
+                "rev": rev,
+                "inputs": inputs,
+                "stars": cand.get("stars", 0),
+                "resolved_at": now,
+            }
+            # Fields other tools fill in survive a refresh.
+            if prior and "description" in prior:
+                row["description"] = prior["description"]
+            print(json.dumps(row), flush=True)
             emitted += 1
         print(f"# resolved {emitted}/{i + len(batch)}", file=sys.stderr, flush=True)
 

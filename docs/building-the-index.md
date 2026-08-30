@@ -15,6 +15,15 @@ $ ./tools/update.sh --no-harvest
 16). The same steps are available as apps: `nix run .#update`,
 `nix run .#pin`, `nix run .#generate`.
 
+## Refresh
+
+Each run re-resolves the known repositories that were resolved longest ago,
+`REFRESH_OLDEST` of them (default 2,000), in addition to any new ones. A
+repository whose default branch moved gets a new revision and is pinned
+again; one that did not costs nothing beyond the lookup. With about 16,000
+repositories and a weekly run, every flake is refreshed about every two
+months. `--refresh` re-resolves all of them in one run.
+
 ## Tools
 
 | tool          | function                                                                                                             |

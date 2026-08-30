@@ -9,6 +9,7 @@
 #   ./tools/update.sh --no-harvest skip GitHub search; pin and regenerate
 #
 # PIN_JOBS controls how many `nix flake metadata` processes run at once.
+# REFRESH_OLDEST is how many known flakes are re-resolved per run (2000).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -41,8 +42,14 @@ python3 tools/manual.py manual.txt \
 sort -u candidates.jsonl -o candidates.jsonl
 echo "    $(wc -l < candidates.jsonl) candidates known"
 
+# New candidates are resolved, and the known rows resolved longest ago are
+# re-resolved, so every row comes round on a fixed cadence. With ~16,000
+# rows and the default of 2,000 per run, a weekly run refreshes each flake
+# about every two months. A repo whose HEAD did not move costs nothing
+# beyond the lookup.
 echo "==> resolving (incremental; names are sticky)"
 python3 tools/resolve.py --known resolved.jsonl $REFRESH \
+  --refresh-oldest "${REFRESH_OLDEST:-2000}" \
   < candidates.jsonl > resolved.new.jsonl 2> resolve.log
 # Manually resolved, non-GitHub flakes cannot go through the GitHub API.
 if [[ -f manual.resolved.jsonl ]]; then
