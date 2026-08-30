@@ -102,6 +102,12 @@ function Flake({ f }) {
   const attr = `${FLAKE_ATTR}.${f.name}`;
   const commitUrl = `https://github.com/${f.owner}/${f.repo}/commit/${f.rev}`;
   const inputs = f.inputs || [];
+  // "4 direct, 8 indirect inputs" once the lock's size is known; the
+  // indirect count is every node of the lock that is not a direct input.
+  const inputsFact =
+    f.lockNodes == null
+      ? `${inputs.length} direct ${inputs.length === 1 ? "input" : "inputs"}`
+      : `${inputs.length} direct, ${Math.max(f.lockNodes - inputs.length, 0)} indirect inputs`;
   return html`
     <div class="flake">
       <div
@@ -147,16 +153,8 @@ function Flake({ f }) {
               ><code>${f.rev.slice(0, REV_ABBREV)}</code></a
             >${" "}from${" "}${isoDate(f.lastModified)}
           </span>
-          <span>
-            last
-            checked${" "}${f.checkedAt
-              ? isoDate(f.checkedAt)
-              : "before dates were recorded"}
-          </span>
-          <span>
-            ${`${inputs.length} direct ${inputs.length === 1 ? "input" : "inputs"}`}${f.lockNodes !=
-              null && html`, ${f.lockNodes} nodes in its lock`}
-          </span>
+          <span>last checked ${isoDate(f.checkedAt)}</span>
+          <span>${inputsFact}</span>
         </div>
         ${inputs.length > 0 &&
         html`<div class="chips">
