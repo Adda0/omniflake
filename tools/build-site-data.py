@@ -26,6 +26,7 @@ def main():
     ap.add_argument("--resolved", default="resolved.jsonl")
     ap.add_argument("--failures", default="failures.jsonl")
     ap.add_argument("--blocklist", default="blocklist.txt")
+    ap.add_argument("--locks", default="locks")
     ap.add_argument("--out", default="site-data.json")
     args = ap.parse_args()
 
@@ -43,6 +44,18 @@ def main():
     for name, entry in sorted(index.items()):
         locked = entry["locked"]
         row = by_name.get(name, {})
+
+        # The size of the input graph: from the committed lock as resolve.py
+        # saw it, or from the stored lock when that is what the loader uses.
+        lock_nodes = row.get("lock_nodes")
+        if entry.get("lock"):
+            key = locked.get("rev") or locked["narHash"].replace("/", "_").replace(
+                "=", ""
+            )
+            path = os.path.join(args.locks, f"{key}.json")
+            if os.path.exists(path):
+                lock_nodes = max(len(json.load(open(path)).get("nodes", {})) - 1, 0)
+
         flakes.append(
             {
                 "name": name,
@@ -51,8 +64,11 @@ def main():
                 "type": locked.get("type", ""),
                 "rev": locked.get("rev", ""),
                 "lastModified": locked.get("lastModified", 0),
+                "checkedAt": row.get("resolved_at", 0),
                 "stars": row.get("stars", 0),
                 "description": row.get("description", ""),
+                "inputs": row.get("inputs", []),
+                "lockNodes": lock_nodes,
                 "storedLock": bool(entry.get("lock")),
             }
         )

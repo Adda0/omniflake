@@ -87,18 +87,39 @@ function Command({ text }) {
 
 /* ---------- views ---------- */
 
+// The inputs `flakes.<name>` replaces with yours, by exact name.
+const FOUNDATIONS = [
+  "nixpkgs",
+  "flake-utils",
+  "systems",
+  "flake-parts",
+  "flake-compat",
+];
+
 function Flake({ f }) {
   const [open, setOpen] = useState(false);
+  const toggle = () => setOpen(!open);
   const attr = `${FLAKE_ATTR}.${f.name}`;
   const commitUrl = `https://github.com/${f.owner}/${f.repo}/commit/${f.rev}`;
+  const inputs = f.inputs || [];
   return html`
-    <div>
-      <div class="row">
+    <div class="flake">
+      <div
+        class="row"
+        role="button"
+        tabindex="0"
+        aria-expanded=${open}
+        onClick=${toggle}
+        onKeyDown=${(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggle();
+          }
+        }}
+      >
         <div class="name">
-          <button class="disclose" onClick=${() => setOpen(!open)}>
-            ${open ? "▾" : "▸"}
-          </button>
-          ${" "}${f.name}
+          <span class="arrow" aria-hidden="true">${open ? "▾" : "▸"}</span>
+          ${f.name}
           ${f.storedLock &&
           html`<span
             class="tag"
@@ -106,22 +127,50 @@ function Flake({ f }) {
             >computed lock</span
           >`}
         </div>
-        <div>
-          <a href="https://github.com/${f.owner}/${f.repo}"
+        <div class="repo">
+          <a
+            href="https://github.com/${f.owner}/${f.repo}"
+            onClick=${(e) => e.stopPropagation()}
             >${f.owner}/${f.repo}</a
           >
           ${f.description &&
           html`<span class="muted">: ${f.description}</span>`}
         </div>
-        <div class="num">${f.stars.toLocaleString()}</div>
-        <div class="num muted">${isoDate(f.lastModified)}</div>
+        <div class="num stars">${f.stars.toLocaleString()}</div>
+        <div class="num muted date">${isoDate(f.lastModified)}</div>
       </div>
       ${open &&
       html`<div class="body">
-        <div class="links">
-          pinned at
-          <a href=${commitUrl}><code>${f.rev.slice(0, REV_ABBREV)}</code></a>
+        <div class="facts">
+          <span>
+            commit${" "}<a href=${commitUrl}
+              ><code>${f.rev.slice(0, REV_ABBREV)}</code></a
+            >${" "}from${" "}${isoDate(f.lastModified)}
+          </span>
+          <span>
+            last
+            checked${" "}${f.checkedAt
+              ? isoDate(f.checkedAt)
+              : "before dates were recorded"}
+          </span>
+          <span>
+            ${`${inputs.length} direct ${inputs.length === 1 ? "input" : "inputs"}`}${f.lockNodes !=
+              null && html`, ${f.lockNodes} nodes in its lock`}
+          </span>
         </div>
+        ${inputs.length > 0 &&
+        html`<div class="chips">
+          ${inputs.map(
+            (i) =>
+              html`<span
+                class=${"chip" + (FOUNDATIONS.includes(i) ? " unified" : "")}
+                title=${FOUNDATIONS.includes(i)
+                  ? "replaced with yours under flakes.<name>"
+                  : "as the flake's own lock pins it"}
+                >${i}</span
+              >`,
+          )}
+        </div>`}
         <${Command} text=${`${attr}.nixosModules.default`} />
         <${Command}
           text=${`nix run 'github:fzakaria/omniflake#flakes.${f.name}.packages.x86_64-linux.default'`}
@@ -177,7 +226,7 @@ function Index({ data }) {
       <select value=${sort} onChange=${(e) => setSort(e.target.value)}>
         <option value="stars">by stars</option>
         <option value="name">by name</option>
-        <option value="pinned">recently pinned</option>
+        <option value="pinned">newest commit</option>
       </select>
     </div>
 
@@ -190,7 +239,7 @@ function Index({ data }) {
         <div>name</div>
         <div>repository</div>
         <div class="num">stars</div>
-        <div class="num">pinned</div>
+        <div class="num">commit</div>
       </div>
       ${rows
         .slice(0, limit)

@@ -80,6 +80,77 @@
         border-radius: 4px;
         padding: 0.4rem;
       }
+      /* The whole row toggles the details; the arrow is a hint, not the
+         only target. */
+      .flakes .row {
+        cursor: pointer;
+      }
+      .flakes .row:hover {
+        background: var(--code-bg);
+      }
+      .flakes .row:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+      .arrow {
+        display: inline-block;
+        width: 1.4em;
+        font-size: 1.15em;
+        line-height: 1;
+        color: var(--muted);
+      }
+      .facts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem 1.4rem;
+        margin: 0.3rem 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .chip.unified {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      /* Two lines per row on a phone: name and stars, then repository and
+         commit date. */
+      @media (max-width: 48rem) {
+        .flakes .head {
+          display: none;
+        }
+        /* style.css turns every .row into a wrapping flex line at this
+           width; the index keeps a grid so stars and date stay in their
+           own column. */
+        .flakes .row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          grid-template-areas:
+            "name stars"
+            "repo date";
+          gap: 0.2rem 0.8rem;
+          padding: 0.5rem 0;
+        }
+        .flakes .row .name {
+          grid-area: name;
+        }
+        .flakes .row .repo {
+          grid-area: repo;
+          font-size: 13px;
+        }
+        .flakes .row .stars {
+          grid-area: stars;
+        }
+        .flakes .row .date {
+          grid-area: date;
+        }
+        .flakes .row > :last-child {
+          flex-basis: auto;
+          padding-left: 0;
+        }
+        .arrow {
+          font-size: 1.5em;
+          width: 1.3em;
+        }
+      }
       .tag {
         font-size: 11px;
         border: 1px solid var(--line);
