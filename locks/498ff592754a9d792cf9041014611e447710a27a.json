@@ -1,0 +1,44 @@
+{
+  "nodes": {
+    "mobile-nixos": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778047820,
+        "narHash": "sha256-IiRYfn5/pI84fxHoDaQw2rgIakLdjLOh3u4uVNZn+Co=",
+        "owner": "kurtmorris",
+        "repo": "mobile-nixos-spacewar",
+        "rev": "ec521fac43ff64927df34da8568720c25f327e4b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kurtmorris",
+        "repo": "mobile-nixos-spacewar",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787900134,
+        "narHash": "sha256-VYXO0XZlgj06dxJZRhrD3WoSsvq/c7+/Akyoa22pefw=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "83199d0d373dd3ac2b9a1996b1d0263f76ab7a4c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "mobile-nixos": "mobile-nixos",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

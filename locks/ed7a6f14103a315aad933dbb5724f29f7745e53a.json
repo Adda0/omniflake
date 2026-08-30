@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "root": {
+      "inputs": {
+        "tanstack-start-turborepo-src": "tanstack-start-turborepo-src"
+      }
+    },
+    "tanstack-start-turborepo-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777692752,
+        "narHash": "sha256-KrOr/CY6kvzlOhEysRaTQ6Vb0zYc0rF8sUH9nZgeP1o=",
+        "owner": "markvu2607",
+        "repo": "tanstack-start-turborepo",
+        "rev": "0e0dcb704a146358a395a1c1b30a146d1c4c2a76",
+        "type": "github"
+      },
+      "original": {
+        "owner": "markvu2607",
+        "repo": "tanstack-start-turborepo",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

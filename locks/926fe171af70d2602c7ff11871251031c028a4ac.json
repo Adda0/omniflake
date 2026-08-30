@@ -1,0 +1,28 @@
+{
+  "nodes": {
+    "libfuse-fixes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1721996235,
+        "narHash": "sha256-oOpOhw1a3nqqv5TXpCcmMGhwWPfsaxUv0DT7xLZkjj4=",
+        "owner": "bolives-hax",
+        "repo": "libfuse",
+        "rev": "66fab2b4805dd411d3f066d0c97e40582bf5c77c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bolives-hax",
+        "ref": "s390x-fix",
+        "repo": "libfuse",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "libfuse-fixes": "libfuse-fixes"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

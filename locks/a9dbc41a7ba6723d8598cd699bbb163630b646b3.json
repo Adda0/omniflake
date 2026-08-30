@@ -1,0 +1,44 @@
+{
+  "nodes": {
+    "extest": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779742353,
+        "narHash": "sha256-afonaHQCTtOJOAFRsiarFkFVI+FurVva9AUVSWmRqY4=",
+        "owner": "Supreeeme",
+        "repo": "extest",
+        "rev": "cb77cd4f80f83393a24bae17dd975e14fa6eb1b2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Supreeeme",
+        "repo": "extest",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787964612,
+        "narHash": "sha256-0N9nghg3nwzX6b6qc77EzjR9cu/Z+UR66FlfsCqiURs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e8be7818e19ada32105a8af937a6a473b38167ca",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "extest": "extest",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "nixlib-general": {
+      "locked": {
+        "lastModified": 1784423119,
+        "narHash": "sha256-WxDu8AKOT4LIo5DsXgnfvNEsYhpiBU7Ee71Lrqi4MtY=",
+        "owner": "zudww",
+        "repo": "nixlib-general",
+        "rev": "26f4a111ac23ce269d512eac358de020a23ae888",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zudww",
+        "ref": "dev",
+        "repo": "nixlib-general",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixlib-general": "nixlib-general"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
