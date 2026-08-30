@@ -21,8 +21,8 @@ Each run re-resolves the known repositories that were resolved longest ago,
 `REFRESH_OLDEST` of them (default 2,000), in addition to any new ones. A
 repository whose default branch moved gets a new revision and is pinned
 again; one that did not costs nothing beyond the lookup. With about 16,000
-repositories and a weekly run, every flake is refreshed about every two
-months. `--refresh` re-resolves all of them in one run.
+repositories and a daily run, every flake is refreshed about every eight
+days. `--refresh` re-resolves all of them in one run.
 
 ## Tools
 
@@ -77,8 +77,8 @@ which keeps fetches fast over a long run.
 
 ## Continuous integration
 
-`update.yml` runs the pipeline weekly and opens a pull request with the
-regenerated index. `check.yml` runs on pushes and pull requests: it locks the
+`update.yml` runs the pipeline daily and commits the regenerated index to
+`main`. `check.yml` runs on pushes and pull requests: it locks the
 flake, regenerates the index and fails on any difference, runs
 `nix flake check`, and evaluates a random sample of flakes for the job
 summary. `pages.yml` builds and deploys the site.

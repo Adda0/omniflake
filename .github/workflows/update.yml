@@ -1,12 +1,16 @@
-# Grow the index: discover new flakes on GitHub, pin them with Nix, and
-# open a pull request with the resulting index.json. Runs weekly, and on
-# demand. Pinning downloads every *new* revision once; an unchanged
-# revision is never fetched again, so a routine run is small.
+# Keep the index current: discover new flakes on GitHub, re-resolve the
+# flakes checked longest ago, pin whatever changed with Nix, and commit
+# the result to main. Runs daily, and on demand. A revision is never
+# fetched twice, so a routine run costs only what moved since yesterday.
+#
+# The commit is pushed with the default token, and GitHub does not start
+# workflows from pushes made with it, so check.yml and pages.yml run on
+# workflow_run instead of on push for these commits.
 name: update index
 
 on:
   schedule:
-    - cron: "17 6 * * 1"
+    - cron: "17 6 * * *"
   workflow_dispatch:
     inputs:
       refresh:
@@ -16,7 +20,12 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+
+# A run can take longer than a day's gap only when a refresh is requested;
+# never let two write to main at once.
+concurrency:
+  group: update-index
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -24,6 +33,8 @@ jobs:
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - uses: DeterminateSystems/nix-installer-action@v16
 
@@ -61,16 +72,16 @@ jobs:
             git diff --no-color -U0 -- failures.jsonl | grep '^+{' | cut -c1-200 | head -50 || true
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: peter-evans/create-pull-request@v7
-        with:
-          branch: bot/update-index
-          title: "Update index"
-          commit-message: |
-            Update index
+      - name: Commit
+        run: |
+          git add resolved.jsonl candidates.jsonl pins.jsonl failures.jsonl index.json locks README.md
+          if git diff --cached --quiet; then
+            echo "nothing changed"
+            exit 0
+          fi
+          git -c user.name="omniflake" -c user.email="noreply@github.com" commit -q -F - <<EOF
+          Update index
 
-            Automated harvest, resolve and pin run. See the workflow summary
-            for the flakes that could not be pinned.
-          body: |
-            Automated run of `tools/update.sh`. Review `failures.jsonl` for
-            anything newly unpinnable before merging.
-          delete-branch: true
+          $(sed -n '/BEGIN index-status/,/END index-status/p' README.md | grep '^-')
+          EOF
+          git push

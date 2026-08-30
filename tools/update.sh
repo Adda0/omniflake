@@ -44,8 +44,8 @@ echo "    $(wc -l < candidates.jsonl) candidates known"
 
 # New candidates are resolved, and the known rows resolved longest ago are
 # re-resolved, so every row comes round on a fixed cadence. With ~16,000
-# rows and the default of 2,000 per run, a weekly run refreshes each flake
-# about every two months. A repo whose HEAD did not move costs nothing
+# rows and the default of 2,000 per run, a daily run refreshes each flake
+# about every eight days. A repo whose HEAD did not move costs nothing
 # beyond the lookup.
 echo "==> resolving (incremental; names are sticky)"
 python3 tools/resolve.py --known resolved.jsonl $REFRESH \
