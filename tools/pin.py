@@ -32,10 +32,6 @@ renaming a flake cannot orphan its lock.
 
 import argparse, concurrent.futures, json, os, subprocess, sys, threading, time
 
-# Inputs that flake.nix declares itself; a library row by one of these
-# names would shadow the foundation, so it is never pinned.
-FOUNDATIONS = {"nixpkgs", "flake-utils", "systems", "flake-parts", "flake-compat"}
-
 # Per-flake wall clock bound. A nixpkgs fork takes about a minute to
 # download and hash; anything past this is stuck, not slow.
 TIMEOUT_SECONDS = 900
@@ -323,7 +319,7 @@ def main():
 
     todo = []
     for row in read_jsonl(args.library):
-        if row["name"] in blocked or row["name"] in FOUNDATIONS:
+        if row["name"] in blocked:
             continue
         ref = flake_ref(row)
         if ref in done or ref in failed:

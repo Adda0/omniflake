@@ -16,7 +16,7 @@ revisions no longer in the library, and stored locks no index entry uses.
 
 import argparse, json, os, re, sys, time
 
-from pin import FOUNDATIONS, flake_ref, lock_key, read_jsonl
+from pin import flake_ref, lock_key, read_jsonl
 
 # Markers around the status block in README.md.
 STATUS_BEGIN = "<!-- BEGIN index-status -->"
@@ -110,7 +110,7 @@ def main():
     stats = {"library": 0, "indexed": 0, "failed": 0, "unpinned": 0, "stored_locks": 0}
     for row in read_jsonl(args.library):
         name = row["name"]
-        if name in blocked or name in FOUNDATIONS:
+        if name in blocked:
             continue
         ref = flake_ref(row)
         library_refs[ref] = name
