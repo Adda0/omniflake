@@ -192,18 +192,18 @@ def main():
                     print(json.dumps(prior), flush=True)
                 continue
 
-            # The lock's root node names the flake's declared direct inputs.
+            # The lock's root node names the flake's declared direct inputs,
+            # and its node count is the size of the transitive graph.
             inputs = []
+            lock_nodes = None
             lock = node.get("flakeLock") or {}
             text = lock.get("text")
             if text and (lock.get("byteSize") or 0) <= MAX_LOCK_BYTES:
                 try:
                     parsed = json.loads(text)
-                    inputs = sorted(
-                        (
-                            parsed.get("nodes", {}).get("root", {}).get("inputs", {})
-                        ).keys()
-                    )
+                    nodes = parsed.get("nodes", {})
+                    inputs = sorted((nodes.get("root", {}).get("inputs", {})).keys())
+                    lock_nodes = max(len(nodes) - 1, 0)
                 except Exception:
                     inputs = []
 
@@ -231,6 +231,8 @@ def main():
                 "stars": cand.get("stars", 0),
                 "resolved_at": now,
             }
+            if lock_nodes is not None:
+                row["lock_nodes"] = lock_nodes
             # Fields other tools fill in survive a refresh.
             if prior and "description" in prior:
                 row["description"] = prior["description"]

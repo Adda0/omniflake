@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Fill in a one-line description for every flake in resolved.jsonl.
+"""Fill in fields resolve.py records but older rows of resolved.jsonl lack.
 
-The description is what makes the site searchable by what a flake *does*
-rather than what it is called, and GitHub hands it out for free in the same
-GraphQL round trip resolve.py already makes. This script backfills rows
-that predate the field and is otherwise a no-op, so update.sh can run it
-every time.
+Two of them: the repository description, which is what makes the site
+searchable by what a flake does rather than what it is called, and the
+node count of the flake's lock at its pinned revision. Both come from one
+GraphQL round trip per 40 repositories. Rows that already have the fields
+are skipped, so update.sh can run this every time.
 
-Rewrites resolved.jsonl in place, adding "description" (possibly "") to
-each row. Rows are never removed or renamed here.
+Rewrites resolved.jsonl in place. Rows are never removed or renamed here.
 """
 
 import argparse, json, os, sys, time
@@ -19,9 +18,16 @@ from resolve import BATCH, read_token
 TOKEN = read_token()
 
 
+# Skip absurd locks; they are almost always vendored monorepos.
+MAX_LOCK_BYTES = 2_000_000
+
+
 def query(batch):
     parts = [
-        f'r{i}: repository(owner: {json.dumps(r["owner"])}, name: {json.dumps(r["repo"])}) {{ description }}'
+        f'r{i}: repository(owner: {json.dumps(r["owner"])}, name: {json.dumps(r["repo"])}) {{ '
+        f"description "
+        f'flakeLock: object(expression: {json.dumps(r["rev"] + ":flake.lock")}) {{ ... on Blob {{ text byteSize }} }} '
+        f"}}"
         for i, r in enumerate(batch)
     ]
     body = json.dumps({"query": "query {" + "\n".join(parts) + "}"}).encode()
@@ -55,8 +61,8 @@ def main():
             if line and not line.startswith("#"):
                 rows.append(json.loads(line))
 
-    todo = [r for r in rows if "description" not in r]
-    print(f"# {len(rows)} rows, {len(todo)} without a description", file=sys.stderr)
+    todo = [r for r in rows if "description" not in r or "lock_nodes" not in r]
+    print(f"# {len(rows)} rows, {len(todo)} missing a field", file=sys.stderr)
 
     for i in range(0, len(todo), BATCH):
         batch = todo[i : i + BATCH]
@@ -65,7 +71,20 @@ def main():
             node = data.get(f"r{j}") or {}
             # An empty string records that GitHub had nothing, so the row is
             # not asked about again next run.
-            row["description"] = (node.get("description") or "").strip()
+            if "description" not in row:
+                row["description"] = (node.get("description") or "").strip()
+            # A flake without a lock, or with one too large to read, gets 0:
+            # the loader sees no graph in that case either.
+            if "lock_nodes" not in row:
+                lock = node.get("flakeLock") or {}
+                text = lock.get("text")
+                count = 0
+                if text and (lock.get("byteSize") or 0) <= MAX_LOCK_BYTES:
+                    try:
+                        count = max(len(json.loads(text).get("nodes", {})) - 1, 0)
+                    except Exception:
+                        count = 0
+                row["lock_nodes"] = count
         print(
             f"# described {min(i + BATCH, len(todo))}/{len(todo)}",
             file=sys.stderr,
