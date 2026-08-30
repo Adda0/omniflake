@@ -20,7 +20,7 @@ let
       --resolved ${../resolved.jsonl} \
       --failures ${../failures.jsonl} \
       --blocklist ${../blocklist.txt} \
-      --locks ${../locks} \
+      --pins ${../pins.jsonl} \
       --out $out/site-data.json
   '';
 in

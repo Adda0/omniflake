@@ -21,7 +21,7 @@ never changes, so an existing pin is never recomputed. Re-running after a
 crash or with a grown library only touches what is new.
 
 Reads library rows ({name, owner, repo, rev, [url], stars, ...}) and writes:
-    pins.jsonl      {name, ref, locked, lock: bool}   appended per success
+    pins.jsonl      {name, ref, locked, lock: bool, lock_nodes}  per success
     failures.jsonl  {name, ref, error}                appended per failure
     locks/REV.json  Nix's computed lock, when it differs from the committed one
 
@@ -272,7 +272,56 @@ def pin_one(row, use_token, locks_dir):
     if needs_lock:
         write_lock(locks_dir, lock_key(locked), nix_lock)
 
-    return "ok", {"name": row["name"], "ref": ref, "locked": locked, "lock": needs_lock}
+    return "ok", {
+        "name": row["name"],
+        "ref": ref,
+        "locked": locked,
+        "lock": needs_lock,
+        # The size of the graph the loader will walk: every node of the lock
+        # it uses, committed or computed, except the root.
+        "lock_nodes": max(len(nix_lock.get("nodes", {})) - 1, 0),
+    }
+
+
+def recount(args):
+    """Fill in lock_nodes for pins recorded before it existed. The tree is
+    in the fetch cache for anything pinned on this machine, so this is
+    mostly evaluation."""
+    pins = list(read_jsonl(args.pins))
+    todo = [p for p in pins if "lock_nodes" not in p]
+    print(
+        f"==> {len(pins)} pins, {len(todo)} without lock_nodes",
+        file=sys.stderr,
+        flush=True,
+    )
+
+    def one(pin):
+        meta, err = run_metadata(pin["ref"], args.use_token)
+        if meta is None:
+            return pin, None
+        return pin, max(len((meta.get("locks") or {}).get("nodes", {})) - 1, 0)
+
+    done = failed = 0
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        for pin, count in pool.map(one, todo):
+            if count is None:
+                failed += 1
+            else:
+                pin["lock_nodes"] = count
+            done += 1
+            if done % 200 == 0:
+                print(
+                    f"    {done}/{len(todo)} ({failed} failed)",
+                    file=sys.stderr,
+                    flush=True,
+                )
+
+    tmp = args.pins + ".tmp"
+    with open(tmp, "w") as fh:
+        for pin in pins:
+            fh.write(json.dumps(pin, sort_keys=True) + "\n")
+    os.replace(tmp, args.pins)
+    print(f"==> recounted {done - failed}, failed {failed}", file=sys.stderr)
 
 
 def main():
@@ -290,6 +339,11 @@ def main():
         help="re-attempt refs recorded in the failures file",
     )
     ap.add_argument(
+        "--recount",
+        action="store_true",
+        help="fill in lock_nodes for pins that lack it, then exit",
+    )
+    ap.add_argument(
         "--repack-every",
         type=int,
         default=REPACK_EVERY,
@@ -301,6 +355,10 @@ def main():
         help="keep Nix's access-tokens, or use $GH_TOKEN (subject to the API quota)",
     )
     args = ap.parse_args()
+
+    if args.recount:
+        recount(args)
+        return
 
     blocked = set()
     if os.path.exists(args.blocklist):

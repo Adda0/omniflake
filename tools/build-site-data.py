@@ -26,12 +26,13 @@ def main():
     ap.add_argument("--resolved", default="resolved.jsonl")
     ap.add_argument("--failures", default="failures.jsonl")
     ap.add_argument("--blocklist", default="blocklist.txt")
-    ap.add_argument("--locks", default="locks")
+    ap.add_argument("--pins", default="pins.jsonl")
     ap.add_argument("--out", default="site-data.json")
     args = ap.parse_args()
 
     index = json.load(open(args.index))
     by_name = {r["name"]: r for r in read_jsonl(args.resolved)}
+    pins = {p["name"]: p for p in read_jsonl(args.pins)}
     blocked = set()
     if os.path.exists(args.blocklist):
         blocked = {
@@ -45,16 +46,10 @@ def main():
         locked = entry["locked"]
         row = by_name.get(name, {})
 
-        # The size of the input graph: from the committed lock as resolve.py
-        # saw it, or from the stored lock when that is what the loader uses.
-        lock_nodes = row.get("lock_nodes")
-        if entry.get("lock"):
-            key = locked.get("rev") or locked["narHash"].replace("/", "_").replace(
-                "=", ""
-            )
-            path = os.path.join(args.locks, f"{key}.json")
-            if os.path.exists(path):
-                lock_nodes = max(len(json.load(open(path)).get("nodes", {})) - 1, 0)
+        # The size of the input graph, as pin.py saw the lock the loader
+        # uses; the committed lock's count from resolve.py stands in for a
+        # pin recorded before pin.py kept it.
+        lock_nodes = pins.get(name, {}).get("lock_nodes", row.get("lock_nodes"))
 
         flakes.append(
             {
