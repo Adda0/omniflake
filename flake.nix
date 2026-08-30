@@ -169,7 +169,7 @@
           meta = { inherit description; };
         }) tools.descriptions
         // {
-          # `nix run .#serve [port]` — the built site on a local port.
+          # `nix run .#serve [port]`: the built site on a local port.
           serve = {
             type = "app";
             program = "${

@@ -1,34 +1,30 @@
 # Caveats
 
-Read these before depending on this.
+**Trust.** Adding omniflake delegates the pinning of every indexed flake to
+this repository. Each pin carries a NAR hash, so a fetched tree matches what
+was pinned. Whether the pinned revision is a good one is not checked.
 
-**Trust.** One input line delegates the pinning of thousands of repositories
-to this repository. Every pin carries a NAR hash, so what you fetch is what was
-pinned; whether what was pinned is any good is a different question.
+**Names are API.** Attribute names do not change once assigned. See
+[Adding a flake](./adding-a-flake.md).
 
-**Names are API.** Attribute names cannot be renamed without breaking
-consumers. See [Adding a flake](./adding-a-flake.md).
-
-**Unification is a deviation.** Substituting your `nixpkgs` into every flake is
-what you want for modules and overlays, and it is also not what each author
-tested against. `omniflake.pinned.<name>` is there for when that matters. See
+**Unification changes inputs.** `omniflake.flakes.<name>` substitutes your
+`nixpkgs` and four other inputs into every flake. That is usually what
+modules and overlays need, and it is a configuration the flake's author did
+not test. `omniflake.pinned.<name>` uses the author's lock instead. See
 [Unification](./unification.md).
 
-**These are not flake inputs.** `nix flake metadata` lists five inputs, not
-thousands. `--override-input omniflake/foo` cannot reach a subflake, and
-`nix flake update` does not advance one; this repository's update job does. To
-substitute something into a flake, use `omniflake.lib.load` or
-`omniflake.lib.withOverrides`.
+**Indexed flakes are not flake inputs.** `nix flake metadata` lists five
+inputs. `--override-input` cannot reach an indexed flake and
+`nix flake update` does not advance one. Use `omniflake.lib.load` or
+`omniflake.lib.withOverrides` to substitute inputs.
 
-**A stale lock is repaired by Nix, at index time.** When a flake ships no
-`flake.lock`, or one that no longer matches its `flake.nix`, the lock Nix
-computes for it is stored here. Inputs that lock resolved from a moving branch
-were resolved when the index was built, not when the author last did.
+**Computed locks.** When a flake ships no `flake.lock`, or one that does not
+match its `flake.nix`, the index stores the lock Nix computed at pin time.
+Inputs written as a branch were resolved when the index was built.
 
-**Some flakes need `pipe-operators`.** A `flake.nix` written with the pipe
-operator cannot be parsed without that experimental feature. Such flakes are
-pinned with it enabled, and evaluating one needs it enabled too.
+**`pipe-operators`.** Some `flake.nix` files use the pipe operator. They are
+pinned with that experimental feature enabled, and evaluating them requires
+it as well.
 
-**`nix flake check` here forces everything.** Consumers are lazy; this
-repository's checks evaluate a sample, and its formatter is one of its own
-flakes.
+**Checks evaluate a sample.** This repository's checks evaluate a fixed set
+of flakes and a random sample, not the whole index.

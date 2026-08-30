@@ -1,6 +1,6 @@
 // The index browser: one page over site-data.json. It answers "is X in here,
 // under what name, at which revision", and shows what could not be pinned.
-// Preact with htm tagged templates — no build step; "htm/preact" resolves
+// Preact with htm tagged templates, no build step; "htm/preact" resolves
 // through the import map in index.html to a pinned CDN bundle.
 import { html, render, useState, useEffect, useMemo } from "htm/preact";
 
@@ -111,7 +111,7 @@ function Flake({ f }) {
             >${f.owner}/${f.repo}</a
           >
           ${f.description &&
-          html`<span class="muted"> — ${f.description}</span>`}
+          html`<span class="muted">: ${f.description}</span>`}
         </div>
         <div class="num">${f.stars.toLocaleString()}</div>
         <div class="num muted">${isoDate(f.lastModified)}</div>

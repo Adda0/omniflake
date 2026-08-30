@@ -1,9 +1,10 @@
 # omniflake
 
-> Please read this [blog post](https://fzakaria.com/2026/08/28/one-flake-to-rule-them-all) for context.
+> Background: [One flake to rule them all](https://fzakaria.com/2026/08/28/one-flake-to-rule-them-all).
 
-Thousands of Nix flakes behind **one input**. No `url` and `follows` block per
-dependency; reach in for what you need and pay nothing for the rest.
+Thousands of Nix flakes behind one flake input. Add omniflake once and use
+any indexed flake by name; a flake is fetched only when you evaluate
+something from it.
 
 ```nix
 {
@@ -44,38 +45,36 @@ dependency; reach in for what you need and pay nothing for the rest.
 ## Quickstart
 
 ```console
-# what is in here
+# number of indexed flakes
 $ nix eval github:fzakaria/omniflake#lib.count
 
-# use one, without adding it as an input
+# run a package from one of them
 $ nix run 'github:fzakaria/omniflake#flakes.nh.packages.x86_64-linux.default'
 ```
 
-Adding omniflake costs one small fetch and adds **six nodes** to your lock
-file, however many flakes are in the index. A flake is fetched only when you
-evaluate something from it:
+Adding omniflake as an input adds six nodes to your `flake.lock`: omniflake
+and its five inputs. The indexed flakes are not inputs and do not appear in
+your lock file.
 
 ```console
 $ time nix flake lock
 real    0m1.5s
 ```
 
-## Three ways to reach a flake
+## Attributes
 
-| attribute                         | `nixpkgs` (and four other foundations) come from     |
-| --------------------------------- | ---------------------------------------------------- |
-| `omniflake.flakes.<name>`         | you, at every depth — what modules and overlays want |
-| `omniflake.pinned.<name>`         | the flake's own lock, exactly as its author tested   |
-| `omniflake.lib.load "<name>" {…}` | whatever you pass; `{ }` means the author's pins     |
+| attribute                          | `nixpkgs` and the other four foundation inputs come from     |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `omniflake.flakes.<name>`          | omniflake's inputs, substituted at every depth               |
+| `omniflake.pinned.<name>`          | the flake's own lock file                                    |
+| `omniflake.lib.load "<name>" {…}`  | the attribute set you pass; `{ }` means the flake's own lock |
+| `omniflake.lib.withOverrides {…}`  | the attribute set you pass, for every flake                  |
+| `omniflake.lib.names`, `lib.count` | metadata; forces no fetch                                    |
 
-See [Unification](./docs/unification.md).
+See [Unification](./docs/unification.md) for what is substituted and why.
 
-## Why not just add the flakes yourself
+## Caveats
 
-You can, and for three or four you should. This exists for the case where you
-want `disko` today and `lanzaboote` next week without another four lines and
-another thing to update — and because a single `follows` here redirects
-`nixpkgs` in every one of them at once, at any depth.
-
-See [Caveats](./docs/caveats.md) first. It asks you to trust one repository's
-pinning of thousands of others.
+Using omniflake means trusting this repository's pinning of every indexed
+flake. Attribute names are stable API. See [Caveats](./docs/caveats.md)
+before depending on it.

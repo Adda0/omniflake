@@ -1,4 +1,4 @@
-# `nix run .#serve [port]` — the built site on a local port, for testing.
+# `nix run .#serve [port]`: the built site on a local port, for testing.
 #
 # The server itself is tools/serve-site.py; this only points it at the
 # store path `nix build .#site` produces.
