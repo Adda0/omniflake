@@ -1,9 +1,14 @@
 # Building the index
 
 ```console
-$ ./tools/update.sh              # discover new flakes, pin them, regenerate
-$ ./tools/update.sh --refresh    # also re-pin every known flake
-$ ./tools/update.sh --no-harvest # skip GitHub search; pin and regenerate
+# discover new flakes, pin them, regenerate
+$ ./tools/update.sh
+
+# also re-pin every known flake
+$ ./tools/update.sh --refresh
+
+# skip GitHub search; pin and regenerate
+$ ./tools/update.sh --no-harvest
 ```
 
 `PIN_JOBS=64` sets how many `nix flake metadata` processes run at once. The
@@ -82,7 +87,10 @@ its lock is stale and an input is written as a branch.
 retried with the token in a second pass; `update.sh` runs both:
 
 ```console
+# first pass, without a token
 $ ./tools/pin.py --jobs 64
+
+# second pass over the failures, with a token
 $ ./tools/pin.py --jobs 16 --retry-failed --use-token
 ```
 

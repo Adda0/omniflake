@@ -39,10 +39,16 @@ the fetches.
 Nothing is fetched until an attribute of the result is forced. Reading
 `index.json` costs an evaluation of a 3 MB JSON file and no network access.
 
+Fetches nothing:
+
 ```console
-$ nix eval github:fzakaria/omniflake#lib.count           # fetches nothing
+$ nix eval github:fzakaria/omniflake#lib.count
+```
+
+Fetches `nh` and nothing else:
+
+```console
 $ nix eval github:fzakaria/omniflake#flakes.nh.packages.x86_64-linux.default.name
-                                                          # fetches nh only
 ```
 
 ## Lock files

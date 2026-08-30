@@ -6,14 +6,16 @@
 outside GitHub. It is read on every run. One entry per line:
 
 ```
-nix-community/disko          a GitHub repo, pinned to its default branch
-github:owner/repo/v1.2.3     pinned to a ref you choose
-gitlab:owner/repo            any flake reference Nix can fetch
+nix-community/disko
+github:owner/repo/v1.2.3
+gitlab:owner/repo
 ```
 
-A bare `owner/repo` becomes a candidate and is resolved by `tools/resolve.py`
-like a harvested repository. Any other form is resolved with
-`nix flake metadata` and pinned to an exact revision.
+- `owner/repo`: a GitHub repository, pinned to its default branch. It
+  becomes a candidate and is resolved by `tools/resolve.py` like a harvested
+  repository.
+- Any other flake reference Nix can fetch, including a specific ref. It is
+  resolved with `nix flake metadata` and pinned to an exact revision.
 
 To add a flake, add a line to `manual.txt` and regenerate:
 

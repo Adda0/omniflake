@@ -24,7 +24,8 @@ something from it.
 }
 ```
 
-**Documentation:** [How it works](./docs/how-it-works.md) ·
+**Documentation:** [How to use it](./docs/using.md) ·
+[How it works](./docs/how-it-works.md) ·
 [Unification](./docs/unification.md) ·
 [Adding or removing a flake](./docs/adding-a-flake.md) ·
 [Building the index](./docs/building-the-index.md) ·
