@@ -14,7 +14,7 @@ Also prunes what nothing references any more: pins and failures for
 revisions no longer in the library, and stored locks no index entry uses.
 """
 
-import argparse, json, os, re, sys
+import argparse, json, os, re, sys, time
 
 from pin import FOUNDATIONS, flake_ref, lock_key, read_jsonl
 
@@ -83,6 +83,7 @@ def update_readme(path, stats):
             f"({stats['failed']:,} could not be pinned, {stats['unpinned']:,} not yet pinned)",
             f"- {stats['stored_locks']:,} ship no usable lock file and use one computed by Nix",
             f"- One `follows` line in your flake redirects `nixpkgs` in every one of them",
+            f"- Last updated {time.strftime('%Y-%m-%d', time.gmtime())}",
             STATUS_END,
         ]
     )
