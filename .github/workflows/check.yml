@@ -16,6 +16,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: DeterminateSystems/nix-installer-action@v16
+        with:
+          # Some indexed flakes are written with the pipe operator; they are
+          # pinned with the feature on and need it on to evaluate.
+          extra-conf: |
+            experimental-features = nix-command flakes pipe-operators
 
       # Pushes what the job builds: the formatter, the tools, the docs and
       # site derivations. Pull requests from forks have no token and only
@@ -45,7 +50,10 @@ jobs:
 
       - name: Evaluate a sample
         # The loader is exercised on a few well-known flakes and on a
-        # random slice of the index, unified and as pinned.
+        # random slice of the index. A flake that fails as `pinned` is an
+        # index bug and fails the job. One that evaluates as `pinned` but
+        # not as `flakes` broke under unification, which the docs say can
+        # happen; it is reported, not fatal.
         run: |
           set -euo pipefail
           for name in disko nh home-manager sops-nix agenix; do
@@ -55,14 +63,20 @@ jobs:
           import json, random, subprocess, sys
           names = json.load(sys.stdin)
           random.seed()
-          failed = 0
+          failed = unified_only = 0
           for name in random.sample(names, min(25, len(names))):
-              for attr in ("flakes", "pinned"):
+              results = {}
+              for attr in ("pinned", "flakes"):
                   expr = f".#{attr}.{name}.sourceInfo.narHash"
                   r = subprocess.run(["nix", "eval", "--raw", expr], capture_output=True, text=True)
-                  print(("ok " if r.returncode == 0 else "FAIL ") + expr)
-                  if r.returncode != 0:
+                  results[attr] = r.returncode == 0
+                  print(("ok " if results[attr] else "FAIL ") + expr)
+                  if not results[attr]:
                       print(r.stderr[-800:])
-                      failed += 1
+              if not results["pinned"]:
+                  failed += 1
+              elif not results["flakes"]:
+                  unified_only += 1
+          print(f"index failures: {failed}; broken by unification: {unified_only}")
           sys.exit(1 if failed else 0)
           '
