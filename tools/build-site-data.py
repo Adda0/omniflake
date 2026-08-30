@@ -20,6 +20,27 @@ def read_jsonl(path):
                 yield json.loads(line)
 
 
+def error_message(text):
+    """The line of a Nix error that says what went wrong.
+
+    Nix prints a trace of "… while" lines, then the message as the last
+    "error: ..." line, then for a parse error an excerpt of the source, so
+    the last line of the output is often a line of someone's flake.nix.
+    The message is the last "error:" line with content; a following
+    "at file:line" line is kept, since it says where.
+    """
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    message = ""
+    for i, line in enumerate(lines):
+        if line.startswith("error:") and len(line) > len("error:"):
+            message = line[len("error:") :].strip()
+            if i + 1 < len(lines) and lines[i + 1].startswith("at "):
+                message += " " + lines[i + 1].rstrip(":")
+    if not message and lines:
+        message = lines[-1]
+    return message
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", default="index.json")
@@ -79,13 +100,11 @@ def main():
         if f.get("transient"):
             pending += 1
             continue
-        # The last line of Nix's trace is the one that says what went wrong.
-        error = [l for l in f["error"].splitlines() if l.strip()]
         failures.append(
             {
                 "name": f["name"],
                 "ref": f["ref"],
-                "error": error[-1].strip() if error else "",
+                "error": error_message(f["error"]),
                 "stars": by_name.get(f["name"], {}).get("stars", 0),
             }
         )
