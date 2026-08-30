@@ -54,34 +54,6 @@ jobs:
           git diff --exit-code -- index.json pins.jsonl failures.jsonl locks
 
       - name: Evaluate a sample
-        # Informational. The index holds third-party flakes, and some do not
-        # evaluate even from their own lock (an eager reference to a system
-        # their nixpkgs dropped, say), so a random sample cannot be a pass
-        # or fail signal. The counts go to the job summary.
-        run: |
-          nix eval --json .#lib.names | python3 -c '
-          import json, os, random, subprocess, sys
-          names = json.load(sys.stdin)
-          sample = random.sample(names, min(25, len(names)))
-          counts = {"ok": 0, "unification": 0, "broken": 0}
-          for name in sample:
-              results = {}
-              for attr in ("pinned", "flakes"):
-                  expr = f".#{attr}.{name}.sourceInfo.narHash"
-                  r = subprocess.run(["nix", "eval", "--raw", expr], capture_output=True, text=True)
-                  results[attr] = r.returncode == 0
-                  print(("ok " if results[attr] else "FAIL ") + expr)
-                  if not results[attr]:
-                      print(r.stderr.strip().splitlines()[-1][:200])
-              if results["pinned"] and results["flakes"]:
-                  counts["ok"] += 1
-              elif results["pinned"]:
-                  counts["unification"] += 1
-              else:
-                  counts["broken"] += 1
-          line = (f"sample of {len(sample)}: {counts[\"ok\"]} evaluate, "
-                  f"{counts[\"unification\"]} only as pinned, {counts[\"broken\"]} not at all")
-          print(line)
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
-              fh.write(line + "\n")
-          '
+        # Informational: see tools/sample.py. The counts go to the job
+        # summary.
+        run: python3 tools/sample.py --size 25
