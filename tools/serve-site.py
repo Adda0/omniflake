@@ -3,7 +3,7 @@
 
 Not a bare `python -m http.server`: every file in a store output carries the
 epoch as its mtime, so If-Modified-Since would 304 a file from a *previous*
-build — the browser then shows a stale site across rebuilds no matter what
+build, the browser then shows a stale site across rebuilds no matter what
 changed. Ignore conditional requests and forbid caching outright; this server
 exists only for testing. (GitHub Pages serves real validators, so the deployed
 site is unaffected.)

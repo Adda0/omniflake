@@ -1,9 +1,9 @@
-/* Documentation pages. Loaded only under /docs/ — the index browser never
+/* Documentation pages. Loaded only under /docs/, the index browser never
  * pays for it. Every colour is a token from style.css, so the prose picks up
  * light/dark and the site's one accent without redefining either. */
 
 /* The docs are prose, not tables of 60-character revisions, so they get a
- * narrower measure than the index browser's 60rem — but the sidebar sits
+ * narrower measure than the index browser's 60rem, but the sidebar sits
  * outside it, so the page as a whole is wider. */
 body {
   max-width: 74rem;
@@ -209,7 +209,7 @@ body {
 .highlight .nt {
   color: var(--syn-literal);
 }
-/* Plain names, and — the one that matters for these docs — the attribute
+/* Plain names, and, the one that matters for these docs, the attribute
    names on the left of `=` in a Nix block, which the Nix lexer emits as
    String.Symbol. They are the structure of the expression, not values in it,
    so they stay foreground rather than taking the string colour. */

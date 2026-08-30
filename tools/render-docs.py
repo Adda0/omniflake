@@ -51,7 +51,7 @@ def slug(text):
 
 
 def strip_tags(fragment):
-    """The visible text of a heading — `<code>mvs</code>` slugs as `mvs`."""
+    """The visible text of a heading, `<code>mvs</code>` slugs as `mvs`."""
     return html.unescape(re.sub(r"<[^>]+>", "", fragment))
 
 
@@ -108,7 +108,7 @@ CODE_BLOCK = re.compile(r'<pre><code class="language-([^"]+)">(.*?)</code></pre>
 # conventional root prompt, so it reads a comment line as a prompt plus a
 # command and lexes the prose as shell words; and it has never heard of
 # `nix-repl>`, so every REPL line falls through to undifferentiated output.
-# Lexing the REPL lines as Nix is the bigger win — they are Nix expressions,
+# Lexing the REPL lines as Nix is the bigger win, they are Nix expressions,
 # and there are more of them than there are shell commands.
 CONSOLE_PROMPTS = [
     (re.compile(r"^(\s*\$ )(.*)$"), "bash"),
@@ -118,7 +118,7 @@ CONSOLE_COMMENT = re.compile(r"^\s*#")
 
 # Languages whose lexer paints shell builtins, and where that is misleading
 # here: almost every command in these docs is `nix <subcommand>`, and several
-# of those subcommands share a name with a bash builtin — `nix eval`, `nix
+# of those subcommands share a name with a bash builtin, `nix eval`, `nix
 # hash`, `nix run -- test`. The lexer sees `eval` and colours it as the shell's
 # own, which tells the reader something untrue about the word.
 SHELL_LANGS = {"console", "sh", "bash", "shell"}
@@ -167,7 +167,7 @@ def highlight_console(code):
             prompt, command = match.group(1), match.group(2)
             lexer = get_lexer_by_name(lang)
             marked = highlight(command, lexer, FORMATTER).rstrip("\n")
-            # Only the shell half needs it — a `nix-repl>` line is Nix, where
+            # Only the shell half needs it, a `nix-repl>` line is Nix, where
             # `builtins` really is a builtin and should say so.
             is_shell = lang in SHELL_LANGS
             if is_shell:
@@ -224,7 +224,7 @@ def rewrite_links(body):
 
     Two kinds need moving. A `./cli.md` link drops its extension, because the
     published URL is `/docs/cli`. And a link to something else in the
-    repository — a workflow file, say — has no rendered counterpart at all, so
+    repository, a workflow file, say, has no rendered counterpart at all, so
     it goes to GitHub rather than 404ing under /docs/.
 
     Every docs page lives directly in /docs/ and every URL resolves with that
@@ -253,7 +253,7 @@ def rewrite_links(body):
 
 
 def page_order(docs_dir):
-    """The sidebar order, read from the ordered list in index.md — one source
+    """The sidebar order, read from the ordered list in index.md, one source
     of truth that stays readable on GitHub."""
     with open(os.path.join(docs_dir, "index.md")) as fh:
         text = fh.read()
@@ -291,8 +291,8 @@ def provenance(commit, store_path):
     """The two footer lines naming the build: the commit the pages were
     rendered from and the store path serving them.
 
-    The index browser writes these from app.js, which cannot help here — a
-    docs page runs no JavaScript — so they are stamped in. The placeholder
+    The index browser writes these from app.js, which cannot help here, a
+    docs page runs no JavaScript, so they are stamped in. The placeholder
     test is app.js's: a local checkout has nothing honest to say and shows
     neither line.
     """
@@ -381,7 +381,7 @@ def shell(title, body, nav, name, commit, store_path, origin):
 
 def main():
     cmark, docs_dir, out_dir = sys.argv[1:4]
-    # Rendering outside the site derivation — a local preview — knows none of
+    # Rendering outside the site derivation, a local preview, knows none of
     # these. The placeholders keep the footer lines off the page, and an empty
     # origin keeps the canonical link off it.
     origin = sys.argv[4] if len(sys.argv) > 4 else ""
@@ -423,8 +423,8 @@ def main():
         with open(os.path.join(out_dir, f"{name}.html"), "w") as fh:
             fh.write(page)
 
-    # Anything beside the markdown — the diagrams a page links to as
-    # `./name.svg` — goes across untouched. GitHub reads those links straight
+    # Anything beside the markdown, the diagrams a page links to as
+    # `./name.svg`, goes across untouched. GitHub reads those links straight
     # out of the repository, so the site has to serve them under the same
     # names for one link to work in both readers.
     assets = [f for f in sorted(os.listdir(docs_dir)) if not f.endswith(".md")]

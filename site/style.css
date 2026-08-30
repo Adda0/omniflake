@@ -40,7 +40,7 @@ h1 a {
 }
 
 /* The site header: the title on the left, the top-level destinations on the
-   right. Deliberately borderless — on the index the SPA's own view tabs draw
+   right. Deliberately borderless, on the index the SPA's own view tabs draw
    a rule immediately below it, and two rules stacked read as a boxed-in
    header. Wraps to two lines on a narrow phone rather than shrinking. */
 header.site {
@@ -169,7 +169,7 @@ code {
  * Deliberately NOT <details>/<summary>: every row carries commit and
  * channel-build links, everything visible while collapsed must live inside
  * <summary>, and an interactive element nested in a <summary> is not reliably
- * keyboard-reachable — Chromium reported 348 of them. The disclosure is a real
+ * keyboard-reachable, Chromium reported 348 of them. The disclosure is a real
  * <button> and the links are its siblings; see the Row component in js/ui.js.
  *
  * The button takes the first grid column rather than being absolutely
@@ -183,7 +183,7 @@ code {
   align-items: baseline;
   padding: 0.3rem 0;
 }
-/* A channel build name — nixos-26.11pre1051473.2fcb964de67f — is one token with
+/* A channel build name, nixos-26.11pre1051473.2fcb964de67f, is one token with
    no break the browser will take, so its min-content width is the whole string.
    In the trailing 1fr track that becomes a floor the grid cannot go below, and
    between roughly 640px and 780px of viewport it pushed the document wider than
@@ -221,7 +221,7 @@ code {
   text-align: left;
 }
 /* The row is clickable as a convenience, so the button is the only thing that
-   takes focus — it needs a visible ring or keyboard users cannot see where
+   takes focus, it needs a visible ring or keyboard users cannot see where
    they are. */
 .disclose:focus-visible {
   outline: 2px solid var(--accent);
@@ -320,7 +320,7 @@ footer {
   font-size: 13px;
   text-align: center;
 }
-/* The second footer line: a store path is a single 68-character token —
+/* The second footer line: a store path is a single 68-character token , 
      broken across lines it is unreadable and awkward to select. Hold it on
      one line and let the font shrink instead: 12px needs ~490px, which the
      measure has on a desktop but a phone does not, so the vw term takes
@@ -431,7 +431,7 @@ footer {
   stroke-width: 1;
 }
 
-/* Legend — always present for two or more series, so identity never rests on
+/* Legend, always present for two or more series, so identity never rests on
    color alone. The swatch carries the hue; the text stays in ink. */
 .legend {
   display: flex;
@@ -506,7 +506,7 @@ footer {
 }
 
 /* KPI row: the headline numbers, which are stat tiles rather than a one-bar
-   chart. Proportional figures — tabular-nums makes a big number look loose. */
+   chart. Proportional figures, tabular-nums makes a big number look loose. */
 .kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
@@ -546,7 +546,7 @@ footer {
     monospace;
 }
 /* A selected version: the bar changes hue AND its row is shaded. A run can be
-   a single revision — three pixels — and colour alone on a mark that small is
+   a single revision, three pixels, and colour alone on a mark that small is
    not a signal anyone can find. */
 .tl-sel .tl-bar {
   fill: var(--chart-removed);
@@ -615,7 +615,7 @@ footer {
 }
 
 /* The radial dependency graph. The svg is a map viewport: zooming rewrites
-   its viewBox, so content must CLIP at the edge — overflow:visible let a
+   its viewBox, so content must CLIP at the edge, overflow:visible let a
    zoomed graph spill across the whole page. The border makes the viewport
    readable as a thing with an inside. */
 .graphbox {
@@ -697,7 +697,7 @@ footer {
 /* Delta text in the revisions table (js/views/revisions.js), reused by the
    dep diff in js/views/package-store.js. The +/− sign carries the meaning and the
    color is the secondary channel, which is what keeps this readable under
-   red-green CVD — the most common kind, and the reason a bare red/green pair
+   red-green CVD, the most common kind, and the reason a bare red/green pair
    is never allowed to carry meaning alone.
 
    Measured against both surfaces: added 7.54 light / 5.29 dark, removed 4.80
@@ -736,7 +736,7 @@ footer {
  * heading line that carries it.
  *
  * The button used to be float:right, which pins it beside the FIRST line of the
- * heading — so once the heading wrapped, which it does on any phone, the button
+ * heading, so once the heading wrapped, which it does on any phone, the button
  * stayed up on line one and the wrapped text ran underneath it, landing the
  * control on top of the rows below. As a flex item it sits at the end of the
  * line and drops to a line of its own when the heading needs one. */
@@ -747,7 +747,7 @@ footer {
   gap: 0.2rem 0.8rem;
 }
 /* The package view's row holds nothing but the controls, so they sit at the
-   right edge where "expand all" has always been — and the row carries the
+   right edge where "expand all" has always been, and the row carries the
    spacing the heading used to, since it replaced one. */
 .pkgcontrols {
   margin: 1rem 0 0.3rem;
@@ -812,13 +812,13 @@ footer {
  *
  * One breakpoint, placed where the widest table stops being a table. The
  * version table's fixed tracks and gaps come to 30rem before its last column
- * holds a single character, and a channel build name wants another 19rem — so
+ * holds a single character, and a channel build name wants another 19rem, so
  * a table that fits needs about 50rem of viewport, and 48rem is the round
  * number just under it. (Between the two the name takes a second line, which
  * costs a line and nothing else.) A phone was nowhere near either figure: every
  * table pushed the document wider than the screen, which costs more than the
  * tables, since a document wider than the viewport strands every full-width
- * block at viewport width — the copyable commands sat in a box narrower than
+ * block at viewport width, the copyable commands sat in a box narrower than
  * the page they were on.
  *
  * Below the breakpoint the tables stop being tables, and the horizontal padding
@@ -854,7 +854,7 @@ footer {
     flex-wrap: wrap;
     gap: 0.1rem 0.6rem;
   }
-  /* Last cell in every table is the channel build — the longest string in the
+  /* Last cell in every table is the channel build, the longest string in the
      row and the least load-bearing. On its own line it leaves the cells that
      identify the row (version, date, commit) together on the first one, and it
      is indented clear of the disclosure marker so it still reads as part of the
@@ -870,7 +870,7 @@ footer {
 
   /* A command that scrolls sideways inside a page is a poor target for a thumb,
      and no font size fits `nix run '…#versions.python3Packages.foo."3.8.2"'` on
-     a phone anyway — so on a narrow screen the command wraps instead of
+     a phone anyway, so on a narrow screen the command wraps instead of
      scrolling. Nothing is lost by it: the copy button, not a text selection, is
      how a command gets off this page. */
   .cmd {
