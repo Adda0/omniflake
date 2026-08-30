@@ -123,7 +123,7 @@ Passing `{ }` is the same as `pinned`. See [Unification](./unification.md).
 
 The attribute name is the repository name, with the owner appended when two
 repositories share one. The index is searchable at
-<https://fzakaria.github.io/omniflake/>, or:
+<https://omniflake.com/>, or:
 
 ```console
 $ nix eval --json github:fzakaria/omniflake#lib.names | jq -r '.[]' | grep sops

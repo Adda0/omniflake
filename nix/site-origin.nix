@@ -2,5 +2,5 @@
 # its canonical link; the rendered docs need it for theirs, and this is the
 # one statement of it the Nix side makes.
 {
-  siteOrigin = "https://fzakaria.github.io/omniflake";
+  siteOrigin = "https://omniflake.com";
 }
