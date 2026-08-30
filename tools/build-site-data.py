@@ -68,9 +68,16 @@ def main():
             }
         )
 
+    # A transient failure (GitHub's quota, a gateway error) says nothing
+    # about the flake and is retried by the next run, so it is counted but
+    # not listed as unpinnable.
     failures = []
+    pending = 0
     for f in read_jsonl(args.failures):
         if f["name"] in blocked:
+            continue
+        if f.get("transient"):
+            pending += 1
             continue
         # The last line of Nix's trace is the one that says what went wrong.
         error = [l for l in f["error"].splitlines() if l.strip()]
@@ -88,12 +95,15 @@ def main():
         "generated": int(time.time()),
         "count": len(flakes),
         "storedLocks": sum(1 for f in flakes if f["storedLock"]),
+        "pending": pending,
         "flakes": flakes,
         "failures": failures,
     }
     with open(args.out, "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
-    print(f"site-data: {len(flakes)} flakes, {len(failures)} failures")
+    print(
+        f"site-data: {len(flakes)} flakes, {len(failures)} failures, {pending} pending retry"
+    )
 
 
 if __name__ == "__main__":

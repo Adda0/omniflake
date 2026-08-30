@@ -22,7 +22,7 @@ crash or with a grown library only touches what is new.
 
 Reads library rows ({name, owner, repo, rev, [url], stars, ...}) and writes:
     pins.jsonl      {name, ref, locked, lock: bool, lock_nodes}  per success
-    failures.jsonl  {name, ref, error}                appended per failure
+    failures.jsonl  {name, ref, error, transient}     appended per failure
     locks/REV.json  Nix's computed lock, when it differs from the committed one
 
 Stored locks are keyed by revision, not by attribute name: a revision is
@@ -122,21 +122,30 @@ def run_metadata(ref, use_token):
                 return None, f"unparseable metadata: {e}"
         err = proc.stderr.strip()
         # A throttled GitHub is the one failure worth waiting out.
-        transient = any(
-            s in err
-            for s in (
-                "HTTP error 429",
-                "HTTP error 503",
-                "HTTP error 502",
-                "Could not resolve host",
-                "Failed to connect",
-                "rate limit",
-            )
-        )
-        if not transient or attempt == 1:
+        if not is_transient(err) or attempt == 1:
             return None, err[-ERROR_TAIL_CHARS:]
         time.sleep(RETRY_DELAY_SECONDS)
     return None, "unreachable"
+
+
+# Errors that say nothing about the flake: GitHub's quota, a gateway
+# error, the network. A failure of this kind is recorded as transient, is
+# retried by the next run like any other, and is not reported as a flake
+# that cannot be pinned.
+TRANSIENT_MARKERS = (
+    "HTTP error 429",
+    "HTTP error 502",
+    "HTTP error 503",
+    "HTTP error 504",
+    "Could not resolve host",
+    "Failed to connect",
+    "rate limit",
+    "timeout after",
+)
+
+
+def is_transient(error):
+    return any(marker in error for marker in TRANSIENT_MARKERS)
 
 
 def tarball_cache():
@@ -259,7 +268,12 @@ def pin_one(row, use_token, locks_dir):
     ref = flake_ref(row)
     meta, err = run_metadata(ref, use_token)
     if meta is None:
-        return "fail", {"name": row["name"], "ref": ref, "error": err}
+        return "fail", {
+            "name": row["name"],
+            "ref": ref,
+            "error": err,
+            "transient": is_transient(err),
+        }
 
     locked = {k: v for k, v in meta["locked"].items() if k not in INTERNAL_LOCKED_ATTRS}
     nix_lock = meta.get("locks") or {}

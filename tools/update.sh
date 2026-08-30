@@ -13,6 +13,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# GitHub search, GraphQL and the authenticated pin pass all take the token
+# from GH_TOKEN. CI sets it; locally it comes from the gh CLI's login.
+export GH_TOKEN="${GH_TOKEN:-$(gh auth token 2>/dev/null || true)}"
+
 HARVEST=1
 REFRESH=""
 for arg in "$@"; do

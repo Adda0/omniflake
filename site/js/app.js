@@ -35,7 +35,7 @@ const KPIS = [
   {
     label: "could not be pinned",
     value: (d) => d.failures.length,
-    tip: "Flakes in the library that nix flake metadata could not lock: a deleted repository, an input that no longer resolves, a syntax error. See the 'Not pinnable' tab for each reason.",
+    tip: "Flakes in the library that nix flake metadata could not lock: a deleted repository, an input that no longer resolves, a syntax error. See the 'Not pinnable' tab for each reason. Attempts that failed on GitHub's rate limit or a network error are not counted; they are retried by the next run.",
   },
 ];
 
@@ -255,8 +255,10 @@ function Failures({ data }) {
   return html`
     <p class="muted">
       Flakes in the library that Nix could not lock, with the last line of its
-      error. A fix in the upstream repository is picked up on the next weekly
-      run.
+      error. A fix in the upstream repository is picked up by the next daily
+      run.${" "}${data.pending > 0 &&
+      html`${data.pending} more failed on GitHub's rate limit or a network error
+      and are not listed; they are retried by the next run.`}
     </p>
     <div class="failures">
       <div class="head">
