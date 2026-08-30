@@ -40,6 +40,11 @@ jobs:
           git diff --exit-code flake.lock
           echo "flakes indexed: $(nix eval .#lib.count)"
 
+      # tests/index.nix (index and locks/ are consistent), tests/loader.nix
+      # (the loader on flakes known to evaluate) and the formatter.
+      - name: Checks
+        run: nix flake check -L
+
       - name: Index matches the databases
         # index.json is derived from pins.jsonl, failures.jsonl and the
         # blocklist. A hand edit that drifts from them is caught here.
@@ -49,22 +54,17 @@ jobs:
           git diff --exit-code -- index.json pins.jsonl failures.jsonl locks
 
       - name: Evaluate a sample
-        # The loader is exercised on a few well-known flakes and on a
-        # random slice of the index. A flake that fails as `pinned` is an
-        # index bug and fails the job. One that evaluates as `pinned` but
-        # not as `flakes` broke under unification, which the docs say can
-        # happen; it is reported, not fatal.
+        # Informational. The index holds third-party flakes, and some do not
+        # evaluate even from their own lock (an eager reference to a system
+        # their nixpkgs dropped, say), so a random sample cannot be a pass
+        # or fail signal. The counts go to the job summary.
         run: |
-          set -euo pipefail
-          for name in disko nh home-manager sops-nix agenix; do
-            nix eval --raw ".#flakes.${name}.sourceInfo.rev" >/dev/null && echo "ok flakes.${name}"
-          done
           nix eval --json .#lib.names | python3 -c '
-          import json, random, subprocess, sys
+          import json, os, random, subprocess, sys
           names = json.load(sys.stdin)
-          random.seed()
-          failed = unified_only = 0
-          for name in random.sample(names, min(25, len(names))):
+          sample = random.sample(names, min(25, len(names)))
+          counts = {"ok": 0, "unification": 0, "broken": 0}
+          for name in sample:
               results = {}
               for attr in ("pinned", "flakes"):
                   expr = f".#{attr}.{name}.sourceInfo.narHash"
@@ -72,11 +72,16 @@ jobs:
                   results[attr] = r.returncode == 0
                   print(("ok " if results[attr] else "FAIL ") + expr)
                   if not results[attr]:
-                      print(r.stderr[-800:])
-              if not results["pinned"]:
-                  failed += 1
-              elif not results["flakes"]:
-                  unified_only += 1
-          print(f"index failures: {failed}; broken by unification: {unified_only}")
-          sys.exit(1 if failed else 0)
+                      print(r.stderr.strip().splitlines()[-1][:200])
+              if results["pinned"] and results["flakes"]:
+                  counts["ok"] += 1
+              elif results["pinned"]:
+                  counts["unification"] += 1
+              else:
+                  counts["broken"] += 1
+          line = (f"sample of {len(sample)}: {counts[\"ok\"]} evaluate, "
+                  f"{counts[\"unification\"]} only as pinned, {counts[\"broken\"]} not at all")
+          print(line)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
+              fh.write(line + "\n")
           '
