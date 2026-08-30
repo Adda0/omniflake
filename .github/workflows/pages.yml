@@ -42,6 +42,14 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v16
 
+      # Pushes what the job builds: the formatter, the tools, the docs and
+      # site derivations. Pull requests from forks have no token and only
+      # pull.
+      - uses: cachix/cachix-action@v17
+        with:
+          name: omniflake
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
       - name: Build the site
         # The store output is read-only and symlinked; the pages artifact
         # needs a plain writable directory, so dereference-copy it out.
