@@ -1,3 +1,9 @@
+# The pipeline databases. Nothing evaluates them, so they are not carried
+# in the flake tree: they live on dated release cuts, addressed by
+# data-pins.json, and tools/fetch-data.sh puts them here.
+resolved.jsonl
+pins.jsonl
+candidates.jsonl
 # Derived from resolved.jsonl by tools/classify.py on every run.
 library.jsonl
 personal.jsonl

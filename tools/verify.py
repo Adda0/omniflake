@@ -24,6 +24,7 @@ $GITHUB_STEP_SUMMARY when that is set.
 """
 
 import argparse, concurrent.futures, json, os, subprocess, sys, tempfile
+import urllib.request
 
 from pin import lock_key, pin_one, read_jsonl
 
@@ -45,9 +46,28 @@ def file_at(base, path):
 
 
 def pins_at(base):
-    """pins.jsonl at the base revision, keyed by exact flake reference."""
+    """pins.jsonl as of the base revision, keyed by exact flake reference.
+
+    pins.jsonl is not committed; data-pins.json is, and it names the release
+    asset holding the bytes that went with that commit. So the base's pins
+    are one indirection away: read the manifest at the base revision, then
+    download the asset it pins. The narHash is not re-checked here — this
+    is a comparison baseline, and a tampered baseline can only cause a pin
+    to be re-derived needlessly, which is what this tool does anyway.
+    """
+    manifest = json.loads(file_at(base, "data-pins.json"))
+    pin = manifest["files"].get("pins.jsonl")
+    if not pin:
+        sys.exit(f"data-pins.json at {base} has no pin for pins.jsonl")
+    url = f"{manifest['baseUrl']}/{pin['tag']}/pins.jsonl"
+    try:
+        with urllib.request.urlopen(url, timeout=120) as fh:
+            text = fh.read().decode()
+    except Exception as e:
+        sys.exit(f"cannot fetch {url}: {e}")
+
     rows = {}
-    for line in file_at(base, "pins.jsonl").splitlines():
+    for line in text.splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
             continue

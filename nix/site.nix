@@ -1,9 +1,11 @@
 # The deployable site: the static files from site/, the rendered docs, and
 # site-data.json built from the committed index and databases.
 #
-# The data is built here rather than fetched from raw.githubusercontent.com
-# at page load so that the page and the index it describes always deploy
-# together.
+# The data is built here rather than fetched at page load so that the page
+# and the index it describes always deploy together. resolved.jsonl and
+# pins.jsonl are no longer in the tree — they come from the release cut
+# data-pins.json names, in the same commit as this index.json, so the pin is
+# what keeps the pair together.
 { pkgs, self }:
 let
   # The commit stamped into the footer. From a clean checkout self.rev names
@@ -13,14 +15,18 @@ let
 
   docs = import ./docs.nix { inherit pkgs; };
 
+  # The pinned databases. Fetched as fixed-output derivations, so evaluating
+  # this file stays offline and only a build of the site moves any bytes.
+  databases = import ./data.nix { inherit pkgs; };
+
   data = pkgs.runCommand "omniflake-site-data" { nativeBuildInputs = [ pkgs.python3 ]; } ''
     mkdir -p $out
     python3 ${../tools/build-site-data.py} \
       --index ${../index.json} \
-      --resolved ${../resolved.jsonl} \
+      --resolved ${databases."resolved.jsonl"} \
       --failures ${../failures.jsonl} \
       --blocklist ${../blocklist.txt} \
-      --pins ${../pins.jsonl} \
+      --pins ${databases."pins.jsonl"} \
       --out $out/site-data.json
   '';
 in
