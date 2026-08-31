@@ -45,21 +45,23 @@ bash "$HERE/fetch-data.sh"
 if [[ $HARVEST -eq 1 ]]; then
   echo "==> harvesting candidates from GitHub"
   python3 "$HERE/harvest.py" > candidates.new.jsonl 2> harvest.log
-  if [[ -f candidates.jsonl ]]; then
-    sort -u candidates.jsonl candidates.new.jsonl > candidates.merged.jsonl
-    mv candidates.merged.jsonl candidates.jsonl
-  else
-    cp candidates.new.jsonl candidates.jsonl
-  fi
+  # By repository, not by line: `sort -u` kept both rows for a repository
+  # whose star count moved between harvests, and the pool grew a duplicate
+  # every run. The fresh harvest is second, so it wins the star count.
+  python3 "$HERE/merge-candidates.py" candidates.jsonl candidates.new.jsonl \
+    > candidates.merged.jsonl
+  mv candidates.merged.jsonl candidates.jsonl
   rm -f candidates.new.jsonl
 fi
 
-# Hand-listed flakes that search will never find.
+# Hand-listed flakes that search will never find. manual.py appends its
+# bare entries unconditionally, so the pool is folded again afterwards.
 echo "==> adding manual entries"
 python3 "$HERE/manual.py" manual.txt \
   --candidates candidates.jsonl --resolved manual.resolved.jsonl
-sort -u candidates.jsonl -o candidates.jsonl
-echo "    $(wc -l < candidates.jsonl) candidates known"
+python3 "$HERE/merge-candidates.py" candidates.jsonl > candidates.merged.jsonl
+mv candidates.merged.jsonl candidates.jsonl
+echo "    $(wc -l < candidates.jsonl) candidate repositories known"
 
 # New candidates are resolved, and the known rows resolved longest ago are
 # re-resolved, so every row comes round on a fixed cadence. With ~16,000

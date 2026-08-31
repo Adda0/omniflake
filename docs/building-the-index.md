@@ -36,6 +36,14 @@ The split is on creation date rather than push date because a creation
 date never moves. The same partition comes out of every run, and no
 repository slips between two windows by being pushed to in between.
 
+A harvest is folded into `candidates.jsonl` by repository, with
+`merge-candidates.py`. It used to be `sort -u`, which deduplicates identical
+*lines*: a repository whose star count moved between harvests produced a
+different line, so both survived and the pool grew a duplicate on every run.
+That had put 24,941 lines behind 24,547 repositories, each duplicate queried
+again by `resolve.py` every night. The rest of the pipeline already keys on
+`(owner, repo)`, and the pool now agrees with it.
+
 One bucket is deliberately not enumerated. `language:Nix stars:0` alone
 holds about 65,000 repositories, nearly all of them abandoned personal
 configurations, and reading it in full would put some 55,000 rows through
@@ -59,6 +67,7 @@ days. `--refresh` re-resolves all of them in one run.
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `harvest.py`          | GitHub search by `language:Nix` and topic, partitioned by star range and creation date to stay under the 1000-result cap |
 | `manual.py`           | reads `manual.txt`, including flakes outside GitHub                                                                      |
+| `merge-candidates.py` | folds harvest output into the candidate pool, one row per repository                                                     |
 | `resolve.py`          | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists                                        |
 | `describe.py`         | fills in a repository description per row, for the site's search                                                         |
 | `classify.py`         | separates personal machine configurations from the library tier                                                          |
