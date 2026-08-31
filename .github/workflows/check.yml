@@ -7,6 +7,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Manual runs, to exercise the workflow itself from a branch before it
+  # lands: gh workflow run check --ref <branch>. The pull_request-gated
+  # verify step stays skipped on these.
+  workflow_dispatch:
   # The daily index commit is pushed with the default token, which starts
   # no push-triggered workflow, so it is checked from here instead.
   workflow_run:
