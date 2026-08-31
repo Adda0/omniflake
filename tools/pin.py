@@ -277,7 +277,9 @@ def pin_one(row, use_token, locks_dir):
 
     locked = {k: v for k, v in meta["locked"].items() if k not in INTERNAL_LOCKED_ATTRS}
     nix_lock = meta.get("locks") or {}
-    shipped = committed_lock(meta["path"], locked, nix_env(use_token))
+    # A Nix with lazy trees may omit `path` from the metadata entirely;
+    # committed_lock then reads the lock through fetchTree instead.
+    shipped = committed_lock(meta.get("path", ""), locked, nix_env(use_token))
 
     # The committed lock is authoritative whenever Nix agrees with it. A
     # stored copy is needed only where Nix had to repair something, or
