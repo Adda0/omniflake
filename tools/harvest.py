@@ -1,15 +1,32 @@
 #!/usr/bin/env python3
 """Harvest candidate flake repositories from GitHub.
 
-GitHub caps any single search at 1000 results, so the repository search is
-partitioned into disjoint star ranges and issued once per topic. Each slice
-stays under the cap, and the union across slices approximates the full set.
+GitHub caps any single search at 1000 results, however many match, and
+offers no cursor past it. The repository search is therefore partitioned
+into disjoint slices, each small enough to read to the end, and the union
+across slices is the answer.
+
+Star ranges are the first axis. A bucket that is still over the cap is
+subdivided on creation date until every piece fits, so the partition is
+derived from what the API reports rather than guessed once and left to
+rot: a hand-tuned boundary silently starts dropping repositories the day
+the bucket behind it crosses 1000, which is how two 3- and 5-star flakes
+went missing (issue #2).
+
+The 0-star bucket is the deliberate exception. It holds ~65,000
+language:Nix repositories on its own, nearly all abandoned personal
+configurations, and enumerating it would push ~55,000 rows through
+resolve, describe and pin to find a handful of real libraries. It is
+sampled by push date instead, so what it does return is what people have
+touched most recently. A flake that anyone has starred at all leaves it
+for the enumerated path.
 
 Output: JSON lines of {owner, repo, stars}, deduplicated, on stdout.
 """
 
 import json, os, subprocess, sys, time
 import urllib.error, urllib.parse, urllib.request
+from datetime import date, timedelta
 
 # Queries that reliably surface flake repositories. language:Nix is by far the
 # largest source; the topics catch flake repos written mostly in other
@@ -28,7 +45,9 @@ QUERIES = [
     "topic:nixpkgs",
 ]
 
-# Disjoint star buckets keep every slice below GitHub's 1000-result cap.
+# Disjoint star buckets: every repository has exactly one star count, so
+# these cover the query without overlapping. Any of them may still be over
+# the cap; created_windows subdivides the ones that are.
 STAR_RANGES = [
     ">=1000",
     "500..999",
@@ -44,12 +63,18 @@ STAR_RANGES = [
     "0",
 ]
 
+RESULT_CAP = 1000
 PER_PAGE = 100
-MAX_PAGES = 10  # 10 * 100 = the 1000-result cap
+MAX_PAGES = RESULT_CAP // PER_PAGE
 
-# The 0- and 1-star buckets are far larger than the cap, so they are split
-# again by when the repo was last pushed.
-DATE_SLICES = [
+# The one bucket that is sampled rather than enumerated; see the module
+# docstring for why.
+SAMPLED_STARS = "0"
+
+# The windows the sampled bucket is read through, by last push. Each is far
+# over the cap and truncates; splitting by activity at least spreads what
+# comes back across the years instead of returning one era of the bucket.
+PUSH_SLICES = [
     "<2021-01-01",
     "2021-01-01..2022-06-30",
     "2022-07-01..2023-06-30",
@@ -57,6 +82,16 @@ DATE_SLICES = [
     "2024-07-01..2025-06-30",
     ">=2025-07-01",
 ]
+
+# Bisection floor for creation dates: GitHub itself is not older than this,
+# so the range below covers every repository it can return.
+GITHUB_EPOCH = date(2008, 1, 1)
+
+# The authenticated search limit is 30 requests a minute. Counting a slice
+# and reading its pages come out of the same quota, so every search request
+# is paced, not just the paging.
+SEARCH_INTERVAL = 2.0
+_last_search = 0.0
 
 
 def read_token():
@@ -105,13 +140,66 @@ def api(path, params):
     return None
 
 
-def search(query, stars, pushed=None):
-    """Yield repos for one query slice, paging to the 1000-result cap."""
+def paced_search(params):
+    """One repository search, never issued faster than the rate limit."""
+    global _last_search
+    wait = SEARCH_INTERVAL - (time.monotonic() - _last_search)
+    if wait > 0:
+        time.sleep(wait)
+    _last_search = time.monotonic()
+    return api("/search/repositories", params)
+
+
+def count(q):
+    """How many repositories a query matches, ignoring the result cap.
+
+    total_count is the true size of the match; only the results it hands
+    back are capped. None means the API did not answer, which the caller
+    treats as "assume it fits" so a failed count costs coverage rather
+    than dropping the slice on the floor.
+    """
+    data = paced_search({"q": q, "per_page": 1})
+    if not data:
+        return None
+    return data.get("total_count")
+
+
+def created_windows(query, stars, lo, hi):
+    """Yield `created:` ranges covering [lo, hi] that each fit under the cap.
+
+    The split is on creation date, not push date, because a creation date
+    never moves: the partition one run computes is the one the next run
+    computes, and no repository can slip between two windows by being
+    pushed to in between.
+
+    A range that is still over the cap once it is down to a single day is
+    yielded anyway and truncates. There is no finer qualifier to split on,
+    and no single day sees 1000 new Nix repositories.
+    """
+    total = count(f"{query} stars:{stars} created:{lo}..{hi}")
+
+    # An empty range needs neither pages nor further splitting.
+    if total == 0:
+        return
+
+    if total is None or total <= RESULT_CAP or lo == hi:
+        yield f"{lo}..{hi}"
+        return
+
+    mid = lo + (hi - lo) // 2
+    yield from created_windows(query, stars, lo, mid)
+    yield from created_windows(query, stars, mid + timedelta(days=1), hi)
+
+
+def search(query, stars, pushed=None, created=None):
+    """Yield repos for one query slice, paging to the result cap."""
     q = f"{query} stars:{stars}"
     if pushed:
         q += f" pushed:{pushed}"
+    if created:
+        q += f" created:{created}"
     for page in range(1, MAX_PAGES + 1):
-        data = api("/search/repositories", {"q": q, "per_page": PER_PAGE, "page": page})
+        data = paced_search({"q": q, "per_page": PER_PAGE, "page": page})
         if not data:
             return
         items = data.get("items", [])
@@ -121,8 +209,6 @@ def search(query, stars, pushed=None):
             yield it
         if len(items) < PER_PAGE:
             return
-        # Stay inside the 30 req/min authenticated search limit.
-        time.sleep(2.0)
 
 
 def emit(items, seen):
@@ -154,14 +240,25 @@ def main():
             "# warning: no token; unauthenticated search is 10 req/min", file=sys.stderr
         )
     seen = set()
+    today = date.today()
     for query in QUERIES:
         for stars in STAR_RANGES:
-            # These buckets exceed the result cap, so slice them by date too.
-            slices = DATE_SLICES if stars in ("0", "1", "2") else [None]
-            for pushed in slices:
-                emit(search(query, stars, pushed), seen)
+            if stars == SAMPLED_STARS:
+                for pushed in PUSH_SLICES:
+                    emit(search(query, stars, pushed=pushed), seen)
+                windows = len(PUSH_SLICES)
+            else:
+                # Ask how big the bucket is and split it until it is
+                # readable, rather than assuming a fixed set of windows
+                # still fits.
+                windows = 0
+                for created in created_windows(query, stars, GITHUB_EPOCH, today):
+                    emit(search(query, stars, created=created), seen)
+                    windows += 1
+
             print(
-                f"# {query} stars:{stars} -> {len(seen)} total",
+                f"# {query} stars:{stars} in {windows} window(s)"
+                f" -> {len(seen)} total",
                 file=sys.stderr,
                 flush=True,
             )

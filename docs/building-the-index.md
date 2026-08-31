@@ -15,6 +15,35 @@ $ ./tools/update.sh --no-harvest
 16). The same steps are available as apps: `nix run .#update`,
 `nix run .#pin`, `nix run .#generate`.
 
+## Harvest
+
+GitHub returns at most 1,000 results for a search, however many match, and
+there is no cursor past it. `harvest.py` therefore issues each query as a
+set of disjoint slices small enough to read to the end, and takes the
+union.
+
+Star ranges are the first axis, since every repository has exactly one
+star count. A bucket still over the cap is bisected on creation date until
+each piece fits. The count comes from the API — `total_count` reports the
+true size of a match even though the results are capped — so the partition
+follows the data rather than a fixed list of windows. A hand-tuned
+boundary looks correct until the bucket behind it crosses 1,000, and then
+drops repositories silently; that is how a 3-star and a 5-star flake were
+absent from the index while sitting in a bucket the search claimed to
+cover.
+
+The split is on creation date rather than push date because a creation
+date never moves. The same partition comes out of every run, and no
+repository slips between two windows by being pushed to in between.
+
+One bucket is deliberately not enumerated. `language:Nix stars:0` alone
+holds about 65,000 repositories, nearly all of them abandoned personal
+configurations, and reading it in full would put some 55,000 rows through
+`resolve.py`, `describe.py` and `pin.py` to find a handful of libraries.
+It is sampled through fixed push-date windows instead, so what comes back
+is what has been touched most recently. A flake that anyone has starred at
+all leaves that bucket for the enumerated path.
+
 ## Refresh
 
 Each run re-resolves the known repositories that were resolved longest ago,
@@ -26,20 +55,20 @@ days. `--refresh` re-resolves all of them in one run.
 
 ## Tools
 
-| tool                  | function                                                                                                             |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `harvest.py`          | GitHub search by `language:Nix` and topic, partitioned by star range and push date to stay under the 1000-result cap |
-| `manual.py`           | reads `manual.txt`, including flakes outside GitHub                                                                  |
-| `resolve.py`          | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists                                    |
-| `describe.py`         | fills in a repository description per row, for the site's search                                                     |
-| `classify.py`         | separates personal machine configurations from the library tier                                                      |
-| `pin.py`              | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock      |
-| `generate.py`         | writes `index.json`, prunes unused pins and locks, updates the README status block                                   |
-| `history.py`          | appends one aggregate row a day to `history.jsonl`; `--from-git` recovers past days from index.json's history        |
-| `fetch-data.sh`       | downloads the databases `data-pins.json` pins, or `--check`s the ones already present                                |
-| `release-notes.py`    | renders a cut's notes: what the run added, removed and re-pinned, against `HEAD`                                     |
-| `cut-data-release.sh` | uploads the databases whose bytes moved to a dated release and repoints the pins                                     |
-| `bump-data-pin.sh`    | records `{tag, narHash}` per file in `data-pins.json`                                                                |
+| tool                  | function                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `harvest.py`          | GitHub search by `language:Nix` and topic, partitioned by star range and creation date to stay under the 1000-result cap |
+| `manual.py`           | reads `manual.txt`, including flakes outside GitHub                                                                      |
+| `resolve.py`          | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists                                        |
+| `describe.py`         | fills in a repository description per row, for the site's search                                                         |
+| `classify.py`         | separates personal machine configurations from the library tier                                                          |
+| `pin.py`              | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock          |
+| `generate.py`         | writes `index.json`, prunes unused pins and locks, updates the README status block                                       |
+| `history.py`          | appends one aggregate row a day to `history.jsonl`; `--from-git` recovers past days from index.json's history            |
+| `fetch-data.sh`       | downloads the databases `data-pins.json` pins, or `--check`s the ones already present                                    |
+| `release-notes.py`    | renders a cut's notes: what the run added, removed and re-pinned, against `HEAD`                                         |
+| `cut-data-release.sh` | uploads the databases whose bytes moved to a dated release and repoints the pins                                         |
+| `bump-data-pin.sh`    | records `{tag, narHash}` per file in `data-pins.json`                                                                    |
 
 ## Data files
 
