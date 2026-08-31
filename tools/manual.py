@@ -20,7 +20,7 @@ and emitted as a finished database entry.
     --resolved FILE     append fully-resolved entries here
 """
 
-import argparse, json, re, subprocess, sys
+import argparse, json, re, subprocess, sys, time
 
 BARE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 
@@ -84,6 +84,10 @@ def resolve_ref(url):
         "inputs": inputs,
         "stars": 0,
         "manual": True,
+        # The site's "last checked" date; resolve.py stamps harvested rows
+        # the same way. Refreshed on every run, since manual entries are
+        # re-resolved each time.
+        "resolved_at": int(time.time()),
     }
 
 
