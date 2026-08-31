@@ -74,6 +74,10 @@ let
       description = "Download the databases data-pins.json pins into the checkout";
       entry = "bash ${../tools}/fetch-data.sh";
     };
+    release-notes = {
+      description = "Render the notes for a data release cut";
+      entry = "python3 ${../tools}/release-notes.py";
+    };
     cut-data-release = {
       description = "Upload changed databases to a dated release and repoint the pins";
       entry = "bash ${../tools}/cut-data-release.sh";
