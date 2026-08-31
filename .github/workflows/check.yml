@@ -36,10 +36,6 @@ jobs:
           name: omniflake
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
       - name: Lock and count
         run: |
           nix flake lock
@@ -55,11 +51,11 @@ jobs:
         # index.json is derived from pins.jsonl, failures.jsonl and the
         # blocklist. A hand edit that drifts from them is caught here.
         run: |
-          python3 tools/classify.py --rejected personal.jsonl < resolved.jsonl > library.jsonl
-          python3 tools/generate.py
+          nix run .#classify -- --rejected personal.jsonl < resolved.jsonl > library.jsonl
+          nix run .#generate
           git diff --exit-code -- index.json pins.jsonl failures.jsonl locks
 
       - name: Evaluate a sample
         # Informational: see tools/sample.py. The counts go to the job
         # summary.
-        run: python3 tools/sample.py --size 25
+        run: nix run .#sample -- --size 25
