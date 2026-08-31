@@ -30,7 +30,7 @@ immutable, two forks pinned at the same commit share one file, and
 renaming a flake cannot orphan its lock.
 """
 
-import argparse, concurrent.futures, json, os, subprocess, sys, threading, time
+import argparse, concurrent.futures, enum, json, os, subprocess, sys, threading, time
 import urllib.error, urllib.request
 
 # Per-flake wall clock bound. A nixpkgs fork takes about a minute to
@@ -141,7 +141,13 @@ def run_metadata(ref, use_token):
 # error, the network. A failure of this kind is recorded as transient, is
 # retried by the next run like any other, and is not reported as a flake
 # that cannot be pinned.
+# 403 is what GitHub returns for an exceeded quota, and it matters more
+# than the count of them on record suggests: the nightly retry only looks
+# at transient references, so a marker missing here turns a rate-limited
+# run's casualties into permanent verdicts nothing ever revisits. "rate
+# limit" already covers the "API rate limit exceeded" wording.
 TRANSIENT_MARKERS = (
+    "HTTP error 403",
     "HTTP error 429",
     "HTTP error 502",
     "HTTP error 503",
@@ -155,6 +161,39 @@ TRANSIENT_MARKERS = (
 
 def is_transient(error):
     return any(marker in error for marker in TRANSIENT_MARKERS)
+
+
+class Retry(enum.Enum):
+    """Which recorded failures a pass is willing to re-attempt."""
+
+    # Skip every reference in failures.jsonl.
+    NONE = "none"
+    # Re-attempt the ones whose last failure could succeed on a retry.
+    TRANSIENT = "transient"
+    # Re-attempt everything, whatever the verdict was.
+    ALL = "all"
+
+
+def skip_refs(failures, retry):
+    """The references in failures.jsonl this pass declines to attempt.
+
+    A failure is keyed by an immutable revision: a syntax error at REV is
+    an error at REV forever, and a repository that moves gets a new
+    reference which is not in the file at all. Only a transient failure —
+    GitHub's quota, a gateway error, the network — can succeed on a
+    re-attempt.
+
+    Rows are appended and never rewritten, so a reference's last row is its
+    current verdict. A row from before the field existed has no verdict and
+    is treated as permanent, which is what it was recorded as.
+    """
+    if retry is Retry.ALL:
+        return set()
+
+    verdict = {f["ref"]: f.get("transient", False) for f in failures}
+    if retry is Retry.NONE:
+        return set(verdict)
+    return {ref for ref, transient in verdict.items() if not transient}
 
 
 def tarball_cache():
@@ -537,7 +576,12 @@ def main():
     ap.add_argument(
         "--retry-failed",
         action="store_true",
-        help="re-attempt refs recorded in the failures file",
+        help="re-attempt every ref recorded in the failures file",
+    )
+    ap.add_argument(
+        "--retry-transient",
+        action="store_true",
+        help="re-attempt only the refs whose last failure was transient",
     )
     ap.add_argument(
         "--recount",
@@ -581,9 +625,13 @@ def main():
     # Everything already decided, by exact ref. Failures are remembered so
     # a nightly run does not re-download the same broken flakes forever.
     done = {p["ref"] for p in read_jsonl(args.pins)}
-    failed = (
-        set() if args.retry_failed else {f["ref"] for f in read_jsonl(args.failures)}
-    )
+    if args.retry_failed:
+        retry = Retry.ALL
+    elif args.retry_transient:
+        retry = Retry.TRANSIENT
+    else:
+        retry = Retry.NONE
+    failed = skip_refs(read_jsonl(args.failures), retry)
 
     todo = []
     for row in read_jsonl(args.library):
@@ -596,7 +644,8 @@ def main():
     if args.limit:
         todo = todo[: args.limit]
     print(
-        f"==> {len(done)} pinned, {len(failed)} known failures, {len(todo)} to pin",
+        f"==> {len(done)} pinned, {len(failed)} known failures skipped, "
+        f"{len(todo)} to pin",
         file=sys.stderr,
         flush=True,
     )

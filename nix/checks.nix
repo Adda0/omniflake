@@ -23,5 +23,16 @@ in
   # The loader on real flakes: fetches a few trees at evaluation time.
   loader = evalTest "test-loader" ../tests/loader.nix;
 
+  # The Python in tools/. These cover the pipeline's decision functions —
+  # which failures to re-attempt, which candidates to re-check, how the
+  # candidate pool merges — so they work on plain data and run neither Nix
+  # nor the network.
+  tools = pkgs.runCommand "test-tools" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+    cp -r ${../tools} tools
+    cp -r ${../tests} tests
+    python3 -m unittest discover -s tests -p 'test_*.py' -v
+    touch $out
+  '';
+
   formatting = treefmt.config.build.check self;
 }

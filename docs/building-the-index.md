@@ -132,8 +132,16 @@ one and fetches the committed `flake.lock` at the pinned revision where
 there is not, which is the same lock the loader uses whenever `lock` is
 false.
 
-`failures.jsonl` holds the references Nix could not lock, with the error.
-They are skipped until `tools/pin.py --retry-failed`.
+`failures.jsonl` holds the references Nix could not lock, with the error and
+whether it was transient. A recorded reference is skipped on later runs
+unless `tools/pin.py` is asked for it.
+
+A failed pin is keyed by an immutable revision, which is why a permanent
+verdict can be kept forever: a syntax error at `REV` is an error at `REV`,
+and a repository that moves gets a new reference which is not in the file at
+all and pins normally. Only a transient failure — GitHub's quota, a gateway
+error, the network — is worth attempting again, and `--retry-transient` is
+the pass that does.
 
 `locks/<rev>.json` holds Nix's computed lock for a flake whose committed
 `flake.lock` is absent or does not match its `flake.nix`.
@@ -180,10 +188,18 @@ Each new revision costs one download. A routine run pins only revisions that
 changed since the last one.
 
 `pin.py` runs without a GitHub token, which keeps tarball downloads outside
-the API quota, then `update.sh` runs a second pass over the failures with a
-token (`--retry-failed --use-token`), for flakes that need the API to
-resolve a branch name. `--use-token` uses Nix's configured `access-tokens`
-or `GH_TOKEN`.
+the API quota, then `update.sh` runs a second pass with a token
+(`--retry-transient --use-token`), for flakes that need the API to resolve a
+branch name. `--use-token` uses Nix's configured `access-tokens` or
+`GH_TOKEN`.
+
+That second pass is scoped to the references whose last failure was
+transient. It used to pass `--retry-failed`, which empties the skip set
+entirely, so a nightly run re-attempted all 171 accumulated failures at a
+900-second timeout apiece to win back the one that could move. Of the 31
+that mentioned `api.github.com`, the codes were 404 and 422 — deleted
+repositories and missing branches, which no token fixes. `--retry-failed` is
+still there as the explicit "attempt everything" flag for manual use.
 
 `pin.py` also repacks Nix's tarball cache every 500 pins (`--repack-every`),
 which keeps fetches fast over a long run.

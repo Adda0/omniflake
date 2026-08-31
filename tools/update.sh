@@ -94,8 +94,14 @@ python3 "$HERE/pin.py" --jobs "${PIN_JOBS:-16}" 2> >(tee pin.log >&2)
 # A flake whose stale lock names a branch needs the GitHub API to resolve
 # it, and that is quota-limited without a token, so the first pass runs
 # without one and the failures get a second, authenticated pass.
-echo "==> retrying failures with a token"
-python3 "$HERE/pin.py" --jobs 8 --retry-failed --use-token 2> >(tee -a pin.log >&2)
+#
+# --retry-transient, not --retry-failed: a failure is keyed by an immutable
+# revision, so re-attempting a permanent one is work that cannot succeed.
+# Passing --retry-failed here emptied the skip set and put every accumulated
+# failure through a 900-second timeout each, nightly. --retry-failed remains
+# the explicit "attempt everything" flag, for manual use.
+echo "==> retrying transient failures with a token"
+python3 "$HERE/pin.py" --jobs 8 --retry-transient --use-token 2> >(tee -a pin.log >&2)
 
 echo "==> generating index.json"
 python3 "$HERE/generate.py"
