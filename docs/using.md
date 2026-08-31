@@ -117,6 +117,12 @@ in
 flakes.sops-nix.nixosModules.sops
 ```
 
+For one copy of everything:
+
+```nix
+omniflake.unified.sops-nix.nixosModules.sops
+```
+
 Passing `{ }` is the same as `pinned`. See [Unification](./unification.md).
 
 ## Find a flake

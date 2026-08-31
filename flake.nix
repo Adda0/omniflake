@@ -85,6 +85,32 @@
           }) names
         );
 
+      # Every flake under one policy, plus every indexed flake overriding
+      # its own name: a graph reaches one home-manager, one disko, one
+      # treefmt-nix, rather than the revision each author happened to lock.
+      #
+      # The overrides are the set being defined, so a substituted flake's
+      # own graph is unified too, at any depth, rather than stopping at the
+      # five foundations.
+      #
+      # The foundations win over the index, and the caller's `extra` wins
+      # over both. All five foundation names are indexed flakes as well, and
+      # taking them from the index would quietly break the one thing a
+      # consumer controls: `inputs.omniflake.inputs.nixpkgs.follows` reaches
+      # a declared input and nothing else.
+      unifyAll =
+        extra:
+        let
+          fromIndex = listToAttrs (
+            map (name: {
+              inherit name;
+              value = all.${name};
+            }) names
+          );
+          all = withOverrides (fromIndex // foundations // extra);
+        in
+        all;
+
       # The repository's own tooling, per system. Nothing below is touched
       # by a consumer reaching for a subflake.
       devSystems = [
@@ -120,6 +146,11 @@
       # omniflake.pinned.<name>: the flake exactly as its author locked it.
       pinned = withOverrides { };
 
+      # omniflake.unified.<name>: the foundations, and every other input
+      # whose name the index knows. One copy of each flake in the graph,
+      # at the cost of the revision its author chose.
+      unified = unifyAll { };
+
       lib = {
         # Metadata that forces no fetch.
         inherit names foundations;
@@ -128,6 +159,10 @@
         # omniflake.lib.withOverrides { nixpkgs = ...; nixpkgs-stable = ...; }
         # gives every flake under a policy of your own.
         inherit withOverrides;
+
+        # omniflake.lib.unifyAll { } is `unified`; anything passed wins over
+        # the index and the foundations both.
+        inherit unifyAll;
 
         # omniflake.lib.load "nh" { nixpkgs = pkgs-stable; } for a single one.
         load = name: overrides: loadWith overrides name;

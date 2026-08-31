@@ -65,13 +65,15 @@ real    0m1.5s
 
 ## Attributes
 
-| attribute                          | `nixpkgs` and the other four foundation inputs come from     |
-| ---------------------------------- | ------------------------------------------------------------ |
-| `omniflake.flakes.<name>`          | omniflake's inputs, substituted at every depth               |
-| `omniflake.pinned.<name>`          | the flake's own lock file                                    |
-| `omniflake.lib.load "<name>" {…}`  | the attribute set you pass; `{ }` means the flake's own lock |
-| `omniflake.lib.withOverrides {…}`  | the attribute set you pass, for every flake                  |
-| `omniflake.lib.names`, `lib.count` | metadata; forces no fetch                                    |
+| attribute                          | `nixpkgs` and the other four foundation inputs come from       |
+| ---------------------------------- | -------------------------------------------------------------- |
+| `omniflake.flakes.<name>`          | omniflake's inputs, substituted at every depth                 |
+| `omniflake.pinned.<name>`          | the flake's own lock file                                      |
+| `omniflake.unified.<name>`         | omniflake's inputs, and every other input name the index knows |
+| `omniflake.lib.load "<name>" {…}`  | the attribute set you pass; `{ }` means the flake's own lock   |
+| `omniflake.lib.withOverrides {…}`  | the attribute set you pass, for every flake                    |
+| `omniflake.lib.unifyAll {…}`       | the index, then the foundations, then the set you pass         |
+| `omniflake.lib.names`, `lib.count` | metadata; forces no fetch                                      |
 
 See [Unification](./docs/unification.md) for what is substituted and why.
 

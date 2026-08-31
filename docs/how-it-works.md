@@ -69,4 +69,6 @@ committed lock that still match `flake.nix` and resolves the rest. See
 lock, any input whose name is in `overrides` receives the override instead
 of the node the lock points to, at every depth. `omniflake.flakes.<name>`
 passes omniflake's five inputs as overrides; `omniflake.pinned.<name>`
-passes none. See [Unification](./unification.md).
+passes none; `omniflake.unified.<name>` passes an entry for every name in
+the index, each one loaded under that same policy, so substitution
+continues inside what it substituted. See [Unification](./unification.md).
