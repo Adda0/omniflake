@@ -32,10 +32,10 @@ $ nix run 'github:fzakaria/omniflake#pinned.nh.packages.x86_64-linux.default'
 
 ## `unified`
 
-`omniflake.unified.<name>` substitutes on _every_ name the index knows, not
-just the five. A graph reaches one `home-manager`, one `disko`, one
-`treefmt-nix` — the revision the pipeline pinned — instead of the revision
-each author happened to lock.
+`omniflake.unified.<name>` substitutes on every name the index knows, where
+`flakes` substitutes on five. A graph reaches one `home-manager` and one
+`treefmt-nix`, both at the revision the pipeline pinned, rather than the
+revision each author happened to lock.
 
 ```console
 $ nix eval --raw 'github:fzakaria/omniflake#unified.devenv.inputs.cachix.inputs.git-hooks.rev'
@@ -58,15 +58,17 @@ omniflake with their own tree.
 
 `unified` is a stronger claim than `flakes`, and it is wrong more often. An
 author who locked an older `home-manager` may have done it because the newer
-one broke them. Reach for it when you want one graph, not when you want the
-flake to work.
+one broke them. Use it when a single graph matters more to you than each
+flake working the way its author tested it.
 
-Two limits are worth knowing. Matching is still on the exact name, so an
-input called `utils` rather than `flake-utils` is untouched, and `agenix`'s
-`darwin` input stays pinned because the index calls that flake `nix-darwin`. And a name cycle — `ihp` depends on `ihp-boilerplate`, which
-depends on `ihp` — resolves only because evaluation is lazy; a flake whose
-`outputs` forces its way around such a cycle would report infinite recursion
-for that attribute rather than for the whole set.
+Matching is still on the exact name. An input called `utils` rather than
+`flake-utils` is untouched, and `agenix`'s `darwin` input stays pinned
+because the index calls that flake `nix-darwin`.
+
+A name cycle resolves only because evaluation is lazy: `ihp` depends on
+`ihp-boilerplate`, which depends on `ihp`. A flake whose `outputs` forced
+its way around such a cycle would report infinite recursion for that
+attribute rather than for the whole set.
 
 `omniflake.lib.unifyAll { }` is `unified`. Anything passed to it wins over
 both the index and the foundations:
