@@ -1,3 +1,3 @@
 {"candidates": 24247, "count": 11982, "date": "2026-08-29", "failures": 230, "freshMonth": 2450, "freshYear": 5703, "medianAgeDays": 431, "pending": 0, "stars": 541476, "storedLocks": 1119}
 {"candidates": 24247, "count": 12044, "date": "2026-08-30", "failures": 168, "freshMonth": 2442, "freshYear": 5728, "lockNodeMedian": 4, "lockNodeSum": 156738, "medianAgeDays": 431, "pending": 1, "stars": 541554, "storedLocks": 1179}
-{"candidates": 24247, "count": 12044, "date": "2026-08-31", "failures": 168, "freshMonth": 2439, "freshYear": 5727, "library": 12212, "lockNodeMedian": 4, "lockNodeSum": 156738, "medianAgeDays": 432, "pending": 1, "personal": 3730, "stars": 541554, "storedLocks": 1179}
+{"candidates": 24935, "count": 12240, "date": "2026-08-31", "failures": 170, "freshMonth": 2498, "freshYear": 5831, "library": 12411, "lockNodeMedian": 4, "lockNodeSum": 160356, "medianAgeDays": 431, "pending": 1, "personal": 3775, "stars": 541733, "storedLocks": 1196}
