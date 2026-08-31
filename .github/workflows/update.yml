@@ -81,7 +81,7 @@ jobs:
 
       - name: Commit
         run: |
-          git add failures.jsonl index.json locks README.md data-pins.json
+          git add failures.jsonl index.json locks README.md data-pins.json history.jsonl
           if git diff --cached --quiet; then
             echo "nothing changed"
             exit 0

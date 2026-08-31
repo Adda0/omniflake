@@ -7,7 +7,65 @@ pinned, and why), so the page can answer "is X in here and under what
 name" and show the health of the index without evaluating anything.
 """
 
-import argparse, json, os, time
+import argparse, collections, json, os, statistics, time
+
+DAY_SECONDS = 86400
+# How many rows each leaderboard carries into the page. Enough to be worth
+# reading, small enough that the whole stats block stays a rounding error
+# next to the 12,000 flake rows beside it.
+TOP_INPUTS = 40
+TOP_HEAVIEST = 15
+# The inputs `flakes.<name>` substitutes, mirrored from flake.nix. Counting
+# how far one `follows` line reaches is the whole argument for the index.
+FOUNDATIONS = ("nixpkgs", "flake-utils", "systems", "flake-parts", "flake-compat")
+
+# One nixpkgs source tree, as the closure size Nix reports for the revision
+# this flake pins:
+#
+#     nix path-info -S .#inputs.nixpkgs  ->  203 MB
+#
+# Trees differ a little between revisions; this is the order of magnitude,
+# and it is what turns "3,254 distinct revisions" into a number anyone can
+# feel. Re-measure if it ever looks wrong.
+NIXPKGS_TREE_BYTES = 203 * 1024 * 1024
+
+# What a flake failed on, in the words of the thing that failed. Ordered:
+# the first pattern that matches a message names it, so the specific
+# entries come before the general ones.
+FAILURE_CLASSES = (
+    (
+        "input declares both a URL and follows",
+        ("both a flake reference and a follows",),
+    ),
+    ("syntax error in the flake", ("syntax error", "could not parse")),
+    ("undefined variable", ("undefined variable",)),
+    (
+        "source could not be downloaded",
+        ("unable to download", "failed to open archive", "unable to fetch"),
+    ),
+    (
+        "references a path that is not there",
+        ("no such file or directory", "does not exist", "opening file"),
+    ),
+    (
+        "not a flake",
+        ("does not provide attribute", "is not a flake", "has no attribute"),
+    ),
+    ("private or unreachable git remote", ("failed to fetch git repository", "ssh://")),
+    ("input names a registry entry", ("in the flake registries", "cannot find flake")),
+    ("lock file is inconsistent", ("lock file references missing node", "revspec")),
+    (
+        "flake.nix does not evaluate",
+        (
+            "expected a function",
+            "expected a string",
+            "already defined",
+            "unexpected flake input attribute",
+            "in pure mode",
+            "infinite recursion",
+        ),
+    ),
+)
 
 
 def read_jsonl(path):
@@ -41,6 +99,131 @@ def error_message(text):
     return message
 
 
+def failure_class(message):
+    """Which of the recurring reasons a message is an instance of."""
+    low = message.lower()
+    for label, needles in FAILURE_CLASSES:
+        if any(n in low for n in needles):
+            return label
+    return "other"
+
+
+def build_stats(flakes, failures, pins, now):
+    """The aggregates the stats view draws, computed once at build time.
+
+    Everything here is derivable from the rows already in this file, but
+    deriving it in the browser means shipping the derivation and paying it
+    on every page load, for numbers that change once a day.
+    """
+    # What the index's flakes declare, and how far one `follows` reaches.
+    inputs = collections.Counter()
+    foundation_edges = 0
+    with_foundation = 0
+    for f in flakes:
+        names = f["inputs"]
+        inputs.update(names)
+        hits = sum(1 for i in names if i in FOUNDATIONS)
+        foundation_edges += hits
+        if hits:
+            with_foundation += 1
+
+    nodes = [f["lockNodes"] for f in flakes if f["lockNodes"] is not None]
+    heaviest = sorted(
+        ((f["lockNodes"], f["name"]) for f in flakes if f["lockNodes"]),
+        reverse=True,
+    )[:TOP_HEAVIEST]
+
+    # When each flake's pinned revision was authored, and how stale that is.
+    by_year = collections.Counter()
+    ages = []
+    for f in flakes:
+        lm = f["lastModified"]
+        if not lm:
+            continue
+        by_year[time.gmtime(lm).tm_year] += 1
+        ages.append((now - lm) / DAY_SECONDS)
+
+    stars = sorted((f["stars"] for f in flakes), reverse=True)
+    total_stars = sum(stars)
+
+    # Whether attention tracks maintenance: the share of each population
+    # whose pinned revision is under a year old.
+    def fresh_share(pred):
+        pop = [f for f in flakes if pred(f) and f["lastModified"]]
+        if not pop:
+            return None
+        fresh = sum(1 for f in pop if (now - f["lastModified"]) / DAY_SECONDS < 365)
+        return round(100 * fresh / len(pop))
+
+    # The input graph below the surface, from the summary pin.py records.
+    lock_types = collections.Counter()
+    nixpkgs_revs = collections.Counter()
+    nixpkgs_dates = []
+    for p in pins.values():
+        lock_types.update(p.get("lock_types", {}))
+        npk = p.get("lock_nixpkgs")
+        if npk and npk.get("rev"):
+            nixpkgs_revs[npk["rev"]] += 1
+            if npk.get("lastModified"):
+                nixpkgs_dates.append(npk["lastModified"])
+
+    stats = {
+        "distinctInputs": len(inputs),
+        "inputs": inputs.most_common(TOP_INPUTS),
+        "withFoundation": with_foundation,
+        "foundationEdges": foundation_edges,
+        "noInputs": sum(1 for f in flakes if not f["inputs"]),
+        "byYear": sorted(by_year.items()),
+        "heaviest": [[name, n] for n, name in heaviest],
+        "failureClasses": collections.Counter(
+            failure_class(f["error"]) for f in failures
+        ).most_common(),
+        "stars": {
+            "total": total_stars,
+            "zero": sum(1 for s in stars if s == 0),
+            "ge100": sum(1 for s in stars if s >= 100),
+            "ge1000": sum(1 for s in stars if s >= 1000),
+            "top10Share": (
+                round(100 * sum(stars[:10]) / total_stars) if total_stars else 0
+            ),
+            "freshSharePopular": fresh_share(lambda f: f["stars"] >= 100),
+            "freshShareZero": fresh_share(lambda f: f["stars"] == 0),
+        },
+    }
+    if nodes:
+        stats["lockNodes"] = {
+            "sum": sum(nodes),
+            "median": int(statistics.median(nodes)),
+            "counted": len(nodes),
+        }
+    if ages:
+        stats["freshness"] = {
+            "medianAgeDays": int(statistics.median(ages)),
+            "d30": sum(1 for a in ages if a < 30),
+            "d90": sum(1 for a in ages if a < 90),
+            "d365": sum(1 for a in ages if a < 365),
+        }
+    if lock_types:
+        stats["lockTypes"] = lock_types.most_common()
+        stats["summarized"] = sum(1 for p in pins.values() if "lock_types" in p)
+    if nixpkgs_revs:
+        distinct = len(nixpkgs_revs)
+        stats["nixpkgs"] = {
+            "pins": sum(nixpkgs_revs.values()),
+            "distinct": distinct,
+            # What those revisions would cost if they were fetched rather
+            # than followed. Nix already collapses equal revisions, so the
+            # count that matters is the distinct one, not the pin count.
+            "treeBytes": NIXPKGS_TREE_BYTES,
+            "wasteBytes": distinct * NIXPKGS_TREE_BYTES,
+            "medianLastModified": (
+                int(statistics.median(nixpkgs_dates)) if nixpkgs_dates else None
+            ),
+            "oldestLastModified": min(nixpkgs_dates) if nixpkgs_dates else None,
+        }
+    return stats
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", default="index.json")
@@ -48,6 +231,7 @@ def main():
     ap.add_argument("--failures", default="failures.jsonl")
     ap.add_argument("--blocklist", default="blocklist.txt")
     ap.add_argument("--pins", default="pins.jsonl")
+    ap.add_argument("--history", default="history.jsonl")
     ap.add_argument("--out", default="site-data.json")
     args = ap.parse_args()
 
@@ -110,13 +294,18 @@ def main():
         )
     failures.sort(key=lambda f: (-f["stars"], f["name"]))
 
+    now = int(time.time())
     data = {
-        "generated": int(time.time()),
+        "generated": now,
         "count": len(flakes),
         "storedLocks": sum(1 for f in flakes if f["storedLock"]),
         "pending": pending,
         "flakes": flakes,
         "failures": failures,
+        "stats": build_stats(flakes, failures, pins, now),
+        # One row a day. The trend charts have nothing to draw until this
+        # has a few in it, which is why it starts being written now.
+        "history": list(read_jsonl(args.history)),
     }
     with open(args.out, "w") as fh:
         json.dump(data, fh, separators=(",", ":"))

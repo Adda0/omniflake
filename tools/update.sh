@@ -100,5 +100,10 @@ python3 "$HERE/pin.py" --jobs 8 --retry-failed --use-token 2> >(tee -a pin.log >
 echo "==> generating index.json"
 python3 "$HERE/generate.py"
 
+# One aggregate row per day, while library.jsonl and personal.jsonl still
+# exist: classify.py derives them on every run and nothing commits them.
+echo "==> recording today's history row"
+python3 "$HERE/history.py"
+
 echo "==> checking that the index evaluates"
 echo "    $(nix eval .#lib.count) flakes indexed"

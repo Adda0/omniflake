@@ -95,6 +95,19 @@ They are skipped until `tools/pin.py --retry-failed`.
 `index.json` is generated from the files above and is what `flake.nix`
 reads.
 
+`history.jsonl` is one aggregate row per day: how many flakes are indexed,
+how many use a computed lock, the size of the graph the index holds, the
+median age, the tier counts. It is committed, because at 270 bytes a row it
+costs 87 KiB a year and appends rather than rewrites, and because the trends
+the site draws should be auditable in the same diff as the index they
+describe. `history.py` records it at the end of a run, while `library.jsonl`
+and `personal.jsonl` still exist — nothing else commits those counts.
+
+Much of it could be reconstructed from git: `index.json` is committed daily
+with one entry per line. What could not is anything read from a file that is
+replaced rather than versioned, such as the star totals, which come from a
+release cut.
+
 ## Pinning
 
 Pinning a flake means running `nix flake metadata --json` on its exact

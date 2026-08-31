@@ -27,6 +27,7 @@ let
       --failures ${../failures.jsonl} \
       --blocklist ${../blocklist.txt} \
       --pins ${databases."pins.jsonl"} \
+      --history ${../history.jsonl} \
       --out $out/site-data.json
   '';
 in

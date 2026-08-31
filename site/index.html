@@ -151,6 +151,65 @@
           width: 1.3em;
         }
       }
+      /* Stats: a section, and the label/bar/value rows it is made of. */
+      .statsec {
+        margin: 1.6rem 0;
+      }
+      .statsec h3 {
+        margin: 0 0 0.2rem;
+        font-size: 15px;
+      }
+      .statsec .sub {
+        margin: 0 0 0.7rem;
+        font-size: 13px;
+        max-width: 68ch;
+      }
+      .statbars {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      /* Label, bar, value. The label column is wide enough for an input
+         name; the value column for a six-figure count and a percentage. */
+      /* fit-content so the label column sizes to the longest label in the
+         list it is in: an attribute name stays narrow, a sentence-length
+         failure reason gets the room it needs, up to a cap. */
+      .statbar {
+        display: grid;
+        grid-template-columns: fit-content(18rem) minmax(0, 1fr) 8.5rem;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 13px;
+      }
+      .statbar .k {
+        overflow-wrap: anywhere;
+      }
+      .statbar .k.mono {
+        font-family: ui-monospace, monospace;
+      }
+      .statbar .track {
+        background: var(--code-bg);
+        border-radius: 2px;
+        height: 0.85rem;
+        overflow: hidden;
+      }
+      .statbar .fill {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+        border-radius: 2px;
+      }
+      .statbar .v {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      @media (max-width: 40rem) {
+        .statbar {
+          grid-template-columns: fit-content(9rem) minmax(0, 1fr) 6rem;
+          gap: 0.4rem;
+        }
+      }
+
       .tag {
         font-size: 11px;
         border: 1px solid var(--line);

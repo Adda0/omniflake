@@ -66,6 +66,10 @@ let
       description = "Re-derive and evaluate pins changed since a base revision";
       entry = "python3 ${../tools}/verify.py";
     };
+    history = {
+      description = "Append today's aggregate row to history.jsonl";
+      entry = "python3 ${../tools}/history.py";
+    };
     fetch-data = {
       description = "Download the databases data-pins.json pins into the checkout";
       entry = "bash ${../tools}/fetch-data.sh";
