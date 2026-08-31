@@ -52,27 +52,14 @@ echo "    $(wc -l < candidates.jsonl) candidates known"
 # about every eight days. A repo whose HEAD did not move costs nothing
 # beyond the lookup.
 echo "==> resolving (incremental; names are sticky)"
+# Manually resolved, non-GitHub flakes cannot go through the GitHub API;
+# --merge folds them in over any stale row for the same repository.
 python3 tools/resolve.py --known resolved.jsonl $REFRESH \
   --refresh-oldest "${REFRESH_OLDEST:-2000}" \
+  --merge manual.resolved.jsonl \
   < candidates.jsonl > resolved.new.jsonl 2> resolve.log
-# Manually resolved, non-GitHub flakes cannot go through the GitHub API.
-if [[ -f manual.resolved.jsonl ]]; then
-  cat manual.resolved.jsonl >> resolved.new.jsonl
-fi
-python3 -c '
-import json
-seen = {}
-for line in open("resolved.new.jsonl"):
-    line = line.strip()
-    if not line or line.startswith("#"):
-        continue
-    e = json.loads(line)
-    seen[(e["owner"], e["repo"])] = e
-with open("resolved.jsonl", "w") as fh:
-    for e in seen.values():
-        fh.write(json.dumps(e) + "\n")
-'
-rm -f resolved.new.jsonl manual.resolved.jsonl
+mv resolved.new.jsonl resolved.jsonl
+rm -f manual.resolved.jsonl
 echo "    $(wc -l < resolved.jsonl) flakes in the database"
 
 # A one-line description per repo, for the site's search. Only rows that

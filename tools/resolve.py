@@ -8,7 +8,9 @@ lists the flake's declared input names, which is what `follows` needs).
 
 This is incremental. resolved.jsonl is a database that is kept and added
 to, not regenerated: pass --known to skip repos already in it, and
---refresh to additionally re-pin the ones already known.
+--refresh to additionally re-pin the ones already known. Rows that were
+resolved outside the GitHub API (tools/manual.py writes them) come in via
+--merge and win over any other row for the same repository.
 
 Attribute names are sticky, which matters because they are API. A name
 already assigned in the known set keeps its owner forever, so a repo that
@@ -133,14 +135,33 @@ def main():
         metavar="N",
         help="re-resolve the N known repos resolved longest ago",
     )
+    ap.add_argument(
+        "--merge",
+        metavar="FILE",
+        help="externally resolved rows to fold in; they win over known rows",
+    )
     args = ap.parse_args()
 
     known, taken = load_known(args.known)
 
+    # Externally resolved rows (tools/manual.py) are authoritative for their
+    # repository: the known row, a refresh, and any harvested candidate for
+    # the same repo all yield to them. Their names join the taken set so a
+    # new candidate cannot claim a name a merged row already uses, but a
+    # name some known repo already holds stays with that repo.
+    merged, merged_names = load_known(args.merge)
+    for name, repo_key in merged_names.items():
+        taken.setdefault(name, repo_key)
+
     cands = [json.loads(l) for l in sys.stdin if l.strip() and not l.startswith("#")]
     # Highest-starred first, so the better-known flake wins any *new* name clash.
     cands.sort(key=lambda c: -c.get("stars", 0))
-    cands = [c for c in cands if (c["owner"], c["repo"]) not in known]
+    cands = [
+        c
+        for c in cands
+        if (c["owner"], c["repo"]) not in known
+        and (c["owner"], c["repo"]) not in merged
+    ]
 
     # Known rows to look at again: all of them, or the ones resolved longest
     # ago. A rolling refresh keeps each run's work bounded while every row
@@ -150,13 +171,16 @@ def main():
     else:
         by_age = sorted(known.values(), key=lambda r: r.get("resolved_at", 0))
         refresh = by_age[: args.refresh_oldest]
+    refresh = [r for r in refresh if (r["owner"], r["repo"]) not in merged]
     refresh_keys = {(r["owner"], r["repo"]) for r in refresh}
 
     # Re-emit what is not being refreshed, so stdout is always the full
     # database.
     for entry in known.values():
-        if (entry["owner"], entry["repo"]) not in refresh_keys:
-            print(json.dumps(entry), flush=True)
+        key = (entry["owner"], entry["repo"])
+        if key in refresh_keys or key in merged:
+            continue
+        print(json.dumps(entry), flush=True)
     print(
         f"# carried over {len(known) - len(refresh)} known, "
         f"refreshing {len(refresh)}, resolving {len(cands)} new",
@@ -239,6 +263,11 @@ def main():
             print(json.dumps(row), flush=True)
             emitted += 1
         print(f"# resolved {emitted}/{i + len(batch)}", file=sys.stderr, flush=True)
+
+    # The externally resolved rows themselves, emitted last so the file
+    # reads in the same order the old append-then-dedup produced.
+    for entry in merged.values():
+        print(json.dumps(entry), flush=True)
 
 
 if __name__ == "__main__":
