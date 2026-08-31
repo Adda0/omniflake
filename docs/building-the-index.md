@@ -38,7 +38,7 @@ repository slips between two windows by being pushed to in between.
 
 A harvest is folded into `candidates.jsonl` by repository, with
 `merge-candidates.py`. It used to be `sort -u`, which deduplicates identical
-*lines*: a repository whose star count moved between harvests produced a
+_lines_: a repository whose star count moved between harvests produced a
 different line, so both survived and the pool grew a duplicate on every run.
 That had put 24,941 lines behind 24,547 repositories, each duplicate queried
 again by `resolve.py` every night. The rest of the pipeline already keys on
@@ -61,6 +61,53 @@ again; one that did not costs nothing beyond the lookup. With about 16,000
 repositories and a daily run, every flake is refreshed about every eight
 days. `--refresh` re-resolves all of them in one run.
 
+## Rejects
+
+A candidate that has no root `flake.nix`, or whose default branch has no
+resolvable commit, leaves no row in `resolved.jsonl`. Nothing else recorded
+that it had been looked at, so it stayed in `candidates.jsonl` and was
+queried again on the next run and the run after that: about 8,000
+repositories, 209 GraphQL batches, some 17 minutes a night that could never
+produce anything.
+
+`rejects.jsonl` is that record. One row per repository `resolve.py` checked
+and could not use, keyed by `(owner, repo)`:
+
+```json
+{ "owner": "nix-community", "repo": "some-repo", "checked_at": 1788134400 }
+```
+
+The record is a timestamp and not a verdict, which is the opposite of what
+`failures.jsonl` holds, and the difference is the whole design. A failed pin
+is keyed by an immutable revision and can be skipped forever. A rejected
+repository is keyed by the repository, and it can add a `flake.nix` tomorrow
+— a permanent skip would freeze the index out of every repository that
+adopts flakes after being seen once.
+
+So each run re-checks the `RECHECK_OLDEST` rows checked longest ago (default
+1,200, about 2.5 minutes), and a row is cleared the moment its repository
+resolves. `--refresh` still means look at everything, rejects included, and
+`RECHECK_OLDEST=0` turns the re-checks off for a smoke run the way
+`REFRESH_OLDEST=0` does.
+
+Bounded work rather than a fixed staleness, which is the trade
+`--refresh-oldest` already makes: the cost of a run stays put and the cadence
+stretches as the set grows. It only grows — every harvested repository that
+is not a flake joins it permanently — so a fixed interval would do the
+reverse and the nightly cost would climb with the pool.
+
+The state cannot live on a candidate row, which is why this is a separate
+file. `candidates.jsonl` is a release asset cut only when harvest finds
+something new; per-repository timestamps would rewrite it every run, and a
+harvest's fresh `{owner, repo, stars}` line would no longer match the stored
+one. A dedicated file keeps the pool a clean union and is a third the size.
+
+`seed-rejects.py` builds the ledger from the set difference that already
+exists, backdating each row by a hash of `owner/repo` across the cadence.
+Without that, the first run pays the full 17 minutes once and then every
+seeded row falls due on the same day, turning one run a week back into a
+17-minute one.
+
 ## Tools
 
 | tool                  | function                                                                                                                 |
@@ -69,6 +116,7 @@ days. `--refresh` re-resolves all of them in one run.
 | `manual.py`           | reads `manual.txt`, including flakes outside GitHub                                                                      |
 | `merge-candidates.py` | folds harvest output into the candidate pool, one row per repository                                                     |
 | `resolve.py`          | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists                                        |
+| `seed-rejects.py`     | one-off: builds `rejects.jsonl` from `candidates.jsonl` minus `resolved.jsonl`                                           |
 | `describe.py`         | fills in a repository description per row, for the site's search                                                         |
 | `classify.py`         | separates personal machine configurations from the library tier                                                          |
 | `pin.py`              | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock          |
@@ -81,12 +129,12 @@ days. `--refresh` re-resolves all of them in one run.
 
 ## Data files
 
-Three of these are committed and three are not. `index.json`, `locks/` and
+Three of these are committed and four are not. `index.json`, `locks/` and
 `failures.jsonl` are in the flake tree because evaluation reads the first
-two and the third is small. `resolved.jsonl`, `pins.jsonl` and
-`candidates.jsonl` are pipeline state that nothing evaluates: they were
-10.7 MB of the 20 MB a consumer unpacked, so they live on dated GitHub
-releases instead, addressed by `data-pins.json`.
+two and the third is small. `resolved.jsonl`, `pins.jsonl`,
+`candidates.jsonl` and `rejects.jsonl` are pipeline state that nothing
+evaluates: they were 10.7 MB of the 20 MB a consumer unpacked, so they live
+on dated GitHub releases instead, addressed by `data-pins.json`.
 
 A release asset is a mutable pointer — a tag and a name, re-uploadable at
 will. `data-pins.json` records a `narHash` per file, so the committed
@@ -95,7 +143,7 @@ and the build stops. `tools/fetch-data.sh` puts the files in a checkout,
 and `nix/data.nix` fetches them for the site build as fixed-output
 derivations, which keeps `nix flake show` and `nix flake check` offline.
 
-A run that changes any of the three needs a cut before its commit:
+A run that changes any of the four needs a cut before its commit:
 
 ```console
 $ ./tools/cut-data-release.sh          # tag data-<today, UTC>
@@ -125,6 +173,11 @@ a run's diff is the rows whose facts changed and nothing else. Processing
 order is unchanged — the highest-starred candidate still wins a new name —
 but a rolling refresh no longer moves the rows it touches to the end of the
 file and shifts every row after them.
+
+`rejects.jsonl` is one row per repository `resolve.py` checked and could not
+use: `{owner, repo, checked_at}`, 74 bytes a row and 606 KiB across today's
+8,357. See _Rejects_ above for why the row expires and a pin failure
+does not.
 
 `pins.jsonl` holds one row per pinned flake reference: the `locked`
 attributes, whether a computed lock was stored, the size of the lock's graph

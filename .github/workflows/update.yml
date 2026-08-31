@@ -25,6 +25,10 @@ on:
         description: "Re-resolve only this many stalest flakes (default 2000)"
         type: string
         default: ""
+      recheck-oldest:
+        description: "Re-check only this many stalest rejected repos (default 1200)"
+        type: string
+        default: ""
       # A smoke run: the full pipeline on a sliver of work, publishing
       # nothing. Pair with no-harvest and a small refresh-oldest.
       dry-run:
@@ -67,6 +71,7 @@ jobs:
           PIN_JOBS: "8"
           # Empty on scheduled runs, so update.sh falls back to its default.
           REFRESH_OLDEST: ${{ inputs.refresh-oldest }}
+          RECHECK_OLDEST: ${{ inputs.recheck-oldest }}
         run: |
           args=()
           if [ "${{ inputs.refresh }}" = "true" ]; then args+=(--refresh); fi

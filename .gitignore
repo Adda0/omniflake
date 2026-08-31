@@ -4,6 +4,7 @@
 resolved.jsonl
 pins.jsonl
 candidates.jsonl
+rejects.jsonl
 # Derived from resolved.jsonl by tools/classify.py on every run.
 library.jsonl
 personal.jsonl

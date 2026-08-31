@@ -10,6 +10,7 @@
 #
 # PIN_JOBS controls how many `nix flake metadata` processes run at once.
 # REFRESH_OLDEST is how many known flakes are re-resolved per run (2000).
+# RECHECK_OLDEST is how many rejected repos are looked at again (1200).
 set -euo pipefail
 
 # The scripts come from next to this one, the data from the current
@@ -36,8 +37,8 @@ for arg in "$@"; do
   esac
 done
 
-# resolved.jsonl, pins.jsonl and candidates.jsonl live on release cuts
-# rather than in the tree. A fresh checkout has none of them; a working one
+# resolved.jsonl, pins.jsonl, candidates.jsonl and rejects.jsonl live on
+# release cuts rather than in the tree. A fresh checkout has none of them; a working one
 # keeps what it has, since the pipeline rewrites them in place.
 echo "==> fetching the pinned databases"
 bash "$HERE/fetch-data.sh"
@@ -71,8 +72,16 @@ echo "    $(wc -l < candidates.jsonl) candidate repositories known"
 echo "==> resolving (incremental; names are sticky)"
 # Manually resolved, non-GitHub flakes cannot go through the GitHub API;
 # --merge folds them in over any stale row for the same repository.
+#
+# rejects.jsonl is the same idea for the other direction: a repository that
+# was checked and could not be used. Without it, the ~8,000 candidates that
+# are not flakes were re-queried in full on every run. They are not skipped
+# forever — a repo can add a flake.nix tomorrow — so the oldest
+# RECHECK_OLDEST rows are looked at again each run.
 python3 "$HERE/resolve.py" --known resolved.jsonl $REFRESH \
   --refresh-oldest "${REFRESH_OLDEST:-2000}" \
+  --rejects rejects.jsonl \
+  --recheck-oldest "${RECHECK_OLDEST:-1200}" \
   --merge manual.resolved.jsonl \
   < candidates.jsonl > resolved.new.jsonl 2> resolve.log
 mv resolved.new.jsonl resolved.jsonl

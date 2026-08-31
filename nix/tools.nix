@@ -66,6 +66,10 @@ let
       description = "Re-derive and evaluate pins changed since a base revision";
       entry = "python3 ${../tools}/verify.py";
     };
+    seed-rejects = {
+      description = "Build rejects.jsonl from candidates.jsonl minus resolved.jsonl";
+      entry = "python3 ${../tools}/seed-rejects.py";
+    };
     history = {
       description = "Append today's aggregate row to history.jsonl";
       entry = "python3 ${../tools}/history.py";

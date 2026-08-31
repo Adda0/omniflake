@@ -24,7 +24,7 @@ TAG="${1:-data-$(date -u +%Y%m%d)}"
 
 # The databases that live on releases rather than in the flake tree. Keep
 # this list in step with .gitignore and tools/fetch-data.sh.
-FILES=(resolved.jsonl pins.jsonl candidates.jsonl)
+FILES=(resolved.jsonl pins.jsonl candidates.jsonl rejects.jsonl)
 
 CHANGED=()
 for name in "${FILES[@]}"; do

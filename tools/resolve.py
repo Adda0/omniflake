@@ -12,6 +12,19 @@ to, not regenerated: pass --known to skip repos already in it, and
 resolved outside the GitHub API (tools/manual.py writes them) come in via
 --merge and win over any other row for the same repository.
 
+A repository that is checked and cannot be used leaves no row in the
+known set, so without --rejects nothing distinguishes "never checked"
+from "checked and rejected" and the candidate is queried again on every
+run, forever. rejects.jsonl is that record: one row per repository this
+script looked at and could not use, keyed by (owner, repo).
+
+The record is a timestamp rather than a verdict, which is the opposite of
+what pin.py's failures.jsonl holds. A failed pin is keyed by an immutable
+revision and can be skipped forever; a rejected repository is keyed by the
+repository, and it can add a flake.nix tomorrow. So each run re-checks the
+--recheck-oldest rows checked longest ago, and a row is cleared the moment
+its repository resolves.
+
 Attribute names are sticky, which matters because they are API. A name
 already assigned in the known set keeps its owner forever, so a repo that
 later gains stars cannot take a bare name out from under a consumer that
@@ -125,6 +138,89 @@ def load_known(path):
     return by_repo, taken
 
 
+def load_rejects(path):
+    """Read a rejects.jsonl into {(owner, repo): checked_at}."""
+    rejects = {}
+    if not path:
+        return rejects
+    try:
+        fh = open(path)
+    except FileNotFoundError:
+        return rejects
+    with fh:
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            e = json.loads(line)
+            rejects[(e["owner"], e["repo"])] = e.get("checked_at", 0)
+    return rejects
+
+
+def write_rejects(path, rejects):
+    """Write the ledger, sorted by repository, through a temporary file.
+
+    In place, unlike resolved.jsonl, which update.sh moves over the old
+    copy on success. The rename is what keeps a killed run from leaving a
+    half-written ledger behind.
+    """
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        for (owner, repo), checked_at in sorted(rejects.items()):
+            row = {"owner": owner, "repo": repo, "checked_at": checked_at}
+            fh.write(json.dumps(row, sort_keys=True) + "\n")
+    os.replace(tmp, path)
+
+
+def prune_rejects(rejects, known, merged):
+    """Drop reject rows for repositories that resolved.
+
+    Success is authoritative. A stale row would otherwise skip a candidate
+    the database already holds a row for, and the two would disagree about
+    whether the repository is usable.
+    """
+    for key in list(rejects):
+        if key in known or key in merged:
+            del rejects[key]
+
+
+def oldest_rejects(rejects, count):
+    """The `count` reject rows checked longest ago, as a set of keys.
+
+    Bounded work rather than a fixed staleness, which is the trade
+    --refresh-oldest already makes for the known set: the cost of a run
+    stays put and the cadence stretches as the set grows. A fixed interval
+    would do the reverse, and the set only grows — every harvested
+    repository that is not a flake joins it permanently.
+
+    The repository breaks a tie, so a ledger seeded within one second still
+    selects the same rows on every run.
+    """
+    if count <= 0:
+        return set()
+    order = sorted(rejects.items(), key=lambda kv: (kv[1], kv[0]))
+    return {key for key, _ in order[:count]}
+
+
+def select_candidates(cands, known, merged, rejects, recheck):
+    """The candidates this run will query.
+
+    A repository in the known or merged set is settled and is not asked
+    about again here; --refresh-oldest is what brings those round. One
+    with a reject row was checked and could not be used, and it stays
+    skipped until its row is in `recheck`.
+    """
+    out = []
+    for cand in cands:
+        key = (cand["owner"], cand["repo"])
+        if key in known or key in merged:
+            continue
+        if key in rejects and key not in recheck:
+            continue
+        out.append(cand)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--known", help="existing resolved.jsonl to extend")
@@ -145,6 +241,18 @@ def main():
         metavar="FILE",
         help="externally resolved rows to fold in; they win over known rows",
     )
+    ap.add_argument(
+        "--rejects",
+        metavar="FILE",
+        help="ledger of repositories checked and found unusable; read and rewritten",
+    )
+    ap.add_argument(
+        "--recheck-oldest",
+        type=int,
+        default=1200,
+        metavar="N",
+        help="re-check the N rejected repos checked longest ago",
+    )
     args = ap.parse_args()
 
     known, taken = load_known(args.known)
@@ -158,15 +266,22 @@ def main():
     for name, repo_key in merged_names.items():
         taken.setdefault(name, repo_key)
 
+    # Repositories checked before and found unusable. A row that names a
+    # repository the database now holds is dropped on sight: success is
+    # authoritative, and the two must not disagree.
+    rejects = load_rejects(args.rejects)
+    prune_rejects(rejects, known, merged)
+
+    # Which of them this run looks at anyway. --refresh means look at
+    # everything, rejects included.
+    recheck = (
+        set(rejects) if args.refresh else oldest_rejects(rejects, args.recheck_oldest)
+    )
+
     cands = [json.loads(l) for l in sys.stdin if l.strip() and not l.startswith("#")]
     # Highest-starred first, so the better-known flake wins any *new* name clash.
     cands.sort(key=lambda c: -c.get("stars", 0))
-    cands = [
-        c
-        for c in cands
-        if (c["owner"], c["repo"]) not in known
-        and (c["owner"], c["repo"]) not in merged
-    ]
+    cands = select_candidates(cands, known, merged, rejects, recheck)
 
     # Known rows to look at again: all of them, or the ones resolved longest
     # ago. A rolling refresh keeps each run's work bounded while every row
@@ -192,9 +307,11 @@ def main():
         if key in refresh_keys or key in merged:
             continue
         out.append(entry)
+    rechecked = sum(1 for c in cands if (c["owner"], c["repo"]) in recheck)
     print(
         f"# carried over {len(known) - len(refresh)} known, "
-        f"refreshing {len(refresh)}, resolving {len(cands)} new",
+        f"refreshing {len(refresh)}, resolving {len(cands)} new "
+        f"({rechecked} re-checked of {len(rejects)} rejected)",
         file=sys.stderr,
         flush=True,
     )
@@ -213,6 +330,11 @@ def main():
     for i in range(0, len(cands), BATCH):
         batch = cands[i : i + BATCH]
         data = run_batch(batch)
+        # An empty map is a query that failed, not forty rejections. GraphQL
+        # answers for a repository that is gone with a null beside the other
+        # results, so a batch that came back at all can be trusted to say
+        # which of its repositories are unusable.
+        answered = bool(data)
         for j, cand in enumerate(batch):
             prior = known.get((cand["owner"], cand["repo"]))
             node = data.get(f"r{j}")
@@ -225,7 +347,15 @@ def main():
             if not node or not node.get("flakeNix") or not rev:
                 if prior:
                     out.append(prior)
+                elif answered:
+                    # No prior row, so nothing else would remember that this
+                    # repository was looked at. Write it down, or the next run
+                    # asks about it again.
+                    rejects[(cand["owner"], cand["repo"])] = now
                 continue
+
+            # It resolved, so any reject row for it is now wrong.
+            rejects.pop((cand["owner"], cand["repo"]), None)
 
             # The lock's root node names the flake's declared direct inputs,
             # and its node count is the size of the transitive graph.
@@ -284,6 +414,10 @@ def main():
     out.sort(key=lambda r: (r["name"], r["owner"], r["repo"]))
     for row in out:
         print(json.dumps(row, sort_keys=True))
+
+    if args.rejects:
+        write_rejects(args.rejects, rejects)
+        print(f"# {len(rejects)} rejected repositories on record", file=sys.stderr)
 
 
 if __name__ == "__main__":
