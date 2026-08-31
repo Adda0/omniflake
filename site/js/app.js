@@ -606,10 +606,17 @@ function App() {
 
 render(html`<${App} />`, document.getElementById("app"));
 
-// The footer's provenance line: which commit the data came from, and which
-// store path serves it. Hidden in a local preview, where neither is known.
+// The footer's provenance line: which commit the data came from. Hidden in a
+// local preview, where the commit is not known.
 if (!COMMIT.startsWith("__")) {
   document.getElementById("provenance").innerHTML =
-    ` · <a href="${REPO}/commit/${COMMIT}"><code>${COMMIT.slice(0, REV_ABBREV)}</code></a>` +
-    (STORE_PATH.startsWith("__") ? "" : ` · <code>${STORE_PATH}</code>`);
+    ` · <a href="${REPO}/commit/${COMMIT}"><code>${COMMIT.slice(0, REV_ABBREV)}</code></a>`;
+}
+
+// The store path serving the page gets the footer's second line: the #store
+// rules in style.css hold the 68-character token on one line and shrink the
+// font on a phone instead of letting the path wrap mid-token.
+if (!STORE_PATH.startsWith("__")) {
+  document.getElementById("store-path").textContent = STORE_PATH;
+  document.getElementById("store").hidden = false;
 }
