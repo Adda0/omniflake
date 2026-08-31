@@ -339,6 +339,15 @@ def shell(title, body, nav, name, commit, store_path, origin):
     return f"""<!doctype html>
 <html lang="en">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WS7B2S5TRH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+
+      gtag('config', 'G-WS7B2S5TRH');
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{html.escape(title)} · {SITE_TITLE}</title>{canonical(origin, name)}
