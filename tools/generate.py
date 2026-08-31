@@ -7,8 +7,13 @@ needs and a flag saying whether a computed lock is stored under locks/.
 One entry per line keeps a diff readable when a flake is added, removed or
 re-pinned.
 
-A library row without a pin is left out: either tools/pin.py has not seen
-its revision yet, or it failed and is in failures.jsonl.
+A library row whose current revision has no pin falls back to the last
+revision that did. An attribute name is API, and the reason a pin is
+missing is usually that GitHub rate-limited the run that tried to make it,
+so dropping the flake would take a working attribute away from consumers
+over a transient failure upstream. The index keeps serving the last known
+good revision until a new one pins. A flake only leaves the index by
+leaving the library: blocklisted, reclassified, or gone from resolve.
 
 Also prunes what nothing references any more: pins and failures for
 revisions no longer in the library, and stored locks no index entry uses.
@@ -74,19 +79,26 @@ def update_readme(path, stats):
         return
     # The blank line after the opening marker is what prettier wants, and
     # `nix fmt` runs over this file in CI.
-    block = "\n".join(
-        [
-            STATUS_BEGIN,
-            "",
-            f"- **{stats['indexed']:,} flakes** in the index, from "
-            f"**{stats['library']:,} in the library tier** "
-            f"({stats['failed']:,} could not be pinned, {stats['unpinned']:,} not yet pinned)",
-            f"- {stats['stored_locks']:,} ship no usable lock file and use one computed by Nix",
-            f"- One `follows` line in your flake redirects `nixpkgs` in every one of them",
-            f"- Last updated {time.strftime('%Y-%m-%d', time.gmtime())}",
-            STATUS_END,
-        ]
-    )
+    lines = [
+        STATUS_BEGIN,
+        "",
+        f"- **{stats['indexed']:,} flakes** in the index, from "
+        f"**{stats['library']:,} in the library tier** "
+        f"({stats['failed']:,} could not be pinned, {stats['unpinned']:,} not yet pinned)",
+        f"- {stats['stored_locks']:,} ship no usable lock file and use one computed by Nix",
+    ]
+    # Only worth a line when it is not zero: a flake held back is a fault
+    # upstream or a rate limit here, and either way it should be visible.
+    if stats.get("stale"):
+        lines.append(
+            f"- {stats['stale']:,} held at an earlier revision, their newer one having failed to pin"
+        )
+    lines += [
+        "- One `follows` line in your flake redirects `nixpkgs` in every one of them",
+        f"- Last updated {time.strftime('%Y-%m-%d', time.gmtime())}",
+        STATUS_END,
+    ]
+    block = "\n".join(lines)
     open(path, "w").write(pattern.sub(block, text))
 
 
@@ -105,21 +117,45 @@ def main():
     pins = {p["ref"]: p for p in read_jsonl(args.pins)}
     failures = {f["ref"]: f for f in read_jsonl(args.failures)}
 
+    # The last pin recorded for each name, whatever revision it was for.
+    # pins.jsonl is written in name order and holds one row per reference,
+    # so this is what a flake falls back to when its current reference has
+    # no pin of its own.
+    last_good = {}
+    for pin in pins.values():
+        if "name" in pin:
+            last_good[pin["name"]] = pin
+
     index = {}
-    library_refs = {}
-    stats = {"library": 0, "indexed": 0, "failed": 0, "unpinned": 0, "stored_locks": 0}
+    # Every reference the output still needs: the library's own, plus the
+    # older ones the fallback keeps alive so pruning does not collect them.
+    keep_refs = {}
+    stats = {
+        "library": 0,
+        "indexed": 0,
+        "failed": 0,
+        "unpinned": 0,
+        "stored_locks": 0,
+        "stale": 0,
+    }
     for row in read_jsonl(args.library):
         name = row["name"]
         if name in blocked:
             continue
         ref = flake_ref(row)
-        library_refs[ref] = name
+        keep_refs[ref] = name
         stats["library"] += 1
 
         pin = pins.get(ref)
         if pin is None:
             stats["failed" if ref in failures else "unpinned"] += 1
-            continue
+            # Hold the flake at the last revision that pinned, rather than
+            # letting a failure upstream remove the attribute.
+            pin = last_good.get(name)
+            if pin is None:
+                continue
+            keep_refs[pin["ref"]] = name
+            stats["stale"] += 1
 
         entry = {"locked": pin["locked"]}
         if pin.get("lock"):
@@ -135,9 +171,9 @@ def main():
     def current(rows):
         kept = []
         for ref, row in rows.items():
-            if ref not in library_refs:
+            if ref not in keep_refs:
                 continue
-            kept.append({**row, "name": library_refs[ref]})
+            kept.append({**row, "name": keep_refs[ref]})
         return sorted(kept, key=lambda r: r["name"])
 
     write_jsonl(args.pins, current(pins))

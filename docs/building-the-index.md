@@ -96,6 +96,16 @@ They are skipped until `tools/pin.py --retry-failed`.
 `index.json` is generated from the files above and is what `flake.nix`
 reads.
 
+A flake whose current revision has no pin is held at the last revision that
+did, rather than dropped. An attribute name is API, and the usual reason a
+pin is missing is that GitHub rate-limited the run that tried to make it —
+`resolve.py` keeps the row on failure for the same reason, and without this
+the two together would still lose the flake: resolve advances the revision,
+pin fails on it, and the entry disappears along with the older pin and lock
+that pruning then collects. The README status block counts anything being
+held. A flake leaves the index only by leaving the library: blocklisted,
+reclassified as personal, or gone from `resolve.py`.
+
 `history.jsonl` is one aggregate row per day: how many flakes are indexed,
 how many use a computed lock, the size of the graph the index holds, the
 median age, the tier counts. It is committed, because at 270 bytes a row it
