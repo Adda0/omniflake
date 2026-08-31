@@ -17,7 +17,12 @@ already assigned in the known set keeps its owner forever, so a repo that
 later gains stars cannot take a bare name out from under a consumer that
 already writes omniflake.flakes.<name>.
 
-Output: JSON lines of {name, owner, repo, rev, inputs, stars}.
+Output: JSON lines of {name, owner, repo, rev, inputs, stars}, sorted by
+attribute name. Processing order still decides which repo wins a new name
+(highest-starred first), but the file is written in name order so a run
+that re-resolves 2,000 rows produces a 2,000-line diff instead of moving
+every row that follows them. Keys are sorted too, so a row's bytes do not
+depend on how the dict was built.
 """
 
 import argparse, json, os, subprocess, sys, time, collections
@@ -174,13 +179,19 @@ def main():
     refresh = [r for r in refresh if (r["owner"], r["repo"]) not in merged]
     refresh_keys = {(r["owner"], r["repo"]) for r in refresh}
 
-    # Re-emit what is not being refreshed, so stdout is always the full
-    # database.
+    # Every row the run will write, collected rather than streamed: the
+    # file is sorted by name at the end, and a sort needs all of it. The
+    # run writes to a temporary file that update.sh moves into place only
+    # on success, so nothing is lost by not streaming.
+    out = []
+
+    # Carry over what is not being refreshed, so the output is always the
+    # full database.
     for entry in known.values():
         key = (entry["owner"], entry["repo"])
         if key in refresh_keys or key in merged:
             continue
-        print(json.dumps(entry), flush=True)
+        out.append(entry)
     print(
         f"# carried over {len(known) - len(refresh)} known, "
         f"refreshing {len(refresh)}, resolving {len(cands)} new",
@@ -213,7 +224,7 @@ def main():
             # is kept as it was: dropping it would release its name.
             if not node or not node.get("flakeNix") or not rev:
                 if prior:
-                    print(json.dumps(prior), flush=True)
+                    out.append(prior)
                 continue
 
             # The lock's root node names the flake's declared direct inputs,
@@ -260,14 +271,19 @@ def main():
             # Fields other tools fill in survive a refresh.
             if prior and "description" in prior:
                 row["description"] = prior["description"]
-            print(json.dumps(row), flush=True)
+            out.append(row)
             emitted += 1
         print(f"# resolved {emitted}/{i + len(batch)}", file=sys.stderr, flush=True)
 
-    # The externally resolved rows themselves, emitted last so the file
-    # reads in the same order the old append-then-dedup produced.
-    for entry in merged.values():
-        print(json.dumps(entry), flush=True)
+    # The externally resolved rows themselves.
+    out.extend(merged.values())
+
+    # Name order, with owner and repo breaking any tie, so the file has one
+    # canonical form: two runs that resolve the same facts produce the same
+    # bytes regardless of the order the rows were built in.
+    out.sort(key=lambda r: (r["name"], r["owner"], r["repo"]))
+    for row in out:
+        print(json.dumps(row, sort_keys=True))
 
 
 if __name__ == "__main__":

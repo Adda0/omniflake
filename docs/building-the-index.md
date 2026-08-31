@@ -42,6 +42,12 @@ days. `--refresh` re-resolves all of them in one run.
 revision, stars, description. It is committed and extended on each run, not
 regenerated, so names stay stable.
 
+It is written sorted by attribute name, with each row's keys sorted too, so
+a run's diff is the rows whose facts changed and nothing else. Processing
+order is unchanged — the highest-starred candidate still wins a new name —
+but a rolling refresh no longer moves the rows it touches to the end of the
+file and shifts every row after them.
+
 `pins.jsonl` holds one row per pinned flake reference: the `locked`
 attributes and whether a computed lock was stored. A revision never changes,
 so a pinned reference is not fetched again.
