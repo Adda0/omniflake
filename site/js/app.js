@@ -499,7 +499,7 @@ function Stats({ data }) {
       </p>
     <//>`}
 
-    <${Section} title="When the index last moved">
+    <${Section} title="Flakes by the year of their pinned commit">
       <${Bars} rows=${s.byYear.map(([y, c]) => [String(y), c])} initial=${20} />
     <//>
 
