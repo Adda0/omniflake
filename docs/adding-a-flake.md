@@ -29,7 +29,11 @@ Commit `manual.txt`, `resolved.jsonl`, `pins.jsonl`, `index.json` and any
 new file under `locks/`.
 
 The `check` workflow regenerates the index on every pull request and fails
-if the committed `index.json` differs from the generated one.
+if the committed `index.json` differs from the generated one. It also
+re-derives every pin the pull request adds or changes with `nix flake
+metadata` and evaluates every new name, so the committed `locked`
+attributes are checked against what the source really serves. The same
+check runs locally with `nix run .#verify`.
 
 ## Removing
 

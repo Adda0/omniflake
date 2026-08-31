@@ -57,6 +57,10 @@ let
       description = "Evaluate a random sample of indexed flakes";
       entry = "python3 ${../tools}/sample.py";
     };
+    verify = {
+      description = "Re-derive and evaluate pins changed since a base revision";
+      entry = "python3 ${../tools}/verify.py";
+    };
   };
 in
 {

@@ -55,6 +55,18 @@ jobs:
           nix run .#generate
           git diff --exit-code -- index.json pins.jsonl failures.jsonl locks
 
+      # The regeneration diff above proves internal consistency but takes
+      # the pins rows on faith. Re-derive every pin the pull request adds
+      # or modifies with `nix flake metadata`, and evaluate every new
+      # name, so a wrong revision or narHash cannot enter the index.
+      - name: Verify changed pins
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --quiet --depth=1 origin "$BASE"
+          nix run .#verify -- --base "$BASE"
+
       - name: Evaluate a sample
         # Informational: see tools/sample.py. The counts go to the job
         # summary.
