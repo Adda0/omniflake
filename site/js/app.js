@@ -458,10 +458,7 @@ function Stats({ data }) {
     <//>`}
     ${s.nixpkgs &&
     s.nixpkgs.wasteBytes &&
-    html`<${Section}
-      title="The nixpkgs you do not download"
-      sub="Every flake that pins nixpkgs pins its own revision of it. Two things collapse that, and only one of them is Nix's doing."
-    >
+    html`<${Section} title="The nixpkgs you do not download">
       <div class="kpis">
         <div
           class="kpi"
