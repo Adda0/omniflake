@@ -21,11 +21,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: DeterminateSystems/nix-installer-action@v16
+      # Upstream Nix: the previous installer shipped Determinate Nix,
+      # whose lazy trees changed what `nix flake metadata` returns.
+      - uses: cachix/install-nix-action@v31
         with:
           # Some indexed flakes are written with the pipe operator; they are
           # pinned with the feature on and need it on to evaluate.
-          extra-conf: |
+          extra_nix_config: |
             experimental-features = nix-command flakes pipe-operators
 
       # Pushes what the job builds: the formatter, the tools, the docs and

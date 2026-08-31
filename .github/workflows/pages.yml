@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: DeterminateSystems/nix-installer-action@v16
+      - uses: cachix/install-nix-action@v31
 
       # Pushes what the job builds: the formatter, the tools, the docs and
       # site derivations. Pull requests from forks have no token and only
