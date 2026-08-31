@@ -17,6 +17,20 @@ on:
         description: "Re-pin every known flake to its current default branch"
         type: boolean
         default: false
+      no-harvest:
+        description: "Skip GitHub search; resolve, pin and regenerate only"
+        type: boolean
+        default: false
+      refresh-oldest:
+        description: "Re-resolve only this many stalest flakes (default 2000)"
+        type: string
+        default: ""
+      # A smoke run: the full pipeline on a sliver of work, publishing
+      # nothing. Pair with no-harvest and a small refresh-oldest.
+      dry-run:
+        description: "Run the pipeline but cut no release and push no commit"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -51,12 +65,13 @@ jobs:
           # GitHub search and GraphQL for harvest.py and resolve.py.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PIN_JOBS: "8"
+          # Empty on scheduled runs, so update.sh falls back to its default.
+          REFRESH_OLDEST: ${{ inputs.refresh-oldest }}
         run: |
-          if [ "${{ inputs.refresh }}" = "true" ]; then
-            nix run .#update -- --refresh
-          else
-            nix run .#update
-          fi
+          args=()
+          if [ "${{ inputs.refresh }}" = "true" ]; then args+=(--refresh); fi
+          if [ "${{ inputs.no-harvest }}" = "true" ]; then args+=(--no-harvest); fi
+          nix run .#update -- "${args[@]}"
 
       # The databases are not committed. Upload whatever moved to a dated
       # release and repoint data-pins.json, which the commit below carries.
@@ -65,6 +80,7 @@ jobs:
       # re-cuts, while the reverse order would commit a pin naming bytes
       # that were never uploaded.
       - name: Cut the data release
+        if: ${{ !inputs.dry-run }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: nix run .#cut-data-release
@@ -77,9 +93,13 @@ jobs:
             echo
             echo "## New failures"
             git diff --no-color -U0 -- failures.jsonl | grep '^+{' | cut -c1-200 | head -50 || true
+            echo
+            echo "## Changed files"
+            git diff --stat | tail -15
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit
+        if: ${{ !inputs.dry-run }}
         run: |
           git add failures.jsonl index.json locks README.md data-pins.json history.jsonl
           if git diff --cached --quiet; then
