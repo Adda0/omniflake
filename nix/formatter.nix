@@ -31,8 +31,11 @@ treefmt-nix.lib.evalModule pkgs {
   };
 
   # Generated data, and stored lock files written the way Nix writes them.
+  # data-pins.json is rewritten by tools/bump-data-pin.sh on every release
+  # cut, and the update workflow commits it without running the formatter.
   settings.global.excludes = [
     "index.json"
+    "data-pins.json"
     "locks/*"
     "*.jsonl"
     "flake.lock"
