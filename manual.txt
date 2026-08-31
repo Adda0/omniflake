@@ -4,3 +4,17 @@
 fzakaria/nix-auto-follow
 fzakaria/nixpkgs-multiverse
 github:roman/nixDir/v3
+
+# Reported missing in issue #2. GitHub calls the primary language of these
+# three Rust and Haskell, and none carries a nix topic, so no query in
+# harvest.py can reach them.
+hgaiser/moonshine
+nix-community/nix-vscode-extensions
+rafaelrc7/wayland-pipewire-idle-inhibit
+
+# Also from issue #2. These two are language:Nix and would be harvested but
+# for the result cap: their star buckets hold more than 1000 repositories
+# and are not sliced finely enough, so both fall past the end of the search.
+# Listed here so they are indexed no matter what the search returns.
+Whovian9369/aaru-nix-flake
+Whovian9369/rom-properties-nix-flake
