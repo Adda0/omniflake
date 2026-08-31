@@ -26,20 +26,43 @@ days. `--refresh` re-resolves all of them in one run.
 
 ## Tools
 
-| tool          | function                                                                                                             |
-| ------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `harvest.py`  | GitHub search by `language:Nix` and topic, partitioned by star range and push date to stay under the 1000-result cap |
-| `manual.py`   | reads `manual.txt`, including flakes outside GitHub                                                                  |
-| `resolve.py`  | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists                                    |
-| `describe.py` | fills in a repository description per row, for the site's search                                                     |
-| `classify.py` | separates personal machine configurations from the library tier                                                      |
-| `pin.py`      | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock      |
-| `generate.py` | writes `index.json`, prunes unused pins and locks, updates the README status block                                   |
+| tool                  | function                                                                                                             |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `harvest.py`          | GitHub search by `language:Nix` and topic, partitioned by star range and push date to stay under the 1000-result cap |
+| `manual.py`           | reads `manual.txt`, including flakes outside GitHub                                                                  |
+| `resolve.py`          | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists                                    |
+| `describe.py`         | fills in a repository description per row, for the site's search                                                     |
+| `classify.py`         | separates personal machine configurations from the library tier                                                      |
+| `pin.py`              | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock      |
+| `generate.py`         | writes `index.json`, prunes unused pins and locks, updates the README status block                                   |
+| `fetch-data.sh`       | downloads the databases `data-pins.json` pins, or `--check`s the ones already present                                |
+| `cut-data-release.sh` | uploads the databases whose bytes moved to a dated release and repoints the pins                                     |
+| `bump-data-pin.sh`    | records `{tag, narHash}` per file in `data-pins.json`                                                                |
 
 ## Data files
 
+Three of these are committed and three are not. `index.json`, `locks/` and
+`failures.jsonl` are in the flake tree because evaluation reads the first
+two and the third is small. `resolved.jsonl`, `pins.jsonl` and
+`candidates.jsonl` are pipeline state that nothing evaluates: they were
+10.7 MB of the 20 MB a consumer unpacked, so they live on dated GitHub
+releases instead, addressed by `data-pins.json`.
+
+A release asset is a mutable pointer — a tag and a name, re-uploadable at
+will. `data-pins.json` records a `narHash` per file, so the committed
+manifest is what makes the pair immutable: a swapped asset fails the hash
+and the build stops. `tools/fetch-data.sh` puts the files in a checkout,
+and `nix/data.nix` fetches them for the site build as fixed-output
+derivations, which keeps `nix flake show` and `nix flake check` offline.
+
+A run that changes any of the three needs a cut before its commit:
+
+```console
+$ ./tools/cut-data-release.sh          # tag data-<today, UTC>
+```
+
 `resolved.jsonl` is the database of known repositories: name, owner, repo,
-revision, stars, description. It is committed and extended on each run, not
+revision, stars, description. It is kept and extended on each run, not
 regenerated, so names stay stable.
 
 It is written sorted by attribute name, with each row's keys sorted too, so
@@ -83,8 +106,15 @@ which keeps fetches fast over a long run.
 
 ## Continuous integration
 
-`update.yml` runs the pipeline daily and commits the regenerated index to
-`main`. `check.yml` runs on pushes and pull requests: it locks the
-flake, regenerates the index and fails on any difference, runs
-`nix flake check`, and evaluates a random sample of flakes for the job
+`update.yml` runs the pipeline daily, cuts a data release for the databases
+that moved, and commits the regenerated index and the repointed
+`data-pins.json` to `main`. The upload happens before the commit: a commit
+that fails afterwards leaves unreferenced assets on a dated tag, which the
+next run re-cuts, while the reverse order would commit a pin naming bytes
+that were never uploaded.
+
+`check.yml` runs on pushes and pull requests: it fetches the pinned
+databases, locks the flake, regenerates the index and fails on any
+difference, checks that the regenerated `pins.jsonl` still matches its pin,
+runs `nix flake check`, and evaluates a random sample of flakes for the job
 summary. `pages.yml` builds and deploys the site.

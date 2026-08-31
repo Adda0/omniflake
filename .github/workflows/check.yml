@@ -52,10 +52,18 @@ jobs:
       - name: Index matches the databases
         # index.json is derived from pins.jsonl, failures.jsonl and the
         # blocklist. A hand edit that drifts from them is caught here.
+        #
+        # pins.jsonl is fetched rather than committed, so `git diff` cannot
+        # speak for it. generate.py prunes it, and --check compares what
+        # that left against the pin: a prune that never went into a release
+        # cut would otherwise pass every gate and leave the site building
+        # from bytes the index no longer agrees with.
         run: |
+          nix run .#fetch-data
           nix run .#classify -- --rejected personal.jsonl < resolved.jsonl > library.jsonl
           nix run .#generate
-          git diff --exit-code -- index.json pins.jsonl failures.jsonl locks
+          git diff --exit-code -- index.json failures.jsonl locks
+          nix run .#fetch-data -- --check
 
       # The regeneration diff above proves internal consistency but takes
       # the pins rows on faith. Re-derive every pin the pull request adds

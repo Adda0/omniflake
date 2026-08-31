@@ -25,8 +25,16 @@ $ ./tools/update.sh --no-harvest
 
 The new flake is fetched once by `nix flake metadata`, its `locked`
 attributes are written to `pins.jsonl`, and `index.json` gains an entry.
-Commit `manual.txt`, `resolved.jsonl`, `pins.jsonl`, `index.json` and any
-new file under `locks/`.
+
+`resolved.jsonl` and `pins.jsonl` are not committed. Cut a release for the
+bytes they now hold, which repoints `data-pins.json`:
+
+```console
+$ ./tools/cut-data-release.sh
+```
+
+Then commit `manual.txt`, `data-pins.json`, `index.json` and any new file
+under `locks/`.
 
 The `check` workflow regenerates the index on every pull request and fails
 if the committed `index.json` differs from the generated one. It also

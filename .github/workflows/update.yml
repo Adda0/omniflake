@@ -58,6 +58,17 @@ jobs:
             nix run .#update
           fi
 
+      # The databases are not committed. Upload whatever moved to a dated
+      # release and repoint data-pins.json, which the commit below carries.
+      # Uploading before committing is deliberate: a commit that then fails
+      # leaves unreferenced assets on a dated tag, which the next run simply
+      # re-cuts, while the reverse order would commit a pin naming bytes
+      # that were never uploaded.
+      - name: Cut the data release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: nix run .#cut-data-release
+
       - name: Summarize
         run: |
           {
@@ -70,7 +81,7 @@ jobs:
 
       - name: Commit
         run: |
-          git add resolved.jsonl candidates.jsonl pins.jsonl failures.jsonl index.json locks README.md
+          git add failures.jsonl index.json locks README.md data-pins.json
           if git diff --cached --quiet; then
             echo "nothing changed"
             exit 0

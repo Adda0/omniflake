@@ -15,7 +15,7 @@ on:
       - tools/render-docs.py
       - tools/build-site-data.py
       - index.json
-      - resolved.jsonl
+      - data-pins.json
       - failures.jsonl
       - .github/workflows/pages.yml
   # The daily index commit is pushed with the default token, which starts
