@@ -278,33 +278,53 @@ function Index({ data }) {
 // A magnitude-by-category row: label, proportional bar, value. A bar list
 // rather than a plotted chart because every one of these is a ranking, the
 // values are printed beside the bars, and nothing here needs an axis.
+// A magnitude-by-category ranking: label, proportional bar, value. A bar
+// list rather than a plotted chart because every one of these is a ranking
+// and the values are printed beside the bars, so nothing is reachable only
+// by hovering. Long rankings page in rather than dumping a hundred rows.
 function Bars({
   rows,
   total,
   format = (v) => v.toLocaleString(),
   share,
   mono = true,
+  initial = 15,
+  page = 25,
 }) {
+  const [limit, setLimit] = useState(initial);
+  // The scale comes from the whole ranking, not the visible slice, so
+  // loading more never rescales the bars already on screen.
   const max = Math.max(...rows.map(([, v]) => v), 1);
-  return html`<div class="statbars">
-    ${rows.map(
-      ([label, value]) => html`
-        <div class="statbar" key=${label}>
-          <span class=${mono ? "k mono" : "k"}>${label}</span>
-          <span class="track"
-            ><span class="fill" style=${`width:${(100 * value) / max}%`}></span
-          ></span>
-          <span class="v">
-            ${format(value)}${share && total
-              ? html`<span class="muted">
-                  ${" "}${Math.round((100 * value) / total)}%
-                </span>`
-              : ""}
-          </span>
-        </div>
-      `,
-    )}
-  </div>`;
+  const remaining = rows.length - limit;
+
+  return html`
+    <div class="statbars">
+      ${rows.slice(0, limit).map(
+        ([label, value]) => html`
+          <div class="statbar" key=${label}>
+            <span class=${mono ? "k mono" : "k"}>${label}</span>
+            <span class="track"
+              ><span
+                class="fill"
+                style=${`width:${(100 * value) / max}%`}
+              ></span
+            ></span>
+            <span class="v">
+              ${format(value)}${share && total
+                ? html`<span class="muted">
+                    ${" "}${Math.round((100 * value) / total)}%
+                  </span>`
+                : ""}
+            </span>
+          </div>
+        `,
+      )}
+    </div>
+    ${remaining > 0 &&
+    html`<button class="more" onClick=${() => setLimit(limit + page)}>
+      ${`show ${Math.min(page, remaining)} more · ${remaining.toLocaleString()} remaining`}
+    </button>`}
+  `;
 }
 
 function Section({ title, sub, children }) {
@@ -317,41 +337,83 @@ function Section({ title, sub, children }) {
 // A trend over the daily history rows. Hidden until there are two of them:
 // one point is not a line, and a chart of it would imply a shape the data
 // does not have.
-function Trend({ rows, pick, title, sub, format = (v) => v.toLocaleString() }) {
-  const pts = rows.map(pick);
-  if (pts.length < 2 || pts.some((v) => v == null)) return null;
+//
+// The y-axis is scaled to the data rather than to zero, which is what makes
+// a 60-flake move visible at all on a 12,000 base -- so both ends of the
+// range are labelled, and the change over the window is stated in words
+// above the plot. Neither the shape nor the numbers rest on the other.
+function Trend({ rows, pick, title, format = (v) => v.toLocaleString() }) {
+  const usable = rows.filter((r) => pick(r) != null);
+  if (usable.length < 2) return null;
+  const pts = usable.map(pick);
+
   const W = 640;
-  const H = 120;
-  const PAD = { l: 8, r: 8, t: 8, b: 8 };
+  const H = 132;
+  const PAD = { l: 56, r: 14, t: 12, b: 26 };
   const min = Math.min(...pts);
   const max = Math.max(...pts);
   const span = max - min || 1;
   const X = (i) => PAD.l + (i / (pts.length - 1)) * (W - PAD.l - PAD.r);
   const Y = (v) => PAD.t + (1 - (v - min) / span) * (H - PAD.t - PAD.b);
   const line = pts.map((v, i) => `${i ? "L" : "M"}${X(i)},${Y(v)}`).join("");
-  const area = `${line}L${X(pts.length - 1)},${H - PAD.b}L${X(0)},${H - PAD.b}Z`;
+  const base = H - PAD.b;
+  const area = `${line}L${X(pts.length - 1)},${base}L${X(0)},${base}Z`;
+
+  const first = pts[0];
+  const last = pts[pts.length - 1];
+  const delta = last - first;
+  const change =
+    delta === 0
+      ? "unchanged"
+      : `${delta > 0 ? "+" : "−"}${format(Math.abs(delta))}`;
 
   return html`<div class="chart">
     <h3>${title}</h3>
-    <p class="sub">${sub}</p>
+    <p class="sub">
+      ${`${format(last)} on ${usable[usable.length - 1].date} · ${change} since ${usable[0].date}`}
+    </p>
     <figure>
-      <svg viewBox=${`0 0 ${W} ${H}`} preserveAspectRatio="none" height=${H}>
+      <svg viewBox=${`0 0 ${W} ${H}`}>
+        <g class="grid">
+          <line x1=${PAD.l} x2=${W - PAD.r} y1=${Y(max)} y2=${Y(max)} />
+          <line x1=${PAD.l} x2=${W - PAD.r} y1=${Y(min)} y2=${Y(min)} />
+        </g>
+        <text x=${PAD.l - 8} y=${Y(max) + 4} text-anchor="end">
+          ${format(max)}
+        </text>
+        <text x=${PAD.l - 8} y=${Y(min) + 4} text-anchor="end">
+          ${format(min)}
+        </text>
         <path class="area" d=${area} />
         <path class="series" d=${line} />
-        <circle
-          class="enddot"
-          cx=${X(pts.length - 1)}
-          cy=${Y(pts[pts.length - 1])}
-          r="4"
-        />
+        <circle class="enddot" cx=${X(pts.length - 1)} cy=${Y(last)} r="4" />
+        <text x=${PAD.l} y=${H - 8} text-anchor="start">${usable[0].date}</text>
+        <text x=${W - PAD.r} y=${H - 8} text-anchor="end">
+          ${usable[usable.length - 1].date}
+        </text>
       </svg>
     </figure>
-    <div class="facts">
-      <span>${rows[0].date}: ${format(pts[0])}</span>
-      <span>
-        ${rows[rows.length - 1].date}: ${format(pts[pts.length - 1])}
-      </span>
-    </div>
+    <details class="tableview">
+      <summary>table view</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>date</th>
+            <th>${title.toLowerCase()}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${usable.map(
+            (r, i) => html`
+              <tr key=${r.date}>
+                <td>${r.date}</td>
+                <td>${format(pts[i])}</td>
+              </tr>
+            `,
+          )}
+        </tbody>
+      </table>
+    </details>
   </div>`;
 }
 
@@ -363,15 +425,8 @@ function Stats({ data }) {
     </p>`;
   const history = data.history || [];
   const n = (v) => (v == null ? "—" : v.toLocaleString());
-  const pct = (v) => (v == null ? "—" : `${v}%`);
 
   return html`
-    <p class="muted">
-      What the index says about itself, and about the flakes in it. Every number
-      is computed when the site is built, from the same data the table on the
-      Flakes tab is drawn from.
-    </p>
-
     <div class="kpis">
       <div
         class="kpi"
@@ -382,63 +437,24 @@ function Stats({ data }) {
       </div>
       <div
         class="kpi"
-        title="Distinct NixOS/nixpkgs revisions pinned across the flakes whose lock has been summarized. One follows line replaces all of them with yours."
-      >
-        <div class="v">${n(s.nixpkgs && s.nixpkgs.distinct)}</div>
-        <div class="l">different nixpkgs revisions pinned</div>
-      </div>
-      <div
-        class="kpi"
-        title="Distinct input names declared across the index. The ecosystem's dependency vocabulary."
+        title="Distinct input names declared across the index: the ecosystem's dependency vocabulary."
       >
         <div class="v">${n(s.distinctInputs)}</div>
         <div class="l">distinct input names declared</div>
       </div>
-      <div
-        class="kpi"
-        title="Days since the pinned revision of the middle flake was authored."
-      >
-        <div class="v">${n(s.freshness && s.freshness.medianAgeDays)}</div>
-        <div class="l">days since the median flake last moved</div>
-      </div>
     </div>
 
-    <${Section}
-      title="What one follows line reaches"
-      sub=${`${n(s.withFoundation)} of ${n(data.count)} indexed flakes declare at least one of the five substituted inputs, across ${n(s.foundationEdges)} declared edges. Naming them once in your flake redirects every one.`}
-    >
-      <${Bars}
-        rows=${s.inputs.slice(0, 20)}
-        total=${data.count}
-        share=${true}
-      />
-      <p class="muted">
-        Top 20 of ${n(s.distinctInputs)} distinct names, by how many flakes
-        declare them. ${n(s.noInputs)} flakes declare no inputs at all.
-      </p>
+    <${Section} title="Most declared inputs">
+      <${Bars} rows=${s.inputs} total=${data.count} share=${true} />
     <//>
 
-    <${Section}
-      title="Lock size"
-      sub=${`Median ${n(s.lockNodes && s.lockNodes.median)} nodes. These are the graphs the loader walks; none of them enters your lock file.`}
-    >
+    <${Section} title="Largest input graphs">
       <${Bars} rows=${s.heaviest} />
-      <p class="muted">The fifteen largest input graphs in the index.</p>
     <//>
 
     ${s.lockTypes &&
-    html`<${Section}
-      title="What the graphs are made of"
-      sub=${`Every node of every summarized lock, by the fetcher it uses, across ${n(s.summarized)} flakes.`}
-    >
+    html`<${Section} title="What those graphs are made of">
       <${Bars} rows=${s.lockTypes} />
-      <p class="muted">
-        ${n(s.nixpkgs && s.nixpkgs.pins)} of those graphs pin NixOS/nixpkgs
-        directly, at ${n(s.nixpkgs && s.nixpkgs.distinct)} different revisions —
-        the median one
-        dated${" "}${isoDate(s.nixpkgs && s.nixpkgs.medianLastModified)}, the
-        oldest${" "}${isoDate(s.nixpkgs && s.nixpkgs.oldestLastModified)}.
-      </p>
     <//>`}
     ${s.nixpkgs &&
     s.nixpkgs.wasteBytes &&
@@ -463,7 +479,7 @@ function Stats({ data }) {
         </div>
         <div
           class="kpi"
-          title='With inputs.omniflake.inputs.nixpkgs.follows = "nixpkgs", every one of those is your nixpkgs instead.'
+          title=${`With inputs.omniflake.inputs.nixpkgs.follows, all of them are yours. Across all five substituted inputs that reaches ${n(s.withFoundation)} flakes over ${n(s.foundationEdges)} declared edges.`}
         >
           <div class="v">1</div>
           <div class="l">once you follow yours</div>
@@ -473,71 +489,45 @@ function Stats({ data }) {
           title=${`Distinct revisions times the closure size of one nixpkgs source tree (${fmtBytes(s.nixpkgs.treeBytes)}). Sources only — nothing built.`}
         >
           <div class="v">${fmtBytes(s.nixpkgs.wasteBytes)}</div>
-          <div class="l">of nixpkgs sources, collapsed to one</div>
+          <div class="l">
+            of sources, collapsed to ${fmtBytes(s.nixpkgs.treeBytes)}
+          </div>
         </div>
       </div>
       <p class="muted">
-        ${`Nix already collapses the ${n(s.nixpkgs.pins - s.nixpkgs.distinct)} pins that name a revision another flake also names. What is left is ${n(s.nixpkgs.distinct)} genuinely different trees, about ${fmtBytes(s.nixpkgs.wasteBytes)} of source, and following your own nixpkgs replaces all of them with the ${fmtBytes(s.nixpkgs.treeBytes)} you already have.`}
+        ${`The median pinned revision dates from ${isoDate(s.nixpkgs.medianLastModified)}, the oldest from ${isoDate(s.nixpkgs.oldestLastModified)}.`}
       </p>
     <//>`}
 
-    <${Section}
-      title="When the index last moved"
-      sub="Flakes by the year of the revision pinned here, which is the last commit on their default branch when they were last checked."
-    >
-      <${Bars} rows=${s.byYear.map(([y, c]) => [String(y), c])} />
-      ${s.freshness &&
-      html`<p class="muted">
-        ${n(s.freshness.d30)} moved in the last 30 days,${" "}
-        ${n(s.freshness.d90)} in 90, ${n(s.freshness.d365)} in a year.
-      </p>`}
+    <${Section} title="When the index last moved">
+      <${Bars} rows=${s.byYear.map(([y, c]) => [String(y), c])} initial=${20} />
     <//>
 
-    <${Section}
-      title="Attention and maintenance"
-      sub=${`${n(s.stars.total)} stars across the index. The top ten flakes hold ${pct(s.stars.top10Share)} of them.`}
-    >
+    <${Section} title="Stars across the index">
       <${Bars}
         rows=${[
           ["1,000+ stars", s.stars.ge1000],
           ["100+ stars", s.stars.ge100],
           ["no stars", s.stars.zero],
         ]}
+        mono=${false}
       />
       <p class="muted">
-        ${pct(s.stars.freshSharePopular)} of the flakes with 100 or more stars
-        were updated in the last year, against ${pct(s.stars.freshShareZero)} of
-        those with none.
+        ${`${s.stars.freshSharePopular}% of the flakes with 100 or more stars were updated in the last year, against ${s.stars.freshShareZero}% of those with none.`}
       </p>
     <//>
 
-    ${s.failureClasses &&
-    s.failureClasses.length > 0 &&
-    html`<${Section}
-      title="Why flakes do not pin"
-      sub="The reasons Nix gave, grouped. Each one is listed with its own message on the Not pinnable tab."
-    >
-      <${Bars} rows=${s.failureClasses} mono=${false} />
-    <//>`}
-
+    <${Trend} rows=${history} pick=${(r) => r.count} title="Flakes indexed" />
     <${Trend}
       rows=${history}
-      pick=${(r) => r.count}
-      title="Flakes indexed"
-      sub="One point per daily update run."
+      pick=${(r) => r.storedLocks}
+      title="Flakes using a computed lock"
     />
     <${Trend}
       rows=${history}
-      pick=${(r) => r.lockNodeSum}
-      title="Lock nodes the index holds"
-      sub="The graph the index carries on your behalf, run by run."
+      pick=${(r) => r.failures}
+      title="Flakes that could not be pinned"
     />
-    ${history.length < 2 &&
-    html`<p class="muted">
-      ${history.length === 1
-        ? "Trends need a second daily run; one row is recorded so far."
-        : "Trends start once the daily run has recorded a few rows."}
-    </p>`}
   `;
 }
 

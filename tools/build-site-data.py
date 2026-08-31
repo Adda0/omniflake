@@ -13,8 +13,8 @@ DAY_SECONDS = 86400
 # How many rows each leaderboard carries into the page. Enough to be worth
 # reading, small enough that the whole stats block stays a rounding error
 # next to the 12,000 flake rows beside it.
-TOP_INPUTS = 40
-TOP_HEAVIEST = 15
+TOP_INPUTS = 100
+TOP_HEAVIEST = 100
 # The inputs `flakes.<name>` substitutes, mirrored from flake.nix. Counting
 # how far one `follows` line reaches is the whole argument for the index.
 FOUNDATIONS = ("nixpkgs", "flake-utils", "systems", "flake-parts", "flake-compat")
@@ -28,44 +28,6 @@ FOUNDATIONS = ("nixpkgs", "flake-utils", "systems", "flake-parts", "flake-compat
 # and it is what turns "3,254 distinct revisions" into a number anyone can
 # feel. Re-measure if it ever looks wrong.
 NIXPKGS_TREE_BYTES = 203 * 1024 * 1024
-
-# What a flake failed on, in the words of the thing that failed. Ordered:
-# the first pattern that matches a message names it, so the specific
-# entries come before the general ones.
-FAILURE_CLASSES = (
-    (
-        "input declares both a URL and follows",
-        ("both a flake reference and a follows",),
-    ),
-    ("syntax error in the flake", ("syntax error", "could not parse")),
-    ("undefined variable", ("undefined variable",)),
-    (
-        "source could not be downloaded",
-        ("unable to download", "failed to open archive", "unable to fetch"),
-    ),
-    (
-        "references a path that is not there",
-        ("no such file or directory", "does not exist", "opening file"),
-    ),
-    (
-        "not a flake",
-        ("does not provide attribute", "is not a flake", "has no attribute"),
-    ),
-    ("private or unreachable git remote", ("failed to fetch git repository", "ssh://")),
-    ("input names a registry entry", ("in the flake registries", "cannot find flake")),
-    ("lock file is inconsistent", ("lock file references missing node", "revspec")),
-    (
-        "flake.nix does not evaluate",
-        (
-            "expected a function",
-            "expected a string",
-            "already defined",
-            "unexpected flake input attribute",
-            "in pure mode",
-            "infinite recursion",
-        ),
-    ),
-)
 
 
 def read_jsonl(path):
@@ -99,16 +61,7 @@ def error_message(text):
     return message
 
 
-def failure_class(message):
-    """Which of the recurring reasons a message is an instance of."""
-    low = message.lower()
-    for label, needles in FAILURE_CLASSES:
-        if any(n in low for n in needles):
-            return label
-    return "other"
-
-
-def build_stats(flakes, failures, pins, now):
+def build_stats(flakes, pins, now):
     """The aggregates the stats view draws, computed once at build time.
 
     Everything here is derivable from the rows already in this file, but
@@ -172,12 +125,8 @@ def build_stats(flakes, failures, pins, now):
         "inputs": inputs.most_common(TOP_INPUTS),
         "withFoundation": with_foundation,
         "foundationEdges": foundation_edges,
-        "noInputs": sum(1 for f in flakes if not f["inputs"]),
         "byYear": sorted(by_year.items()),
         "heaviest": [[name, n] for n, name in heaviest],
-        "failureClasses": collections.Counter(
-            failure_class(f["error"]) for f in failures
-        ).most_common(),
         "stars": {
             "total": total_stars,
             "zero": sum(1 for s in stars if s == 0),
@@ -302,7 +251,7 @@ def main():
         "pending": pending,
         "flakes": flakes,
         "failures": failures,
-        "stats": build_stats(flakes, failures, pins, now),
+        "stats": build_stats(flakes, pins, now),
         # One row a day. The trend charts have nothing to draw until this
         # has a few in it, which is why it starts being written now.
         "history": list(read_jsonl(args.history)),
