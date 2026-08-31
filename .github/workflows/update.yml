@@ -46,10 +46,6 @@ jobs:
           name: omniflake
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
       - name: Update the index
         env:
           # GitHub search and GraphQL for harvest.py and resolve.py.
@@ -57,9 +53,9 @@ jobs:
           PIN_JOBS: "8"
         run: |
           if [ "${{ inputs.refresh }}" = "true" ]; then
-            ./tools/update.sh --refresh
+            nix run .#update -- --refresh
           else
-            ./tools/update.sh
+            nix run .#update
           fi
 
       - name: Summarize
