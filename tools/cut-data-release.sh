@@ -81,12 +81,36 @@ if [ -z "$TAG" ]; then
 fi
 echo "cutting into $TAG"
 
-# Create the dated release if this is its first cut. --notes kept short:
-# data-pins.json is the real manifest.
-if ! gh release view "$TAG" > /dev/null 2>&1; then
+# A tag the loop settled on either does not exist yet, or exists and is
+# missing every file being uploaded. The second case is a top-up, and
+# `gh release create` never runs for it.
+MODE="cut"
+if gh release view "$TAG" > /dev/null 2>&1; then
+  MODE="top-up"
+fi
+
+# What moved into the index in this run, rendered from the working tree
+# against HEAD. That comparison holds because update.yml cuts before it
+# commits, so HEAD is still the previous index; release-notes.py says so
+# rather than reporting zeroes when it is not, and never fails the cut.
+NOTES=$(mktemp)
+BODY=$(mktemp)
+trap 'rm -f "$NOTES" "$BODY"' EXIT
+python3 "$HERE/release-notes.py" --root "$ROOT" --mode "$MODE" --files "${CHANGED[@]}" > "$NOTES"
+
+# A top-up keeps the notes of the cut that opened the release -- they
+# describe a different run -- and gains this cut's section below them.
+if [ "$MODE" = "cut" ]; then
   gh release create "$TAG" \
     --title "Index databases, ${TAG#data-}" \
-    --notes "Automated dated cut of the pipeline databases. Addressed by data-pins.json; assets on this tag are immutable. See docs/building-the-index.md."
+    --notes-file "$NOTES"
+else
+  {
+    gh release view "$TAG" --json body --jq .body
+    printf '\n---\n\n'
+    cat "$NOTES"
+  } > "$BODY"
+  gh release edit "$TAG" --notes-file "$BODY"
 fi
 
 gh release upload "$TAG" "${CHANGED[@]}"

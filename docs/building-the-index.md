@@ -37,6 +37,7 @@ days. `--refresh` re-resolves all of them in one run.
 | `generate.py`         | writes `index.json`, prunes unused pins and locks, updates the README status block                                   |
 | `history.py`          | appends one aggregate row a day to `history.jsonl`; `--from-git` recovers past days from index.json's history        |
 | `fetch-data.sh`       | downloads the databases `data-pins.json` pins, or `--check`s the ones already present                                |
+| `release-notes.py`    | renders a cut's notes: what the run added, removed and re-pinned, against `HEAD`                                     |
 | `cut-data-release.sh` | uploads the databases whose bytes moved to a dated release and repoints the pins                                     |
 | `bump-data-pin.sh`    | records `{tag, narHash}` per file in `data-pins.json`                                                                |
 
@@ -61,6 +62,21 @@ A run that changes any of the three needs a cut before its commit:
 ```console
 $ ./tools/cut-data-release.sh          # tag data-<today, UTC>
 ```
+
+The notes on a cut carry the run's index diff: how many flakes were added,
+removed and re-pinned, today's aggregate row against the one committed at
+`HEAD`, and the names themselves — every removal, and the highest-starred
+additions and re-pins, capped so a `--refresh` run does not paste twelve
+thousand lines. `tools/release-notes.py` renders them, and it is prose over
+committed facts: nothing reads it back, `data-pins.json` is still the
+manifest.
+
+It works by diffing the working tree against `HEAD`, which is the previous
+index only because the cut happens before the commit. Run by hand after that
+commit has landed, it has nothing to compare and says so rather than
+reporting a row of zeroes. A tag that is being topped up keeps the notes of
+its first cut and has the new section appended, since `gh release create`
+never runs a second time for it.
 
 `resolved.jsonl` is the database of known repositories: name, owner, repo,
 revision, stars, description. It is kept and extended on each run, not
@@ -157,7 +173,8 @@ that moved, and commits the regenerated index and the repointed
 `data-pins.json` to `main`. The upload happens before the commit: a commit
 that fails afterwards leaves unreferenced assets on a dated tag, which the
 next run re-cuts, while the reverse order would commit a pin naming bytes
-that were never uploaded.
+that were never uploaded. That ordering is also what lets the cut's notes
+diff the new index against `HEAD`.
 
 `check.yml` runs on pushes and pull requests: it fetches the pinned
 databases, locks the flake, regenerates the index and fails on any
