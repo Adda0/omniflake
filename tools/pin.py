@@ -31,6 +31,7 @@ renaming a flake cannot orphan its lock.
 """
 
 import argparse, concurrent.futures, json, os, subprocess, sys, threading, time
+import urllib.error, urllib.request
 
 # Per-flake wall clock bound. A nixpkgs fork takes about a minute to
 # download and hash; anything past this is stuck, not slow.
@@ -56,6 +57,14 @@ NIX_CONFIG_FEATURES = "experimental-features = nix-command flakes pipe-operators
 TARBALL_CACHE_DIR = "nix/tarball-cache-v2"
 REPACK_EVERY = 500
 REPACK_THREADS = 32
+
+# Where a committed flake.lock is read from during a summary backfill. One
+# ~2 KB GET per flake, against a whole tree download per flake if the same
+# question were asked through `nix flake metadata`.
+RAW_URL = "https://raw.githubusercontent.com/{owner}/{repo}/{rev}/flake.lock"
+RAW_TIMEOUT_SECONDS = 30
+RAW_RETRIES = 3
+RAW_BACKOFF_SECONDS = 2
 
 # Without an access token Nix downloads GitHub tarballs from the archive
 # endpoint, which is not subject to the 5000/hour REST API quota that
@@ -274,6 +283,52 @@ def lock_key(locked):
     return locked["narHash"].replace("/", "_").replace("=", "")
 
 
+def lock_summary(lock):
+    """What a flake's input graph is made of, from the lock the loader uses.
+
+    Two questions the index cannot answer without opening a lock: which
+    fetchers the transitive inputs use, and which nixpkgs the flake pins.
+    Both are one pass over the nodes, and pinning already holds the lock, so
+    recording the answer here costs nothing and saves re-fetching 12,000
+    trees to ask later.
+
+    Returns the keys to merge into a pin row, omitting any it cannot fill.
+    """
+    nodes = (lock or {}).get("nodes", {})
+    root = (lock or {}).get("root", "root")
+
+    types = {}
+    nixpkgs = None
+    for name in sorted(nodes):
+        if name == root:
+            continue
+        locked = nodes[name].get("locked")
+        if not locked:
+            continue
+        kind = locked.get("type")
+        if kind:
+            types[kind] = types.get(kind, 0) + 1
+        # The first NixOS/nixpkgs node in node-name order, so a lock that
+        # pins several still summarizes to the same one on every run.
+        if (
+            nixpkgs is None
+            and (locked.get("owner") or "").lower() == "nixos"
+            and locked.get("repo") == "nixpkgs"
+            and locked.get("rev")
+        ):
+            nixpkgs = {
+                "rev": locked["rev"],
+                "lastModified": locked.get("lastModified"),
+            }
+
+    out = {}
+    if types:
+        out["lock_types"] = types
+    if nixpkgs:
+        out["lock_nixpkgs"] = nixpkgs
+    return out
+
+
 def write_lock(locks_dir, key, lock):
     """Store a computed lock the way Nix formats one: two-space, sorted keys."""
     os.makedirs(locks_dir, exist_ok=True)
@@ -334,6 +389,7 @@ def pin_one(row, use_token, locks_dir):
         # The size of the graph the loader will walk: every node of the lock
         # it uses, committed or computed, except the root.
         "lock_nodes": max(len(nix_lock.get("nodes", {})) - 1, 0),
+        **lock_summary(nix_lock),
     }
 
 
@@ -378,6 +434,97 @@ def recount(args):
     print(f"==> recounted {done - failed}, failed {failed}", file=sys.stderr)
 
 
+def summarize(args):
+    """Fill in the lock summary for pins recorded before it existed.
+
+    The lock a pin was made from is recoverable without re-fetching the
+    tree. Where Nix had to repair or supply the lock, the stored copy under
+    locks/ is that lock. Everywhere else `lock: false` records that Nix
+    agreed with the committed flake.lock, so the committed file at the
+    pinned revision *is* the lock the loader uses, and one raw GET fetches
+    it.
+
+    A pin with no inputs has no graph to describe and is skipped, which is
+    also what keeps a re-run from asking about it forever.
+    """
+    pins = list(read_jsonl(args.pins))
+    todo = [
+        p
+        for p in pins
+        if p.get("lock_nodes", 0) > 0
+        and "lock_types" not in p
+        and p.get("locked", {}).get("type") == "github"
+    ]
+    skipped = sum(
+        1
+        for p in pins
+        if "lock_types" not in p and p.get("locked", {}).get("type") != "github"
+    )
+    print(
+        f"==> {len(pins)} pins, {len(todo)} to summarize"
+        + (f", {skipped} non-github skipped" if skipped else ""),
+        file=sys.stderr,
+        flush=True,
+    )
+
+    def fetch_lock(pin):
+        """The lock this pin was made from: the stored copy, or the raw file."""
+        locked = pin["locked"]
+        if pin.get("lock"):
+            path = os.path.join(args.locks, f"{lock_key(locked)}.json")
+            try:
+                with open(path) as fh:
+                    return json.load(fh)
+            except (OSError, json.JSONDecodeError):
+                return None
+
+        url = RAW_URL.format(
+            owner=locked["owner"], repo=locked["repo"], rev=locked["rev"]
+        )
+        for attempt in range(RAW_RETRIES):
+            try:
+                with urllib.request.urlopen(url, timeout=RAW_TIMEOUT_SECONDS) as fh:
+                    return json.loads(fh.read().decode())
+            except urllib.error.HTTPError as e:
+                # A deleted repository or a revision with no lock is a fact,
+                # not a failure to retry.
+                if e.code in (403, 404, 451):
+                    return None
+                time.sleep(RAW_BACKOFF_SECONDS * (attempt + 1))
+            except Exception:
+                time.sleep(RAW_BACKOFF_SECONDS * (attempt + 1))
+        return None
+
+    def one(pin):
+        lock = fetch_lock(pin)
+        return pin, (lock_summary(lock) if lock else None)
+
+    done = failed = 0
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
+        for pin, summary in pool.map(one, todo):
+            if summary is None:
+                failed += 1
+            else:
+                pin.update(summary)
+            done += 1
+            if done % 500 == 0:
+                print(
+                    f"    {done}/{len(todo)} ({failed} unavailable)",
+                    file=sys.stderr,
+                    flush=True,
+                )
+
+    tmp = args.pins + ".tmp"
+    with open(tmp, "w") as fh:
+        for pin in pins:
+            fh.write(json.dumps(pin, sort_keys=True) + "\n")
+    os.replace(tmp, args.pins)
+    print(
+        f"==> summarized {done - failed}, {failed} locks unavailable",
+        file=sys.stderr,
+    )
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--library", default="library.jsonl")
@@ -398,6 +545,11 @@ def main():
         help="fill in lock_nodes for pins that lack it, then exit",
     )
     ap.add_argument(
+        "--summarize",
+        action="store_true",
+        help="fill in the lock summary for pins that lack it, then exit",
+    )
+    ap.add_argument(
         "--repack-every",
         type=int,
         default=REPACK_EVERY,
@@ -409,6 +561,10 @@ def main():
         help="keep Nix's access-tokens, or use $GH_TOKEN (subject to the API quota)",
     )
     args = ap.parse_args()
+
+    if args.summarize:
+        summarize(args)
+        return
 
     if args.recount:
         recount(args)

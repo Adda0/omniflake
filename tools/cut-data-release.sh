@@ -49,10 +49,40 @@ if [ ${#CHANGED[@]} -eq 0 ]; then
   echo "cut-data-release: every database matches its pin; nothing to cut"
   exit 0
 fi
-echo "cutting $TAG with ${#CHANGED[@]} changed file(s)"
+echo "${#CHANGED[@]} database(s) changed since their pins"
 
-# Create the dated release if this is the day's first cut. --notes kept
-# short: data-pins.json is the real manifest.
+# Assets on a dated tag are immutable, so a name already uploaded there is
+# never replaced. A tag that already carries one of the files being cut --
+# a second cut on the same day, usually a re-run after something failed --
+# moves to the next free suffix instead. Topping up a tag with files it
+# does not yet carry is still allowed, which is what keeps a normal cut on
+# one tag per day.
+BASE_TAG="$TAG"
+for n in $(seq 1 20); do
+  [ "$n" -eq 1 ] && TAG="$BASE_TAG" || TAG="$BASE_TAG-$n"
+  if ! gh release view "$TAG" > /dev/null 2>&1; then
+    break
+  fi
+  existing=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+  clash=0
+  for f in "${CHANGED[@]}"; do
+    if grep -qxF "$(basename "$f")" <<< "$existing"; then
+      clash=1
+      break
+    fi
+  done
+  [ "$clash" -eq 0 ] && break
+  TAG=""
+done
+
+if [ -z "$TAG" ]; then
+  echo "cut-data-release: no free tag after 20 tries from $BASE_TAG" >&2
+  exit 1
+fi
+echo "cutting into $TAG"
+
+# Create the dated release if this is its first cut. --notes kept short:
+# data-pins.json is the real manifest.
 if ! gh release view "$TAG" > /dev/null 2>&1; then
   gh release create "$TAG" \
     --title "Index databases, ${TAG#data-}" \

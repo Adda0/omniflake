@@ -72,8 +72,19 @@ but a rolling refresh no longer moves the rows it touches to the end of the
 file and shifts every row after them.
 
 `pins.jsonl` holds one row per pinned flake reference: the `locked`
-attributes and whether a computed lock was stored. A revision never changes,
-so a pinned reference is not fetched again.
+attributes, whether a computed lock was stored, the size of the lock's graph
+and a summary of it. A revision never changes, so a pinned reference is not
+fetched again.
+
+The summary is `lock_types`, a count of the fetcher each node of the lock
+uses, and `lock_nixpkgs`, the revision and date of the first `NixOS/nixpkgs`
+node. Both are one pass over a lock `pin.py` already holds, and they are
+what lets the site say what the index's input graph is made of without
+re-fetching twelve thousand trees. `--summarize` fills them in for rows
+pinned before the field existed: it reads the stored lock where there is
+one and fetches the committed `flake.lock` at the pinned revision where
+there is not, which is the same lock the loader uses whenever `lock` is
+false.
 
 `failures.jsonl` holds the references Nix could not lock, with the error.
 They are skipped until `tools/pin.py --retry-failed`.
@@ -103,6 +114,13 @@ or `GH_TOKEN`.
 
 `pin.py` also repacks Nix's tarball cache every 500 pins (`--repack-every`),
 which keeps fetches fast over a long run.
+
+`--recount` and `--summarize` are backfills for fields added after rows were
+already written. `--summarize` reads raw `flake.lock` files rather than
+re-pinning, which avoids downloading a tree per flake, but
+`raw.githubusercontent.com` throttles sustained traffic: the first backfill
+of 11,429 rows took 42 minutes at 16 jobs, not the few minutes a short
+sample suggests. Run it locally, not in CI.
 
 ## Continuous integration
 
