@@ -205,6 +205,14 @@ next run re-cuts, while the reverse order would commit a pin naming bytes
 that were never uploaded. That ordering is also what lets the cut's notes
 diff the new index against `HEAD`.
 
+The `concurrency` group keeps two runs from writing to `main` at once, but a
+person can still push during the twenty-five minutes a run takes, and a
+rejected push would discard the whole run. The push therefore rebases onto
+the current tip and retries once. Every other artefact would be regenerated
+tomorrow; `history.jsonl` would not, since `history.py` keys rows by date and
+`--from-git` recovers them from `index.json`'s commit history — the commit
+that was lost.
+
 `check.yml` runs on pushes and pull requests: it fetches the pinned
 databases, locks the flake, regenerates the index and fails on any
 difference, checks that the regenerated `pins.jsonl` still matches its pin,

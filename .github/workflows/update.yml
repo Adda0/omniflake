@@ -111,4 +111,22 @@ jobs:
 
           $(sed -n '/BEGIN index-status/,/END index-status/p' README.md | grep '^-')
           EOF
-          git push
+
+          # The concurrency group stops two runs colliding, but not a person
+          # pushing to main during the twenty-five minutes this one ran. A
+          # rejected push would throw the whole run away, and history.jsonl
+          # would keep the hole: history.py keys rows by date and never
+          # revisits a missing day, and --from-git cannot recover it either
+          # because it reads index.json's commit history, which is the commit
+          # that was lost. Rebase onto whatever landed and try once more.
+          #
+          # The rebase is content-blind: index.json was generated against the
+          # tree as it stood at checkout, so a concurrent edit to manual.txt
+          # or blocklist.txt is not reflected until tomorrow's run. That is
+          # self-correcting; a conflict in the generated files is a real
+          # disagreement and should fail the job loudly.
+          git push || {
+            echo "push rejected; rebasing onto the current tip and retrying"
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push
+          }
