@@ -17,6 +17,11 @@ let
     pkgs.gnugrep
   ];
 
+  # The entry point interpolates ../tools, so a wrapper runs a store
+  # snapshot of the scripts taken when the flake was evaluated, not the
+  # files in the caller's checkout. The pipeline mutates only the data
+  # files, never the scripts, so the snapshot is safe; editing a script
+  # needs a re-run of `nix run` to be picked up.
   wrap =
     name: entry:
     pkgs.writeShellApplication {
@@ -43,6 +48,14 @@ let
     generate = {
       description = "Regenerate index.json from the pins";
       entry = "python3 ${../tools}/generate.py";
+    };
+    classify = {
+      description = "Split resolved flakes into library and personal tiers";
+      entry = "python3 ${../tools}/classify.py";
+    };
+    sample = {
+      description = "Evaluate a random sample of indexed flakes";
+      entry = "python3 ${../tools}/sample.py";
     };
   };
 in
