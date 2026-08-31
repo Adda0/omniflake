@@ -15,6 +15,8 @@ let
     pkgs.gitMinimal
     pkgs.coreutils
     pkgs.gnugrep
+    # fetch-data.sh pulls the pinned databases over HTTP.
+    pkgs.curl
   ];
 
   # The entry point interpolates ../tools, so a wrapper runs a store
@@ -22,14 +24,17 @@ let
   # files in the caller's checkout. The pipeline mutates only the data
   # files, never the scripts, so the snapshot is safe; editing a script
   # needs a re-run of `nix run` to be picked up.
+  # The guard is index.json, not one of the databases: those are fetched
+  # rather than committed, so a fresh checkout does not have them yet and
+  # fetch-data is precisely the tool that runs when they are absent.
   wrap =
-    name: entry:
+    name: entry: extra:
     pkgs.writeShellApplication {
       inherit name;
-      runtimeInputs = deps;
+      runtimeInputs = deps ++ extra;
       text = ''
-        if [ ! -f "$PWD/resolved.jsonl" ]; then
-          echo "${name}: run this from an omniflake checkout (no resolved.jsonl in $PWD)" >&2
+        if [ ! -f "$PWD/index.json" ]; then
+          echo "${name}: run this from an omniflake checkout (no index.json in $PWD)" >&2
           exit 1
         fi
         exec ${entry} "$@"
@@ -61,6 +66,19 @@ let
       description = "Re-derive and evaluate pins changed since a base revision";
       entry = "python3 ${../tools}/verify.py";
     };
+    fetch-data = {
+      description = "Download the databases data-pins.json pins into the checkout";
+      entry = "bash ${../tools}/fetch-data.sh";
+    };
+    cut-data-release = {
+      description = "Upload changed databases to a dated release and repoint the pins";
+      entry = "bash ${../tools}/cut-data-release.sh";
+      extra = [ pkgs.gh ];
+    };
+    bump-data-pin = {
+      description = "Repoint data-pins.json at a dated release cut";
+      entry = "bash ${../tools}/bump-data-pin.sh";
+    };
   };
 in
 {
@@ -69,5 +87,5 @@ in
   descriptions = builtins.mapAttrs (_: t: t.description) tools;
 
   # { <tool> = <wrapped executable>; }
-  wrappers = builtins.mapAttrs (name: t: wrap name t.entry) tools;
+  wrappers = builtins.mapAttrs (name: t: wrap name t.entry (t.extra or [ ])) tools;
 }
