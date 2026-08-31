@@ -16,13 +16,48 @@ assigns a sticky name like any harvested repo. Everything else cannot go
 through the GitHub API, so it is resolved here with `nix flake metadata`
 and emitted as a finished database entry.
 
+Listing a flake here also exempts it from classify.py's guess at what is
+somebody's machine configuration, so manual.txt reads as "index this,
+whatever the pipeline concludes on its own" and blocklist.txt as its
+opposite. The name heuristic cannot tell that catppuccin/nix is a theme
+rather than a personal config, and a person writing the line down can.
+
     --candidates FILE   append bare owner/repo entries here
     --resolved FILE     append fully-resolved entries here
 """
 
-import argparse, json, re, subprocess, sys, time
+import argparse, json, os, re, subprocess, sys, time
 
 BARE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+
+
+def read_entries(path):
+    """Yield the flake references a manual list names, comments stripped."""
+    try:
+        lines = open(path).read().splitlines()
+    except FileNotFoundError:
+        return
+    for line in lines:
+        entry = line.split("#", 1)[0].strip()
+        if entry:
+            yield entry
+
+
+def listed_repos(path):
+    """The (owner, repo) pairs a manual list names, lowercased.
+
+    Only bare owner/repo entries appear here, because those are the ones
+    that go on to be harvested and named like any other candidate. A full
+    flake ref is resolved by this script instead and carries a "manual"
+    flag on its own row. classify.py reads both to tell which rows a
+    person put in the index by hand.
+    """
+    pairs = set()
+    for entry in read_entries(path):
+        if BARE.match(entry):
+            owner, repo = entry.split("/", 1)
+            pairs.add((owner.lower(), repo.lower()))
+    return pairs
 
 
 def sanitize(name):
@@ -98,17 +133,12 @@ def main():
     ap.add_argument("--resolved")
     args = ap.parse_args()
 
-    try:
-        lines = open(args.manual).read().splitlines()
-    except FileNotFoundError:
+    if not os.path.exists(args.manual):
         print(f"# no {args.manual}; nothing to add", file=sys.stderr)
         return
 
     candidates, resolved = [], []
-    for line in lines:
-        entry = line.split("#", 1)[0].strip()
-        if not entry:
-            continue
+    for entry in read_entries(args.manual):
         if BARE.match(entry):
             owner, repo = entry.split("/", 1)
             candidates.append({"owner": owner, "repo": repo, "stars": 0})

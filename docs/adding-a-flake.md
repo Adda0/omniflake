@@ -2,8 +2,8 @@
 
 ## Adding
 
-`manual.txt` lists flakes that GitHub search does not find, including flakes
-outside GitHub. It is read on every run. One entry per line:
+`manual.txt` lists flakes the pipeline does not index on its own, including
+flakes outside GitHub. It is read on every run. One entry per line:
 
 ```
 nix-community/disko
@@ -16,6 +16,18 @@ gitlab:owner/repo
   repository.
 - Any other flake reference Nix can fetch, including a specific ref. It is
   resolved with `nix flake metadata` and pinned to an exact revision.
+
+A flake listed here is also exempt from `tools/classify.py`, which guesses
+from the repository name which flakes are somebody's own machine
+configuration. That guess is wrong in both directions: `catppuccin/nix` is
+a theme, but its repository is named `nix`, which is exactly the shape of
+the personal configs the rule exists to drop. A hand-written line is
+better evidence than the name.
+
+So `manual.txt` means "index this, whatever the pipeline concludes on its
+own", and `blocklist.txt` below is its opposite. Reach for `manual.txt`
+when search cannot see a repository _or_ when the classifier is wrong
+about one.
 
 To add a flake, add a line to `manual.txt` and regenerate:
 

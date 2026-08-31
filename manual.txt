@@ -18,3 +18,8 @@ rafaelrc7/wayland-pipewire-idle-inhibit
 # Listed here so they are indexed no matter what the search returns.
 Whovian9369/aaru-nix-flake
 Whovian9369/rom-properties-nix-flake
+
+# Also from issue #2, and found by search already: the theme's repository
+# is named "nix", which classify.py reads as somebody's own machine
+# configuration. Listing it here is what overrides that guess.
+catppuccin/nix
