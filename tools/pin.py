@@ -244,6 +244,28 @@ def committed_lock(store_path, locked, env):
         return None
 
 
+def run_prefetch(ref, use_token):
+    """The narHash for one ref via `nix flake prefetch`, which downloads
+    and hashes the tree. Returns (hash or None, error)."""
+    cmd = ["nix", "flake", "prefetch", "--json", ref]
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_SECONDS,
+            env=nix_env(use_token),
+        )
+    except subprocess.TimeoutExpired:
+        return None, f"prefetch timeout after {TIMEOUT_SECONDS}s"
+    if proc.returncode != 0:
+        return None, proc.stderr.strip()[-ERROR_TAIL_CHARS:]
+    try:
+        return json.loads(proc.stdout).get("hash"), ""
+    except json.JSONDecodeError:
+        return None, "prefetch returned unparseable JSON"
+
+
 def lock_key(locked):
     """The file name a computed lock is stored under: the revision, or the
     narHash for the rare input type that has none."""
@@ -276,6 +298,22 @@ def pin_one(row, use_token, locks_dir):
         }
 
     locked = {k: v for k, v in meta["locked"].items() if k not in INTERNAL_LOCKED_ATTRS}
+
+    # A lazy-trees Nix (Determinate's default) reads the flake through an
+    # accessor and can omit narHash from `locked` without ever hashing the
+    # tree. The pin exists to feed fetchTree in pure evaluation, which
+    # cannot work without the hash, so force a download-and-hash here.
+    if "narHash" not in locked:
+        nar_hash, err = run_prefetch(ref, use_token)
+        if not nar_hash:
+            return "fail", {
+                "name": row["name"],
+                "ref": ref,
+                "error": f"prefetch for narHash: {err}",
+                "transient": is_transient(err),
+            }
+        locked["narHash"] = nar_hash
+
     nix_lock = meta.get("locks") or {}
     # A Nix with lazy trees may omit `path` from the metadata entirely;
     # committed_lock then reads the lock through fetchTree instead.
