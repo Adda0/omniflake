@@ -35,6 +35,7 @@ days. `--refresh` re-resolves all of them in one run.
 | `classify.py`         | separates personal machine configurations from the library tier                                                      |
 | `pin.py`              | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock      |
 | `generate.py`         | writes `index.json`, prunes unused pins and locks, updates the README status block                                   |
+| `history.py`          | appends one aggregate row a day to `history.jsonl`; `--from-git` recovers past days from index.json's history        |
 | `fetch-data.sh`       | downloads the databases `data-pins.json` pins, or `--check`s the ones already present                                |
 | `cut-data-release.sh` | uploads the databases whose bytes moved to a dated release and repoints the pins                                     |
 | `bump-data-pin.sh`    | records `{tag, narHash}` per file in `data-pins.json`                                                                |
@@ -103,10 +104,14 @@ the site draws should be auditable in the same diff as the index they
 describe. `history.py` records it at the end of a run, while `library.jsonl`
 and `personal.jsonl` still exist — nothing else commits those counts.
 
-Much of it could be reconstructed from git: `index.json` is committed daily
-with one entry per line. What could not is anything read from a file that is
-replaced rather than versioned, such as the star totals, which come from a
-release cut.
+Much of it can be reconstructed from git: `index.json` is committed on every
+run with one entry per line, so `history.py --from-git` recovers a row for
+each day it changed, measuring ages against that commit's own date. A
+recovered row carries only what its commit still holds — the library and
+personal tiers were never committed, so those fields are absent rather than
+guessed — and it never overwrites a row that already exists. What cannot be
+recovered at all is anything read from a file that is replaced rather than
+versioned once the databases moved to release cuts.
 
 ## Pinning
 

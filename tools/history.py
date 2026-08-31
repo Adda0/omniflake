@@ -17,9 +17,17 @@ nothing commits them.
 
 Re-running on the same day replaces that day's row rather than adding a
 second, so a re-run after a failure does not double-count.
+
+--from-git recovers the rows that predate this script. index.json is
+committed on every run with one entry per line, so its own history holds
+what the index looked like on each day it changed; the last commit of a
+day is that day's state. Rows recovered this way carry only what their
+commit still holds -- the library and personal tiers were never committed,
+so those fields are absent rather than guessed. It never overwrites a row
+that already exists.
 """
 
-import argparse, json, os, statistics, time
+import argparse, json, os, statistics, subprocess, sys, time
 
 DAY_SECONDS = 86400
 
@@ -45,6 +53,109 @@ def count_lines(path):
     return sum(1 for _ in read_jsonl(path))
 
 
+def git(*args):
+    """Run a git command, returning stdout, or None when it fails."""
+    proc = subprocess.run(["git", *args], capture_output=True, text=True)
+    return proc.stdout if proc.returncode == 0 else None
+
+
+def row_from_commit(rev, date):
+    """The aggregate row for the tree at one commit.
+
+    Ages are measured against the commit's own date, not today, or every
+    recovered row would report the staleness of the moment it was mined.
+    """
+    index_text = git("show", f"{rev}:index.json")
+    if not index_text:
+        return None
+    index = json.loads(index_text)
+
+    def rows_at(path):
+        text = git("show", f"{rev}:{path}")
+        if not text:
+            return {}
+        out = {}
+        for line in text.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                r = json.loads(line)
+                out[r["name"]] = r
+        return out
+
+    pins = rows_at("pins.jsonl")
+    resolved = rows_at("resolved.jsonl")
+    at = int(git("show", "-s", "--format=%at", rev).strip())
+
+    nodes = []
+    for name in index:
+        n = pins.get(name, {}).get("lock_nodes")
+        if n is None:
+            n = resolved.get(name, {}).get("lock_nodes")
+        if n is not None:
+            nodes.append(n)
+    ages = [
+        (at - e["locked"]["lastModified"]) / DAY_SECONDS
+        for e in index.values()
+        if e["locked"].get("lastModified")
+    ]
+
+    row = {
+        "date": date,
+        "count": len(index),
+        "storedLocks": sum(1 for e in index.values() if e.get("lock")),
+    }
+    failures_text = git("show", f"{rev}:failures.jsonl")
+    if failures_text:
+        failures = [json.loads(l) for l in failures_text.splitlines() if l.strip()]
+        row["failures"] = sum(1 for f in failures if not f.get("transient"))
+        row["pending"] = sum(1 for f in failures if f.get("transient"))
+    if resolved:
+        row["stars"] = sum(resolved.get(n, {}).get("stars", 0) for n in index)
+    if nodes:
+        row["lockNodeSum"] = sum(nodes)
+        row["lockNodeMedian"] = int(statistics.median(nodes))
+    if ages:
+        row["medianAgeDays"] = int(statistics.median(ages))
+        row["freshMonth"] = sum(1 for a in ages if a < 30)
+        row["freshYear"] = sum(1 for a in ages if a < 365)
+    candidates_text = git("show", f"{rev}:candidates.jsonl")
+    if candidates_text:
+        row["candidates"] = sum(1 for l in candidates_text.splitlines() if l.strip())
+    return row
+
+
+def from_git(args):
+    """Recover a row for every day index.json changed, newest state wins."""
+    revs = git("rev-list", "--reverse", "HEAD", "--", "index.json")
+    if revs is None:
+        sys.exit("history: not a git checkout, or no index.json history")
+
+    # The last commit of a day is that day's state.
+    by_date = {}
+    for rev in revs.split():
+        date = git("show", "-s", "--format=%ad", "--date=format:%Y-%m-%d", rev)
+        if date:
+            by_date[date.strip()] = rev
+
+    existing = {r["date"]: r for r in read_jsonl(args.out)}
+    added = 0
+    for date, rev in sorted(by_date.items()):
+        if date in existing:
+            continue
+        row = row_from_commit(rev, date)
+        if row:
+            existing[date] = row
+            added += 1
+
+    rows = sorted(existing.values(), key=lambda r: r["date"])
+    tmp = args.out + ".tmp"
+    with open(tmp, "w") as fh:
+        for r in rows:
+            fh.write(json.dumps(r, sort_keys=True) + "\n")
+    os.replace(tmp, args.out)
+    print(f"history: recovered {added} row(s) from git, {len(rows)} total")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", default="index.json")
@@ -56,7 +167,16 @@ def main():
     ap.add_argument("--candidates", default="candidates.jsonl")
     ap.add_argument("--out", default="history.jsonl")
     ap.add_argument("--date", help="the row's date, YYYY-MM-DD (default: today, UTC)")
+    ap.add_argument(
+        "--from-git",
+        action="store_true",
+        help="recover rows for past days from index.json's own history, then exit",
+    )
     args = ap.parse_args()
+
+    if args.from_git:
+        from_git(args)
+        return
 
     index = json.load(open(args.index))
     pins = {p["name"]: p for p in read_jsonl(args.pins)}
