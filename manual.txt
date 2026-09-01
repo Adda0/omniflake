@@ -23,3 +23,8 @@ Whovian9369/rom-properties-nix-flake
 # is named "nix", which classify.py reads as somebody's own machine
 # configuration. Listing it here is what overrides that guess.
 catppuccin/nix
+
+# Reported missing in issue #3. The repository is named "flake", which is
+# one of the names classify.py reads as somebody's own machine
+# configuration, so search finds it and the classifier drops it.
+nixified-ai/flake
