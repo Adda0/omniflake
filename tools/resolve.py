@@ -25,10 +25,20 @@ repository, and it can add a flake.nix tomorrow. So each run re-checks the
 --recheck-oldest rows checked longest ago, and a row is cleared the moment
 its repository resolves.
 
-Attribute names are sticky, which matters because they are API. A name
-already assigned in the known set keeps its owner forever, so a repo that
-later gains stars cannot take a bare name out from under a consumer that
-already writes omniflake.flakes.<name>.
+A bare attribute name is only assigned when one repository claims it.
+4,006 of the names in use are claimed by more than one repository -- 61
+are named home-manager, 110 are named flake -- and a bare name several
+repositories could equally mean identifies none of them, so a contested
+name goes to nobody and every claimant gets <repo>-<owner>. names.txt is
+where a person overrides that and says which repository a name means.
+
+Attribute names are otherwise sticky, which matters because they are API.
+A name already assigned in the known set keeps its owner forever, so a
+repo that later gains stars cannot take a bare name out from under a
+consumer that already writes omniflake.flakes.<name>. A names.txt line is
+the one thing that outranks stickiness: it is how a name that was already
+assigned gets corrected, and the repository holding it is displaced to its
+qualified name.
 
 Output: JSON lines of {name, owner, repo, rev, inputs, stars}, sorted by
 attribute name. Processing order still decides which repo wins a new name
@@ -115,6 +125,83 @@ def sanitize(repo):
     if not out or not out[0].isalpha():
         out = "f-" + out
     return out
+
+
+def load_reserved(path):
+    """Read names.txt into {(owner, repo): attribute name}.
+
+    One entry per line, "owner/repo" then the name, whitespace separated;
+    blank lines and # comments ignored. Keys are lowercased because GitHub
+    is case-insensitive about both and the file is written by hand.
+    """
+    reserved = {}
+    try:
+        with open(path) as fh:
+            lines = fh.read().splitlines()
+    except FileNotFoundError:
+        return reserved
+    for line in lines:
+        entry = line.split("#", 1)[0].split()
+        if not entry:
+            continue
+        if len(entry) != 2 or "/" not in entry[0]:
+            print(f"# names: ignoring malformed line: {line!r}", file=sys.stderr)
+            continue
+        ref, name = entry
+        owner, repo = ref.split("/", 1)
+        reserved[(owner.lower(), repo.lower())] = name
+    return reserved
+
+
+def apply_reserved(known, reserved):
+    """Free every hand-assigned name that a different repository holds.
+
+    A names.txt line outranks stickiness, so the incumbent has to move.
+    It moves to its qualified name, which is where it would have been had
+    the line existed when it was first resolved. Returns how many moved.
+    """
+    wanted = {name: key for key, name in reserved.items()}
+    moved = 0
+    for key, row in known.items():
+        owner_of_name = wanted.get(row["name"])
+        if owner_of_name is None or owner_of_name == (key[0].lower(), key[1].lower()):
+            continue
+        row["name"] = f"{sanitize(row['repo'])}-{sanitize(row['owner'])}"
+        moved += 1
+    return moved
+
+
+def choose_name(owner, repo, prior, reserved, claims, taken, used):
+    """The attribute name a repository gets.
+
+    `claims` counts how many repositories share each sanitized repository
+    name, `taken` maps an assigned name to the repository holding it, and
+    `used` counts the names this run has handed out.
+    """
+    # A hand-assigned name is authoritative: over the derived name, and
+    # over the name the repository already holds.
+    hand_assigned = reserved.get((owner.lower(), repo.lower()))
+    if hand_assigned:
+        return hand_assigned
+
+    # Names are sticky: a repo keeps the name it was first given.
+    if prior:
+        return prior["name"]
+
+    base = sanitize(repo)
+    qualified = f"{base}-{sanitize(owner)}"
+
+    # A bare name is worth having only when it says which repository it
+    # means, so a contested one goes to nobody.
+    if claims[base] > 1:
+        return qualified
+
+    # Never take a name another repository already holds, or one this run
+    # has already handed out.
+    if taken.get(base) not in (None, (owner, repo)) or used[base]:
+        return qualified
+
+    return base
 
 
 def load_known(path):
@@ -247,6 +334,12 @@ def main():
         help="ledger of repositories checked and found unusable; read and rewritten",
     )
     ap.add_argument(
+        "--names",
+        default="names.txt",
+        metavar="FILE",
+        help="hand-assigned attribute names; they outrank the derived name",
+    )
+    ap.add_argument(
         "--recheck-oldest",
         type=int,
         default=1200,
@@ -256,6 +349,17 @@ def main():
     args = ap.parse_args()
 
     known, taken = load_known(args.known)
+
+    # Hand-assigned names outrank stickiness, so a name a names.txt line
+    # claims is freed before any of this run's rows are named. taken is
+    # rebuilt from the moved rows rather than patched.
+    reserved = load_reserved(args.names)
+    moved = apply_reserved(known, reserved)
+    if moved:
+        print(
+            f"# names: displaced {moved} row(s) from a reserved name", file=sys.stderr
+        )
+        taken = {e["name"]: (e["owner"], e["repo"]) for e in known.values()}
 
     # Externally resolved rows (tools/manual.py) are authoritative for their
     # repository: the known row, a refresh, and any harvested candidate for
@@ -323,6 +427,16 @@ def main():
         for r in refresh
     ]
 
+    # How many repositories claim each derived name, over the database and
+    # the candidates this run will resolve. A name several repositories
+    # claim is never handed out bare, so this has to be counted before any
+    # of them is named.
+    claims = collections.Counter(
+        sanitize(repo)
+        for owner, repo in {(r["owner"], r["repo"]) for r in known.values()}
+        | {(c["owner"], c["repo"]) for c in cands}
+    )
+
     now = int(time.time())
     used = collections.Counter()
     emitted = 0
@@ -372,20 +486,14 @@ def main():
                 except Exception:
                     inputs = []
 
-            # Names are sticky: a repo keeps the name it was first given, and
-            # never takes one another repo already holds.
-            if prior:
-                name = prior["name"]
-            else:
-                base = sanitize(cand["repo"])
-                owner_qualified = f"{base}-{sanitize(cand['owner'])}"
-                holder = taken.get(base)
-                if holder in (None, (cand["owner"], cand["repo"])) and used[base] == 0:
-                    name = base
-                else:
-                    name = owner_qualified
-                used[base] += 1
-                taken[name] = (cand["owner"], cand["repo"])
+            name = choose_name(
+                cand["owner"], cand["repo"], prior, reserved, claims, taken, used
+            )
+            # used counts the names this run has handed out, so only a new
+            # assignment adds to it; a known row already holds its name.
+            if prior is None:
+                used[sanitize(cand["repo"])] += 1
+            taken[name] = (cand["owner"], cand["repo"])
 
             row = {
                 "name": name,

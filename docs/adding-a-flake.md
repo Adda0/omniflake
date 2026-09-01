@@ -69,10 +69,34 @@ records them in `failures.jsonl` with the error.
 
 ## Names
 
-An attribute name is derived from the repository name. When two repositories
-have the same name, the one with more stars gets the bare name and the others
-get the owner appended: `home-manager` and `home-manager-rc-14`.
+An attribute name is derived from the repository name, and a bare name is
+only assigned when one repository claims it. Sixty-one repositories are
+named `home-manager` and 110 are named `flake`; a bare name several
+repositories
+could equally mean identifies none of them, so a contested name goes to
+nobody and every claimant gets the owner appended: `home-manager-rc-14`.
+
+`names.txt` is where a person says which repository a name means. One entry
+per line, the repository then the name:
+
+```
+nix-community/home-manager  home-manager
+nixified-ai/flake           nixified-ai
+```
+
+The file does two jobs. It hands a contested name to the project people
+mean when they type it, which is the only way `home-manager` or `nixpkgs`
+gets a bare name at all. And it corrects a derived name that says nothing:
+`nixified-ai/flake` derives `flake`, `catppuccin/nix` derives `nix`, and
+both are the repository name doing a poor job of naming the project.
+
+Leaving a contested repository out is the normal case. It stays reachable
+by its qualified name, which is unambiguous, and a bare name is reserved
+only when it carries real information. `postgres` does not obviously mean
+`supabase/postgres`, so that one is absent on purpose.
 
 A name never changes once assigned. A repository that later gains stars does
 not take a bare name from the repository holding it, because consumers refer
-to flakes by name.
+to flakes by name. A `names.txt` line is the one thing that outranks that:
+it is how a name already assigned gets corrected, and the repository holding
+the name is displaced to its qualified form.
