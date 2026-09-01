@@ -53,6 +53,7 @@ numtide/blueprint                   blueprint
 nix-community/nix-environments      nix-environments
 
 # Editors, themes and desktop.
+hyprwm/Hyprland                     hyprland
 nix-community/nixvim                nixvim
 NotAShelf/nvf                       nvf
 nix-community/stylix                stylix

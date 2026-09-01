@@ -28,3 +28,9 @@ catppuccin/nix
 # one of the names classify.py reads as somebody's own machine
 # configuration, so search finds it and the classifier drops it.
 nixified-ai/flake
+
+# 367 indexed flakes declare an input called hyprland and none of them
+# could reach it: GitHub calls the repository's primary language C++ and
+# it carries no nix topic, so no query in harvest.py returns it. 38,000
+# stars and a root flake.nix, never once a candidate.
+hyprwm/Hyprland
