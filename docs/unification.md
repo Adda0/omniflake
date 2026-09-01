@@ -38,14 +38,14 @@ substitutes on five. A graph reaches one `home-manager` and one
 revision each author happened to lock.
 
 ```console
-$ nix eval --raw 'github:fzakaria/omniflake#unified.devenv.inputs.cachix.inputs.git-hooks.rev'
-4f3bdeba21c84f5664887d0451e435e786fd7723
-$ nix eval --raw 'github:fzakaria/omniflake#flakes.devenv.inputs.cachix.inputs.git-hooks.rev'
-9f7e99119ece7705299595299f3b031f39356de1
+$ nix eval --raw 'github:fzakaria/omniflake#unified.devenv.inputs.nixd.inputs.treefmt-nix.rev'
+27b3b12a8e6375f28ebe122f07d230ca5459bbfa
+$ nix eval --raw 'github:fzakaria/omniflake#flakes.devenv.inputs.nixd.inputs.treefmt-nix.rev'
+db947814a175b7ca6ded66e21383d938df01c227
 ```
 
 Substitution is a fixed point: the flake substituted in is itself unified, so
-the `unified` line above reaches `git-hooks` through a `cachix` that had
+the `unified` line above reaches `treefmt-nix` through a `nixd` that had
 already been overridden. Nothing is fetched until an attribute is forced, so
 an override set naming the whole index costs nothing until one of its names
 is matched.
