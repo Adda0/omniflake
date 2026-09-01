@@ -1,0 +1,268 @@
+{
+  "nodes": {
+    "doom-utils": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1756500702,
+        "narHash": "sha256-Ut9lt9XiHo9GHIh0duSxwydAM6gUFreUSl58qvWelVw=",
+        "owner": "firefoxsalesman",
+        "repo": "doom-utils",
+        "rev": "44b81aa705a16679d0cda38184b8637f73d8cec6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "firefoxsalesman",
+        "repo": "doom-utils",
+        "type": "github"
+      }
+    },
+    "eglot-booster": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1752690112,
+        "narHash": "sha256-xUBQrQpw+JZxcqT1fy/8C2tjKwa7sLFHXamBm45Fa4Y=",
+        "owner": "jdtsmith",
+        "repo": "eglot-booster",
+        "rev": "cab7803c4f0adc7fff9da6680f90110674bb7a22",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jdtsmith",
+        "repo": "eglot-booster",
+        "type": "github"
+      }
+    },
+    "eglot-x": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780772452,
+        "narHash": "sha256-OvHjtH9MPPPgmfCBNmO//DIrn4PHxiYbLJDHWlLC0Mk=",
+        "owner": "dylanwh",
+        "repo": "eglot-x",
+        "rev": "5cd6f936b9dc571edd4437b8fbf93ff68b0e723b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dylanwh",
+        "ref": "dylan/apply-workspace-edit-arity",
+        "repo": "eglot-x",
+        "type": "github"
+      }
+    },
+    "exwm-outer-gaps": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1749581212,
+        "narHash": "sha256-8NR8Lii9RaMWhleKzXVOhc3yaqPVn5auU8psrsDxo+Y=",
+        "owner": "firefoxsalesman",
+        "repo": "exwm-outer-gaps",
+        "rev": "be32f5bdbc75d0ad8165407b45fa2c707591e366",
+        "type": "github"
+      },
+      "original": {
+        "owner": "firefoxsalesman",
+        "repo": "exwm-outer-gaps",
+        "type": "github"
+      }
+    },
+    "gptel-quick": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780821279,
+        "narHash": "sha256-W2cEtjhoXxAhMxycLAg0qe2Ehpgn1L/m1VcpZu/Trsw=",
+        "owner": "karthink",
+        "repo": "gptel-quick",
+        "rev": "36fe296e016449433fa1213f4b89cb8dc7d4db5e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "karthink",
+        "repo": "gptel-quick",
+        "type": "github"
+      }
+    },
+    "macher-agent": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788192946,
+        "narHash": "sha256-xSw5Fztby5vbXmJdhpKmYBaC8S95p3pvqJQ7jmihHfE=",
+        "owner": "elij",
+        "repo": "macher-agent",
+        "rev": "4f863a1eb5fe38081c1065f45e2e93d95f777d8d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "elij",
+        "repo": "macher-agent",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1773646010,
+        "narHash": "sha256-iYrs97hS7p5u4lQzuNWzuALGIOdkPXvjz7bviiBjUu8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "5b2c2d84341b2afb5647081c1386a80d7a8d8605",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "ob-gptel": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1785435256,
+        "narHash": "sha256-DiUFW0oh0rOEc0aUKUVh6i2tSYtuszCgqCJnDMV1XQQ=",
+        "owner": "jwiegley",
+        "repo": "ob-gptel",
+        "rev": "4961120b7fc6bd2e2debd73f84cdef360188d3c7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jwiegley",
+        "repo": "ob-gptel",
+        "type": "github"
+      }
+    },
+    "org-modern-indent": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1678423102,
+        "narHash": "sha256-7EWtvL8SlYQ8EDx9mR3ixdXYwLI1D9cCOKF+7t08DtQ=",
+        "owner": "alphapapa",
+        "repo": "org-modern-indent",
+        "rev": "952abf3a54d0589fd2a25e007d67254a6a30276a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "alphapapa",
+        "repo": "org-modern-indent",
+        "type": "github"
+      }
+    },
+    "org-novelist": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1716379970,
+        "narHash": "sha256-9rUCaOOSxSIHLH8NIdiDudLGmcF2C3FfgwKkwjKeHgg=",
+        "owner": "sympodius",
+        "repo": "org-novelist",
+        "rev": "4577dcc8d0206bc321c307bffc13ead107cf5ee0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sympodius",
+        "repo": "org-novelist",
+        "type": "github"
+      }
+    },
+    "ragmacs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1754108137,
+        "narHash": "sha256-56l9fj58F6IIzzdkfDBuidNf/lXgyK1gyCvuV1NgF7w=",
+        "owner": "positron-solutions",
+        "repo": "ragmacs",
+        "rev": "d3ad46ded557a651faa959f1545ca4df48da78f0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "positron-solutions",
+        "repo": "ragmacs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "doom-utils": "doom-utils",
+        "eglot-booster": "eglot-booster",
+        "eglot-x": "eglot-x",
+        "exwm-outer-gaps": "exwm-outer-gaps",
+        "gptel-quick": "gptel-quick",
+        "macher-agent": "macher-agent",
+        "ob-gptel": "ob-gptel",
+        "org-modern-indent": "org-modern-indent",
+        "org-novelist": "org-novelist",
+        "ragmacs": "ragmacs",
+        "semel": "semel",
+        "svelte-ts-mode": "svelte-ts-mode",
+        "symex": "symex",
+        "use-package-eglot": "use-package-eglot"
+      }
+    },
+    "semel": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1758617713,
+        "narHash": "sha256-mOTqc08fw8EJG9VyGto3MaGKsbguxMs2vuEDr9v4FZo=",
+        "owner": "eshelyaron",
+        "repo": "semel",
+        "rev": "649cb73aa8bcc5fe06869fa09e83992639fcf07b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eshelyaron",
+        "repo": "semel",
+        "type": "github"
+      }
+    },
+    "svelte-ts-mode": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1753004480,
+        "narHash": "sha256-1V389XqYCOlewqBglv//UkaZwHEc5pFqbt7nrLdgU6U=",
+        "owner": "leafOfTree",
+        "repo": "svelte-ts-mode",
+        "rev": "8a7b90358a79b7844a39ffa722eac2fd41eea2ca",
+        "type": "github"
+      },
+      "original": {
+        "owner": "leafOfTree",
+        "repo": "svelte-ts-mode",
+        "type": "github"
+      }
+    },
+    "symex": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1757439166,
+        "narHash": "sha256-18FsqxP4UNXTx5jSo2y/IyP34ZUFQckh6gL++yzzqso=",
+        "owner": "firefoxsalesman",
+        "repo": "symex.el",
+        "rev": "8dec240d796757d1c769a1cf4e489927b560c480",
+        "type": "github"
+      },
+      "original": {
+        "owner": "firefoxsalesman",
+        "ref": "treesit",
+        "repo": "symex.el",
+        "type": "github"
+      }
+    },
+    "use-package-eglot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1754999779,
+        "narHash": "sha256-P42tMHhpxAiLvKE7fWG1LuCbAJiMviQH9+XLFsc99K4=",
+        "owner": "firefoxsalesman",
+        "repo": "use-package-eglot",
+        "rev": "2decf8fa4b7ecb3783c1118e45196cd8cdb04b30",
+        "type": "github"
+      },
+      "original": {
+        "owner": "firefoxsalesman",
+        "repo": "use-package-eglot",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

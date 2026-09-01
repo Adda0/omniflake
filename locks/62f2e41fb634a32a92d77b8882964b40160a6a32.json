@@ -1,0 +1,96 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1752050034,
+        "narHash": "sha256-nP3HFGP9NWSHPoLn7PoewmTwrq9AhgZJfzIRGJItI0A=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2e55ed5f59bb4846f64823959e1de2bb8f386b0f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1752050034,
+        "narHash": "sha256-nP3HFGP9NWSHPoLn7PoewmTwrq9AhgZJfzIRGJItI0A=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2e55ed5f59bb4846f64823959e1de2bb8f386b0f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1752050034,
+        "narHash": "sha256-nP3HFGP9NWSHPoLn7PoewmTwrq9AhgZJfzIRGJItI0A=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2e55ed5f59bb4846f64823959e1de2bb8f386b0f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "self-alpha-3": "self-alpha-3",
+        "self-beta-3": "self-beta-3"
+      }
+    },
+    "self-alpha-3": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1752060430,
+        "narHash": "sha256-D/n2wyM2tKDYoie3B+jWoOdP8aoArBAlKEv/dVlgOPc=",
+        "owner": "koraa",
+        "repo": "test-selfreferential-flake",
+        "rev": "d02a29ed0b2771d6d96e071888f1194f6887d038",
+        "type": "github"
+      },
+      "original": {
+        "owner": "koraa",
+        "ref": "d02a29ed0b2771d6d96e071888f1194f6887d038",
+        "repo": "test-selfreferential-flake",
+        "type": "github"
+      }
+    },
+    "self-beta-3": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1752060446,
+        "narHash": "sha256-LHg/mfiSln19N7NheZgPzwvJWSSs1hkCjIbCCAA3dwQ=",
+        "owner": "koraa",
+        "repo": "test-selfreferential-flake",
+        "rev": "760b75a17ab6e207645a4679bb62853fc21a3a73",
+        "type": "github"
+      },
+      "original": {
+        "owner": "koraa",
+        "ref": "760b75a17ab6e207645a4679bb62853fc21a3a73",
+        "repo": "test-selfreferential-flake",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

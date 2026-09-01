@@ -1,0 +1,64 @@
+{
+  "nodes": {
+    "lightdm-kde-greeter": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "dir": "greeter",
+        "lastModified": 1730914799,
+        "narHash": "sha256-3ttACUf9pSL5twiU6wcguk+oCtU4v4pWD27KwoWf3Oo=",
+        "owner": "dshatz",
+        "repo": "lightdm-kde-greeter-nix",
+        "rev": "28ab1961fa4bb54e582756e257020f5e56bcdcb5",
+        "type": "github"
+      },
+      "original": {
+        "dir": "greeter",
+        "owner": "dshatz",
+        "repo": "lightdm-kde-greeter-nix",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1729880355,
+        "narHash": "sha256-RP+OQ6koQQLX5nw0NmcDrzvGL8HDLnyXt/jHhL1jwjM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "18536bf04cd71abd345f9579158841376fdd0c5a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1730531603,
+        "narHash": "sha256-Dqg6si5CqIzm87sp57j5nTaeBbWhHFaVyG7V6L8k3lY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "7ffd9ae656aec493492b44d0ddfb28e79a1ea25d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "lightdm-kde-greeter": "lightdm-kde-greeter",
+        "nixpkgs": "nixpkgs_2"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

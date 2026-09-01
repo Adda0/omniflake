@@ -1,0 +1,401 @@
+{
+  "nodes": {
+    "exceptiongroup": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "flit": [
+          "flit"
+        ],
+        "flit-scm": [
+          "flit-scm"
+        ],
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "path": "./exceptiongroup",
+        "type": "path"
+      },
+      "original": {
+        "path": "./exceptiongroup",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "flake-utils": {
+      "locked": {
+        "lastModified": 1652776076,
+        "narHash": "sha256-gzTw/v1vj4dOVbpBSJX4J0DwUR6LIyXo7/SuuTJp1kM=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "04c1b180862888302ddfb2e3ad9eaa63afc60cf8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "ref": "v1.0.0",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flit": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": "nixpkgs_2",
+        "trove-classifiers": [
+          "trove-classifiers"
+        ]
+      },
+      "locked": {
+        "path": "./flit",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flit",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "flit-scm": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "flit": [
+          "flit"
+        ],
+        "nixpkgs": "nixpkgs_3",
+        "tomli": "tomli"
+      },
+      "locked": {
+        "path": "./flit-scm",
+        "type": "path"
+      },
+      "original": {
+        "path": "./flit-scm",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "hatchling": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": "nixpkgs_4",
+        "trove-classifiers": [
+          "trove-classifiers"
+        ]
+      },
+      "locked": {
+        "path": "./hatchling",
+        "type": "path"
+      },
+      "original": {
+        "path": "./hatchling",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "nixos": {
+      "locked": {
+        "lastModified": 1686059680,
+        "narHash": "sha256-sp0WlCIeVczzB0G8f8iyRg3IYW7KG31mI66z7HIZwrI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "a558f7ac29f50c4b937fb5c102f587678ae1c9fb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-23.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_4": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_5": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_6": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_7": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_8": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_9": {
+      "locked": {
+        "lastModified": 1717179513,
+        "narHash": "sha256-vboIEwIQojofItm2xGCdZCzW96U85l9nDW3ifMuAIdM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "63dacb46bf939521bdc93981b4cbb7ecb58427a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "24.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "overrides": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": "nixpkgs_5"
+      },
+      "locked": {
+        "path": "./overrides",
+        "type": "path"
+      },
+      "original": {
+        "path": "./overrides",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "pluggy": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": "nixpkgs_6"
+      },
+      "locked": {
+        "path": "./pluggy",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pluggy",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "pympler": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": "nixpkgs_7"
+      },
+      "locked": {
+        "path": "./pympler",
+        "type": "path"
+      },
+      "original": {
+        "path": "./pympler",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "root": {
+      "inputs": {
+        "exceptiongroup": "exceptiongroup",
+        "flake-utils": "flake-utils",
+        "flit": "flit",
+        "flit-scm": "flit-scm",
+        "hatchling": "hatchling",
+        "nixos": "nixos",
+        "overrides": "overrides",
+        "pluggy": "pluggy",
+        "pympler": "pympler",
+        "tomli": "tomli_2",
+        "trove-classifiers": "trove-classifiers"
+      }
+    },
+    "tomli": {
+      "inputs": {
+        "flake-utils": [
+          "flit-scm",
+          "flake-utils"
+        ],
+        "flit": [
+          "flit-scm",
+          "flit"
+        ],
+        "nixpkgs": [
+          "flit-scm",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "dir": "tomli",
+        "lastModified": 1733508193,
+        "narHash": "sha256-jpRnwjLTgDPxPVThwOsxy/ywo6hIIQx+Wea8rKtN0yQ=",
+        "owner": "rydnr",
+        "repo": "nix-flakes",
+        "rev": "f37bb8a5baf3546a7752eac045cfb078ade2fa1b",
+        "type": "github"
+      },
+      "original": {
+        "dir": "tomli",
+        "owner": "rydnr",
+        "ref": "tomli-2.0.1.2",
+        "repo": "nix-flakes",
+        "type": "github"
+      }
+    },
+    "tomli_2": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "flit": [
+          "flit"
+        ],
+        "nixpkgs": "nixpkgs_8"
+      },
+      "locked": {
+        "path": "./tomli",
+        "type": "path"
+      },
+      "original": {
+        "path": "./tomli",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "trove-classifiers": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": "nixpkgs_9"
+      },
+      "locked": {
+        "path": "./trove-classifiers",
+        "type": "path"
+      },
+      "original": {
+        "path": "./trove-classifiers",
+        "type": "path"
+      },
+      "parent": []
+    }
+  },
+  "root": "root",
+  "version": 7
+}

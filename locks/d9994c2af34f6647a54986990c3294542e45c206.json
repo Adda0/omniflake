@@ -1,0 +1,42 @@
+{
+  "nodes": {
+    "linux-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1647807257,
+        "narHash": "sha256-MeKtj0igIQZN3KeMLlPYArnpknDvn649O9V8aWNclUg=",
+        "ref": "refs/heads/master",
+        "rev": "f8e739787152143aacffc181562a29c049c2d658",
+        "revCount": 1074497,
+        "type": "git",
+        "url": "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+      },
+      "original": {
+        "rev": "f8e739787152143aacffc181562a29c049c2d658",
+        "type": "git",
+        "url": "https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787964612,
+        "narHash": "sha256-qeiZaY+0tpZXliRA9odCNx+sOfIOhnkcUq9t+ctPrRA=",
+        "rev": "e8be7818e19ada32105a8af937a6a473b38167ca",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixpkgs/nixpkgs-26.11pre1063758.e8be7818e19a/nixexprs.tar.xz"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "root": {
+      "inputs": {
+        "linux-src": "linux-src",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

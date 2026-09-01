@@ -1,0 +1,42 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1592579076,
+        "narHash": "sha256-d6HhCILZb2w0BeyHWqasd6H8PP4Q8cuJqf3fVdOpREU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ac8f8bd752378043e1dc702442011587cf6ab4f2",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "wireguard-rs": "wireguard-rs"
+      }
+    },
+    "wireguard-rs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1592164655,
+        "narHash": "sha256-dcTsyXFg/qGqcru/RtuRqDfHUeDWO/e4bGVn84/h9CI=",
+        "ref": "master",
+        "rev": "c1dfc848c48978603fe801737a07b16cb0a9c1a3",
+        "revCount": 163,
+        "type": "git",
+        "url": "https://git.zx2c4.com/wireguard-rs"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.zx2c4.com/wireguard-rs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
