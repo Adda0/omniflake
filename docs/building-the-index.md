@@ -110,28 +110,28 @@ seeded row falls due on the same day, turning one run a week back into a
 
 ## Tools
 
-| tool                  | function                                                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `harvest.py`          | GitHub search by `language:Nix` and topic, partitioned by star range and creation date to stay under the 1000-result cap |
-| `manual.py`           | reads `manual.txt`, including flakes outside GitHub                                                                      |
-| `merge-candidates.py` | folds harvest output into the candidate pool, one row per repository                                                     |
-| `resolve.py`          | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists                                        |
-| `seed-rejects.py`     | one-off: builds `rejects.jsonl` from `candidates.jsonl` minus `resolved.jsonl`                                           |
-| `describe.py`         | fills in a repository description per row, for the site's search                                                         |
-| `classify.py`         | separates personal machine configurations from the library tier                                                          |
-| `pin.py`              | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock          |
-| `generate.py`         | writes `index.json`, prunes unused pins and locks, updates the README status block                                       |
-| `history.py`          | appends one aggregate row a day to `history.jsonl`; `--from-git` recovers past days from index.json's history            |
-| `fetch-data.sh`       | downloads the databases `data-pins.json` pins, or `--check`s the ones already present                                    |
-| `release-notes.py`    | renders a cut's notes: what the run added, removed and re-pinned, against `HEAD`                                         |
-| `cut-data-release.sh` | uploads the databases whose bytes moved to a dated release and repoints the pins                                         |
-| `bump-data-pin.sh`    | records `{tag, narHash}` per file in `data-pins.json`                                                                    |
+| tool                  | function                                                                                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `harvest.py`          | GitHub search by `language:Nix` and topic, partitioned by star range and creation date to stay under the 1000-result cap           |
+| `manual.py`           | reads `manual.txt`, including flakes outside GitHub                                                                                |
+| `merge-candidates.py` | folds harvest output into the candidate pool, one row per repository                                                               |
+| `resolve.py`          | one GraphQL query per 40 repositories: HEAD commit and whether `flake.nix` exists; assigns attribute names, `names.txt` overriding |
+| `seed-rejects.py`     | one-off: builds `rejects.jsonl` from `candidates.jsonl` minus `resolved.jsonl`                                                     |
+| `describe.py`         | fills in a repository description per row, for the site's search                                                                   |
+| `classify.py`         | separates personal machine configurations from the library tier                                                                    |
+| `pin.py`              | runs `nix flake metadata --json` per flake in parallel; records `locked` and, where needed, Nix's computed lock                    |
+| `generate.py`         | writes `index.json` and `unify.json`, prunes unused pins and locks, updates the README status block                                |
+| `history.py`          | appends one aggregate row a day to `history.jsonl`; `--from-git` recovers past days from index.json's history                      |
+| `fetch-data.sh`       | downloads the databases `data-pins.json` pins, or `--check`s the ones already present                                              |
+| `release-notes.py`    | renders a cut's notes: what the run added, removed and re-pinned, against `HEAD`                                                   |
+| `cut-data-release.sh` | uploads the databases whose bytes moved to a dated release and repoints the pins                                                   |
+| `bump-data-pin.sh`    | records `{tag, narHash}` per file in `data-pins.json`                                                                              |
 
 ## Data files
 
-Three of these are committed and four are not. `index.json`, `locks/` and
-`failures.jsonl` are in the flake tree because evaluation reads the first
-two and the third is small. `resolved.jsonl`, `pins.jsonl`,
+Four of these are committed and four are not. `index.json`, `unify.json`,
+`locks/` and `failures.jsonl` are in the flake tree because evaluation
+reads the first three and the fourth is small. `resolved.jsonl`, `pins.jsonl`,
 `candidates.jsonl` and `rejects.jsonl` are pipeline state that nothing
 evaluates: they were 10.7 MB of the 20 MB a consumer unpacked, so they live
 on dated GitHub releases instead, addressed by `data-pins.json`.
@@ -210,6 +210,12 @@ the pass that does.
 
 `index.json` is generated from the files above and is what `flake.nix`
 reads.
+
+`unify.json` is generated alongside it: the subset of index names that
+`unified` may substitute by input name. A name several repositories claim
+is left out, because using it as an override key would assert that every
+input called that means this flake. See
+[Unification](./unification.md#which-names-are-substituted).
 
 A flake whose current revision has no pin is held at the last revision that
 did, rather than dropped. An attribute name is API, and the usual reason a
