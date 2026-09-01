@@ -28,6 +28,7 @@ let
       --blocklist ${../blocklist.txt} \
       --pins ${databases."pins.jsonl"} \
       --history ${../history.jsonl} \
+      --unify ${../unify.json} \
       --out $out/site-data.json
   '';
 in

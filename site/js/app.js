@@ -122,6 +122,8 @@ function Flake({ f }) {
   const [open, setOpen] = useState(false);
   const toggle = () => setOpen(!open);
   const attr = `${FLAKE_ATTR}.${f.name}`;
+  // The name every flake answers to, whatever attribute name it was given.
+  const qualified = `${FLAKE_ATTR}."${f.type}:${f.owner}/${f.repo}"`;
   const commitUrl = `https://github.com/${f.owner}/${f.repo}/commit/${f.rev}`;
   const inputs = f.inputs || [];
   // "4 direct, 8 indirect inputs" once the lock's size is known; the
@@ -153,6 +155,12 @@ function Flake({ f }) {
             class="tag"
             title="ships no usable flake.lock; uses one computed by Nix"
             >computed lock</span
+          >`}
+          ${f.unifies === false &&
+          html`<span
+            class="tag"
+            title="several repositories share this name, so unified leaves inputs called this on the revision their author locked"
+            >shared name</span
           >`}
         </div>
         <div class="repo">
@@ -192,6 +200,7 @@ function Flake({ f }) {
           )}
         </div>`}
         <${Command} text=${`${attr}.nixosModules.default`} />
+        <${Command} text=${qualified} />
         <${Command}
           text=${`nix run 'github:fzakaria/omniflake#flakes.${f.name}.packages.x86_64-linux.default'`}
         />

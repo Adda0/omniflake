@@ -181,10 +181,15 @@ def main():
     ap.add_argument("--blocklist", default="blocklist.txt")
     ap.add_argument("--pins", default="pins.jsonl")
     ap.add_argument("--history", default="history.jsonl")
+    ap.add_argument("--unify", default="unify.json")
     ap.add_argument("--out", default="site-data.json")
     args = ap.parse_args()
 
     index = json.load(open(args.index))
+    # The names `unified` substitutes by input name. A name several
+    # repositories share is not one of them, which is worth saying on the
+    # page: it is why an input called that is left on the author's pin.
+    unify = set(json.load(open(args.unify))) if os.path.exists(args.unify) else set()
     by_name = {r["name"]: r for r in read_jsonl(args.resolved)}
     pins = {p["name"]: p for p in read_jsonl(args.pins)}
     blocked = set()
@@ -219,6 +224,7 @@ def main():
                 "inputs": row.get("inputs", []),
                 "lockNodes": lock_nodes,
                 "storedLock": bool(entry.get("lock")),
+                "unifies": name in unify,
             }
         )
 
