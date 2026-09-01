@@ -99,3 +99,14 @@ the-nix-way/dev-templates           dev-templates
 # the same names are useless as API.
 nixified-ai/flake                   nixified-ai
 catppuccin/nix                      catppuccin
+
+# Bare names taken away. Each of these is the only repository of its name,
+# so the contention rule leaves it holding one that indexed flakes
+# overwhelmingly use for a different project, and unified rewrites that
+# input everywhere. There is no line that would fix them instead: the
+# flake 319 of them mean by git-hooks is cachix/git-hooks.nix, which
+# already answers to git-hooks-nix and cannot answer to both, and the one
+# 149 mean by firefox-addons is a subdirectory of a GitLab repository that
+# the index does not carry at all.
+akirak/git-hooks                    -
+seadome/firefox-addons              -
