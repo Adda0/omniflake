@@ -1,6 +1,10 @@
-# Validate a change to the index or the tooling. Pinning is skipped on
-# pull requests that only touch manual.txt or blocklist.txt: those are
-# regenerated and committed by the add/remove workflow instead.
+# Validate a change to the index or the tooling.
+#
+# A pull request that only adds a line to manual.txt, blocklist.txt or
+# names.txt passes without pinning anything: the databases it would change
+# are fetched rather than committed, so index.json does not move until a
+# pipeline run regenerates it. That run is the nightly update workflow, or
+# tools/update.sh by hand.
 name: check
 
 on:
