@@ -1,0 +1,100 @@
+# Attribute names assigned by hand. See tools/resolve.py.
+# One per line: "owner/repo" then the attribute name, whitespace separated.
+#
+# A name here overrides the one derived from the repository name, and wins
+# any contention for it. Two jobs:
+#
+#   1. Reserve a short name for a project a person typing that name plainly
+#      means. Under the naming rule a short name is assigned automatically
+#      only when the repository name is unique, and 4,006 of the names in
+#      use are claimed by more than one repository -- 61 repositories are
+#      named home-manager, 67 nixvim, 31 nixpkgs. Without a line here every
+#      one of those falls back to its qualified name.
+#
+#   2. Correct a derived name that says nothing. nixified-ai/flake derives
+#      "flake"; catppuccin/nix derives "nix". Both are the repository name
+#      doing a poor job of naming the project.
+#
+# Leaving a contested repository out is the normal case, not an oversight.
+# It stays reachable as flakes."github:owner/repo" and github.owner.repo,
+# which is unambiguous. A name is reserved only when the bare form carries
+# real information: "postgres" does not obviously mean supabase/postgres,
+# so that one is absent on purpose.
+
+# Foundations. Substituted into every indexed flake by name, so these are
+# the names that must not drift.
+NixOS/nixpkgs                       nixpkgs
+numtide/flake-utils                 flake-utils
+NixOS/flake-compat                  flake-compat
+
+# The flakes people write into a NixOS or nix-darwin configuration.
+nix-community/home-manager          home-manager
+nix-darwin/nix-darwin               nix-darwin
+nix-community/disko                 disko
+NixOS/nixos-hardware                nixos-hardware
+nix-community/nixos-anywhere        nixos-anywhere
+nix-community/NixOS-WSL             nixos-wsl
+nix-community/nix-on-droid          nix-on-droid
+nix-community/impermanence          impermanence
+nix-community/lanzaboote            lanzaboote
+Jovian-Experiments/Jovian-NixOS     jovian-nixos
+anduril/jetpack-nixos               jetpack-nixos
+numtide/system-manager              system-manager
+nix-community/robotnix              robotnix
+Infinidoge/nix-minecraft            nix-minecraft
+Maroka-chan/VPN-Confinement         vpn-confinement
+SEIAROTg/quadlet-nix                quadlet-nix
+
+# Development environments and shells.
+cachix/devenv                       devenv
+jetify-com/devbox                   devbox
+numtide/devshell                    devshell
+numtide/blueprint                   blueprint
+nix-community/nix-environments      nix-environments
+
+# Editors, themes and desktop.
+nix-community/nixvim                nixvim
+NotAShelf/nvf                       nvf
+nix-community/stylix                stylix
+Gerg-L/spicetify-nix                spicetify-nix
+SenchoPens/base16.nix               base16-nix
+nix-community/kickstart-nix.nvim    kickstart-nix-nvim
+0xc000022070/zen-browser-flake      zen-browser-flake
+
+# Tooling: build, deploy, cache, lint.
+nix-community/colmena               colmena
+serokell/deploy-rs                  deploy-rs
+zhaofengli/attic                    attic
+NixOS/hydra                         hydra
+nix-community/nixd                  nixd
+nix-community/nix-init              nix-init
+nix-community/nix-index             nix-index
+utdemir/nix-tree                    nix-tree
+nix-community/comma                 comma
+kamadorueda/alejandra               alejandra
+DeterminateSystems/flake-checker    flake-checker
+nix-community/nixos-cli             nixos-cli
+zhaofengli/nix-homebrew             nix-homebrew
+nix-community/NUR                   nur
+NixOS/nixops                        nixops
+
+# Language and ecosystem integrations.
+pyproject-nix/uv2nix                uv2nix
+srid/haskell-flake                  haskell-flake
+terranix/terranix                   terranix
+hall/kubenix                        kubenix
+juspay/omnix                        omnix
+divnix/std                          std
+divnix/digga                        digga
+yunfachi/denix                      denix
+
+# Templates. NixOS/templates is the referent for the bare name; the other
+# 65 repositories named templates or flake-templates are not.
+NixOS/templates                     templates
+the-nix-way/dev-templates           dev-templates
+
+# Derived names that say nothing about the project. Both repositories are
+# in manual.txt because classify.py reads their names as personal configs;
+# the same names are useless as API.
+nixified-ai/flake                   nixified-ai
+catppuccin/nix                      catppuccin
