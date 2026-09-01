@@ -15,8 +15,10 @@ on:
       - tools/render-docs.py
       - tools/build-site-data.py
       - index.json
+      - unify.json
       - data-pins.json
       - failures.jsonl
+      - history.jsonl
       - .github/workflows/pages.yml
   # The daily index commit is pushed with the default token, which starts
   # no push-triggered workflow, so the site is rebuilt from here instead.
