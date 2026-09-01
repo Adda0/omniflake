@@ -23,6 +23,10 @@ in
   # The loader on real flakes: fetches a few trees at evaluation time.
   loader = evalTest "test-loader" ../tests/loader.nix;
 
+  # Every flake is reachable by its qualified and nested names. Asks about
+  # attribute keys only, so nothing is fetched.
+  names = evalTest "test-names" ../tests/names.nix;
+
   # The Python in tools/. These cover the pipeline's decision functions —
   # which failures to re-attempt, which candidates to re-check, how the
   # candidate pool merges — so they work on plain data and run neither Nix

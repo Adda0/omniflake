@@ -75,6 +75,18 @@ real    0m1.5s
 | `omniflake.lib.unifyAll {…}`       | the index, then the foundations, then the set you pass         |
 | `omniflake.lib.names`, `lib.count` | metadata; forces no fetch                                      |
 
+`<name>` has three spellings, and they reach the same thunk:
+
+```nix
+omniflake.flakes.home-manager                          # bare
+omniflake.flakes."github:nix-community/home-manager"   # qualified
+omniflake.github.flakes.nix-community.home-manager     # nested
+```
+
+Every flake answers to the last two. A bare name is assigned only when one
+repository claims it, so `home-manager`, claimed by 61 repositories, is a
+name handed over by [`names.txt`](./names.txt) rather than won on stars.
+
 See [Unification](./docs/unification.md) for what is substituted and why.
 
 ## Caveats

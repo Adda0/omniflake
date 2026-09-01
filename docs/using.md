@@ -125,15 +125,47 @@ omniflake.unified.sops-nix.nixosModules.sops
 
 Passing `{ }` is the same as `pinned`. See [Unification](./unification.md).
 
+## Name a flake
+
+There are three spellings, and they are the same thunk: a flake reached by
+two of them is fetched once.
+
+```nix
+omniflake.flakes.home-manager                          # bare
+omniflake.flakes."github:nix-community/home-manager"   # qualified
+omniflake.github.flakes.nix-community.home-manager     # nested
+```
+
+The qualified and nested spellings work for every flake in the index. The
+bare one is a name a repository has to earn: it is assigned only when one
+repository claims it, or when a `names.txt` line hands it over. Sixty-one
+repositories are named `home-manager` and 110 are named `flake`, so most
+of the contested names belong to nobody. See
+[Adding or removing a flake](./adding-a-flake.md#names).
+
+Reach for the qualified spelling when you want to be sure which repository
+you are getting, and the nested one in `nix repl`, where the owner is an
+attribute you can complete:
+
+```console
+$ nix repl github:fzakaria/omniflake
+nix-repl> github.flakes.nix-community.<TAB>
+```
+
+All three work under `pinned` and `unified` as well as `flakes`.
+
 ## Find a flake
 
-The attribute name is the repository name, with the owner appended when two
-repositories share one. The index is searchable at
-<https://omniflake.com/>, or:
+The index is searchable at <https://omniflake.com/>, by name, owner/repo or
+description. From the command line:
 
 ```console
 $ nix eval --json github:fzakaria/omniflake#lib.names | jq -r '.[]' | grep sops
 ```
+
+`lib.names` lists the bare names only. A flake with no bare name is still
+in the index and still reachable by the other two spellings; the site shows
+every flake and the attribute paths that reach it.
 
 A flake missing from the index can be added; see
 [Adding or removing a flake](./adding-a-flake.md).
