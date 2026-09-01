@@ -16,6 +16,14 @@ assigns a sticky name like any harvested repo. Everything else cannot go
 through the GitHub API, so it is resolved here with `nix flake metadata`
 and emitted as a finished database entry.
 
+Either way the row carries the repository's star count, which is asked for
+here because nothing else in the pipeline will. harvest.py is what records
+stars, and a flake listed by hand is usually one harvest cannot see:
+hyprwm/Hyprland has 38,344 and was written down as having none. Worse, a
+repository that search does find and this file also lists was written down
+twice, and merge-candidates.py lets the later row win, so listing
+catppuccin/nix replaced the 756 stars harvest knew about with zero.
+
 Listing a flake here also exempts it from classify.py's guess at what is
 somebody's machine configuration, so manual.txt reads as "index this,
 whatever the pipeline concludes on its own" and blocklist.txt as its
@@ -27,8 +35,15 @@ rather than a personal config, and a person writing the line down can.
 """
 
 import argparse, json, os, re, subprocess, sys, time
+import urllib.error, urllib.request
 
 BARE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+
+# One repository's metadata. A manual list is a handful of lines, so a
+# request each is simpler than the GraphQL batching resolve.py needs and
+# works without a token; GH_TOKEN is used when the environment has one.
+REPO_URL = "https://api.github.com/repos/{owner}/{repo}"
+REPO_TIMEOUT_SECONDS = 15
 
 
 def read_entries(path):
@@ -60,6 +75,63 @@ def listed_repos(path):
     return pairs
 
 
+def github_ref(entry):
+    """The (owner, repo) a manual entry names on GitHub, or None.
+
+    A bare owner/repo is GitHub by definition, and so is a github: flake
+    reference, with or without a ref or a query string. Every other forge
+    has a star count somewhere and it is not at the endpoint below, so
+    those are left alone rather than guessed at.
+    """
+    if BARE.match(entry):
+        owner, repo = entry.split("/", 1)
+        return owner, repo
+    if not entry.startswith("github:"):
+        return None
+    path = entry[len("github:") :].split("?", 1)[0].split("#", 1)[0]
+    parts = [p for p in path.split("/") if p]
+    if len(parts) < 2:
+        return None
+    return parts[0], parts[1]
+
+
+def fetch_stars(owner, repo):
+    """A repository's star count, or None if GitHub did not say.
+
+    None rather than zero: the two mean different things to a row that
+    already records a count, and a failed request must not be written down
+    as a repository nobody has starred.
+    """
+    request = urllib.request.Request(REPO_URL.format(owner=owner, repo=repo))
+    request.add_header("Accept", "application/vnd.github+json")
+    token = os.environ.get("GH_TOKEN")
+    if token:
+        request.add_header("Authorization", f"Bearer {token}")
+    try:
+        with urllib.request.urlopen(request, timeout=REPO_TIMEOUT_SECONDS) as response:
+            return json.load(response).get("stargazers_count")
+    except Exception as e:
+        print(f"# could not read stars for {owner}/{repo}: {e}", file=sys.stderr)
+        return None
+
+
+def star_counts(entries, fetch=fetch_stars):
+    """{(owner, repo): stars} for the entries GitHub can be asked about.
+
+    A repository named twice, once bare and once as a reference, is asked
+    about once. A repository the lookup could not answer for is absent.
+    """
+    counts = {}
+    for entry in entries:
+        ref = github_ref(entry)
+        if ref is None or ref in counts:
+            continue
+        stars = fetch(*ref)
+        if stars is not None:
+            counts[ref] = stars
+    return counts
+
+
 def sanitize(name):
     """Flake ref -> a legal Nix attribute name."""
     out = "".join(c if (c.isalnum() or c in "-_") else "-" for c in name.lower())
@@ -68,7 +140,7 @@ def sanitize(name):
     return out
 
 
-def resolve_ref(url):
+def resolve_ref(url, stars=0):
     """Pin an arbitrary flake ref with `nix flake metadata`."""
     try:
         out = subprocess.run(
@@ -117,7 +189,7 @@ def resolve_ref(url):
         # An explicit url wins over the constructed github: ref.
         "url": pinned,
         "inputs": inputs,
-        "stars": 0,
+        "stars": stars,
         "manual": True,
         # The site's "last checked" date; resolve.py stamps harvested rows
         # the same way. Refreshed on every run, since manual entries are
@@ -137,13 +209,22 @@ def main():
         print(f"# no {args.manual}; nothing to add", file=sys.stderr)
         return
 
+    # Every entry's star count, before any row is written. Without this a
+    # manual entry is recorded as having no stars, and merge-candidates
+    # lets the later row win, so listing a repository that search already
+    # found used to overwrite the count harvest.py had for it.
+    entries = list(read_entries(args.manual))
+    counts = star_counts(entries)
+
     candidates, resolved = [], []
-    for entry in read_entries(args.manual):
+    for entry in entries:
+        ref = github_ref(entry)
+        stars = counts.get(ref, 0) if ref else 0
         if BARE.match(entry):
             owner, repo = entry.split("/", 1)
-            candidates.append({"owner": owner, "repo": repo, "stars": 0})
+            candidates.append({"owner": owner, "repo": repo, "stars": stars})
             continue
-        got = resolve_ref(entry)
+        got = resolve_ref(entry, stars)
         if got:
             resolved.append(got)
 
