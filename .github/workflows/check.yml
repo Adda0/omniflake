@@ -66,7 +66,7 @@ jobs:
           nix run .#fetch-data
           nix run .#classify -- --rejected personal.jsonl < resolved.jsonl > library.jsonl
           nix run .#generate
-          git diff --exit-code -- index.json failures.jsonl locks
+          git diff --exit-code -- index.json unify.json failures.jsonl locks
           nix run .#fetch-data -- --check
 
       # The regeneration diff above proves internal consistency but takes

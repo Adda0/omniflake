@@ -49,6 +49,11 @@ let
   );
   orphaned = filter (file: !(inUse ? ${file})) lockFiles;
 
+  # Every override key unification uses has to name an indexed flake, or
+  # `unified` fails on an attribute that is not there.
+  unifyNames = self.lib.unifyNames;
+  danglingUnifyKey = filter (name: !(index ? ${name})) unifyNames;
+
   # flake.nix and the index must agree on the count.
   count = self.lib.count;
 in
@@ -56,8 +61,10 @@ assert unfetchable == [ ];
 assert missingLock == [ ];
 assert malformed == [ ];
 assert orphaned == [ ];
+assert danglingUnifyKey == [ ];
 assert count == length names;
 {
   flakes = count;
   storedLocks = length withLock;
+  unifyKeys = length unifyNames;
 }

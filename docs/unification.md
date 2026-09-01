@@ -32,8 +32,8 @@ $ nix run 'github:fzakaria/omniflake#pinned.nh.packages.x86_64-linux.default'
 
 ## `unified`
 
-`omniflake.unified.<name>` substitutes on every name the index knows, where
-`flakes` substitutes on five. A graph reaches one `home-manager` and one
+`omniflake.unified.<name>` substitutes on 12,049 names, where `flakes`
+substitutes on five. A graph reaches one `home-manager` and one
 `treefmt-nix`, both at the revision the pipeline pinned, rather than the
 revision each author happened to lock.
 
@@ -61,8 +61,28 @@ author who locked an older `home-manager` may have done it because the newer
 one broke them. Use it when a single graph matters more to you than each
 flake working the way its author tested it.
 
-Matching is still on the exact name. An input called `utils` rather than
-`flake-utils` is untouched, and `agenix`'s `darwin` input stays pinned
+## Which names are substituted
+
+Not every name in the index. An override key is a claim that an input
+called that means this flake, and the index cannot make that claim for a
+name several repositories share. Twenty-six repositories are named `home`,
+one of them holds the bare name, and 49 indexed flakes declare an input
+called `home` meaning something else entirely. Substituting on it replaced
+every one of them with a stranger's machine configuration.
+
+So a name is an override key when the index knows which repository it
+means: one repository claims it, or a [`names.txt`](../names.txt) line
+hands it over. `tools/generate.py` writes the result to `unify.json`, which
+is committed and readable as `lib.unifyNames`. Today that is 12,049 of the
+16,003 index names; `utils`, `home`, `lib`, `system` and `hyprland` are
+among the 3,954 left out.
+
+The rule catches names that are contested. It does not catch a name only
+one repository claims that people nonetheless use for another project, so
+`unified` remains a heuristic and a `names.txt` line remains the way to
+correct one.
+
+Matching is still on the exact name. `agenix`'s `darwin` input stays pinned
 because the index calls that flake `nix-darwin`.
 
 A name cycle resolves only because evaluation is lazy: `ihp` depends on

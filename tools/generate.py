@@ -15,13 +15,15 @@ over a transient failure upstream. The index keeps serving the last known
 good revision until a new one pins. A flake only leaves the index by
 leaving the library: blocklisted, reclassified, or gone from resolve.
 
-Also prunes what nothing references any more: pins and failures for
+Also writes unify.json, the names `unified` may substitute by input name,
+and prunes what nothing references any more: pins and failures for
 revisions no longer in the library, and stored locks no index entry uses.
 """
 
-import argparse, json, os, re, sys, time
+import argparse, collections, json, os, re, sys, time
 
 from pin import flake_ref, lock_key, read_jsonl
+from resolve import load_reserved, sanitize
 
 # Markers around the status block in README.md.
 STATUS_BEGIN = "<!-- BEGIN index-status -->"
@@ -69,6 +71,43 @@ def prune_locks(locks_dir, keys_in_use):
     return removed
 
 
+def unify_names(indexed, resolved, reserved):
+    """The index names unification may substitute by input name.
+
+    An index name used as an override key is a claim that an input called
+    that means this flake. The claim holds when the index knows which
+    repository the name means: one repository claims it, or a names.txt
+    line hands it over. It does not hold for a name 26 repositories claim.
+    "home" is one of those, 49 indexed flakes declare an input by that
+    name, and substituting it replaced every one of them with a stranger's
+    machine configuration.
+
+    Contention is counted over the whole database rather than the index,
+    because a repository classified personal still means the name does not
+    identify one flake.
+    """
+    claims = collections.Counter(sanitize(row["repo"]) for row in resolved)
+    names = [
+        row["name"]
+        for row in indexed
+        if (row["owner"].lower(), row["repo"].lower()) in reserved
+        or claims[sanitize(row["repo"])] <= 1
+    ]
+    return sorted(names)
+
+
+def write_unify(path, names):
+    """One name per line, so a diff says which keys a run added or took."""
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        fh.write("[\n")
+        for i, name in enumerate(names):
+            sep = "," if i + 1 < len(names) else ""
+            fh.write(f"  {json.dumps(name)}{sep}\n")
+        fh.write("]\n")
+    os.replace(tmp, path)
+
+
 def update_readme(path, stats):
     """Rewrite the status block between the markers, if the file has one."""
     if not os.path.exists(path):
@@ -110,6 +149,9 @@ def main():
     ap.add_argument("--locks", default="locks")
     ap.add_argument("--blocklist", default="blocklist.txt")
     ap.add_argument("--index", default="index.json")
+    ap.add_argument("--resolved", default="resolved.jsonl")
+    ap.add_argument("--names", default="names.txt")
+    ap.add_argument("--unify", default="unify.json")
     ap.add_argument("--readme", default="README.md")
     args = ap.parse_args()
 
@@ -127,6 +169,8 @@ def main():
             last_good[pin["name"]] = pin
 
     index = {}
+    # The library rows that made it in, for the override map below.
+    indexed = []
     # Every reference the output still needs: the library's own, plus the
     # older ones the fallback keeps alive so pruning does not collect them.
     keep_refs = {}
@@ -162,9 +206,18 @@ def main():
             entry["lock"] = True
             stats["stored_locks"] += 1
         index[name] = entry
+        indexed.append(row)
         stats["indexed"] += 1
 
     write_index(args.index, index)
+
+    # The names `unified` may substitute. Not every index name: a name
+    # several repositories claim identifies none of them.
+    unify = unify_names(
+        indexed, list(read_jsonl(args.resolved)), load_reserved(args.names)
+    )
+    write_unify(args.unify, unify)
+    stats["unify_keys"] = len(unify)
 
     # Keep the databases to what the library still references, and carry
     # the current name on each row so the files read well on their own.

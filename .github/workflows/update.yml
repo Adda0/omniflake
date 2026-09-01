@@ -106,7 +106,7 @@ jobs:
       - name: Commit
         if: ${{ !inputs.dry-run }}
         run: |
-          git add failures.jsonl index.json locks README.md data-pins.json history.jsonl
+          git add failures.jsonl index.json unify.json locks README.md data-pins.json history.jsonl
           if git diff --cached --quiet; then
             echo "nothing changed"
             exit 0

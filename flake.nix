@@ -41,6 +41,12 @@
       index = fromJSON (readFile ./index.json);
       names = attrNames index;
 
+      # The names `unified` substitutes by input name, which is not every
+      # name in the index. An override key claims that an input called that
+      # means this flake, and a name 26 repositories claim means none of
+      # them. tools/generate.py writes the file; see docs/unification.md.
+      unifyNames = fromJSON (readFile ./unify.json);
+
       # Inputs replaced by name in every subflake, at every depth. Exact
       # names only: `nixpkgs-stable` is left on the pin its author chose.
       foundations = {
@@ -130,9 +136,10 @@
             groupBy (name: index.${name}.locked.owner) (filter (name: index.${name}.locked.type == forge) names)
           );
 
-      # Every flake under one policy, plus every indexed flake overriding
-      # its own name: a graph reaches one home-manager, one disko, one
-      # treefmt-nix, rather than the revision each author happened to lock.
+      # Every flake under one policy, plus every flake whose name the index
+      # is sure of overriding that name: a graph reaches one home-manager,
+      # one disko, one treefmt-nix, rather than the revision each author
+      # happened to lock.
       #
       # The overrides are the set being defined, so a substituted flake's
       # own graph is unified too, at any depth, rather than stopping at the
@@ -150,7 +157,7 @@
             map (name: {
               inherit name;
               value = all.${name};
-            }) names
+            }) unifyNames
           );
           all = withOverrides (fromIndex // foundations // extra);
         in
@@ -218,6 +225,9 @@
       lib = {
         # Metadata that forces no fetch.
         inherit names foundations;
+
+        # The names `unified` substitutes by input name; see unifyAll.
+        unifyNames = unifyNames;
         count = length names;
 
         # omniflake.lib.withOverrides { nixpkgs = ...; nixpkgs-stable = ...; }
