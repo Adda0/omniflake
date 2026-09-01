@@ -42,6 +42,10 @@ named again: the repository the line names takes the name, and whoever
 held it is displaced to its qualified form. A line whose name is "-" asks
 for no bare name at all.
 
+Every row's star count comes from the same query that resolves it, so it
+is current as of the run that wrote the row. harvest.py's count decides
+nothing but the order candidates are processed in.
+
 Output: JSON lines of {name, owner, repo, rev, inputs, stars}, sorted by
 attribute name. Processing order still decides which repo wins a new name
 (highest-starred first), but the file is written in name order so a run
@@ -62,9 +66,16 @@ QUERY_TAIL = "}"
 
 
 def repo_fragment(alias, owner, repo):
-    """One aliased repository selection: HEAD oid, flake.nix, flake.lock."""
+    """One aliased repository selection: stars, HEAD oid, flake.nix, flake.lock.
+
+    stargazerCount is a scalar on a repository already being fetched, so it
+    costs no request and does not change the query's node count. It is the
+    only thing that keeps a star count current: harvest.py records one when
+    it first finds a repository and never looks at that repository again.
+    """
     return f"""
   {alias}: repository(owner: "{owner}", name: "{repo}") {{
+    stargazerCount
     defaultBranchRef {{ target {{ oid }} }}
     flakeNix: object(expression: "HEAD:flake.nix") {{ __typename }}
     flakeLock: object(expression: "HEAD:flake.lock") {{
@@ -543,7 +554,7 @@ def main():
                 "repo": cand["repo"],
                 "rev": rev,
                 "inputs": inputs,
-                "stars": cand.get("stars", 0),
+                "stars": node.get("stargazerCount", 0),
                 "resolved_at": now,
             }
             if lock_nodes is not None:

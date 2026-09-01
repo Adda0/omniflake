@@ -43,6 +43,23 @@ class TestOldestRejects(unittest.TestCase):
         self.assertEqual(resolve.oldest_rejects(ledger, 1), {("a", "one")})
 
 
+class TestRepoFragment(unittest.TestCase):
+    """Tests what one repository's GraphQL selection asks for, since every
+    field a row records has to be in it and nothing else fetches them."""
+
+    FRAGMENT = resolve.repo_fragment("r0", "NixOS", "nixpkgs")
+
+    def test_it_names_the_repository(self):
+        self.assertIn('repository(owner: "NixOS", name: "nixpkgs")', self.FRAGMENT)
+
+    def test_it_asks_for_everything_a_row_records(self):
+        # The star count included: harvest.py is the only other thing that
+        # knows one, and it never sees a repository again after the run
+        # that found it.
+        for field in ["stargazerCount", "defaultBranchRef", "flakeNix", "flakeLock"]:
+            self.assertIn(field, self.FRAGMENT)
+
+
 class TestSelectCandidates(unittest.TestCase):
     """Tests which candidates a run queries, over a pool holding one
     repository of every kind: new, known, merged and rejected."""
