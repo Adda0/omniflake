@@ -2,18 +2,29 @@
 
 ```console
 # discover new flakes, pin them, regenerate
-$ ./tools/update.sh
+$ nix run .#update
 
 # also re-pin every known flake
-$ ./tools/update.sh --refresh
+$ nix run .#update -- --refresh
 
 # skip GitHub search; pin and regenerate
-$ ./tools/update.sh --no-harvest
+$ nix run .#update -- --no-harvest
 ```
 
+Every tool in `tools/` is an app: `nix run .#pin`, `nix run .#generate`,
+`nix run .#classify`, and the rest. Run them that way rather than calling
+the files. `nix/tools.nix` is what puts each one's dependencies on its
+PATH -- `gh` for `cut-data-release`, `curl` for `fetch-data` -- and it
+refuses to run outside a checkout instead of writing databases into
+whatever directory you happened to be in. The scripts do run directly, and
+the workflows do not: they use the apps.
+
+`nix` is deliberately absent from those dependencies. `pin.py` shells out
+to `nix flake metadata` against the caller's own store and configuration,
+so the host's nix is the correct one.
+
 `PIN_JOBS` sets how many `nix flake metadata` processes run at once (default
-16). The same steps are available as apps: `nix run .#update`,
-`nix run .#pin`, `nix run .#generate`.
+16).
 
 ## Harvest
 
@@ -146,7 +157,8 @@ derivations, which keeps `nix flake show` and `nix flake check` offline.
 A run that changes any of the four needs a cut before its commit:
 
 ```console
-$ ./tools/cut-data-release.sh          # tag data-<today, UTC>
+$ nix run .#cut-data-release                     # tag data-<today, UTC>
+$ nix run .#cut-data-release -- data-20260901    # or a tag you choose
 ```
 
 The notes on a cut carry the run's index diff: how many flakes were added,

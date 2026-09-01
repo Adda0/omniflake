@@ -32,7 +32,7 @@ about one.
 To add a flake, add a line to `manual.txt` and regenerate:
 
 ```console
-$ ./tools/update.sh --no-harvest
+$ nix run .#update -- --no-harvest
 ```
 
 The new flake is fetched once by `nix flake metadata`, its `locked`
@@ -42,7 +42,7 @@ attributes are written to `pins.jsonl`, and `index.json` gains an entry.
 bytes they now hold, which repoints `data-pins.json`:
 
 ```console
-$ ./tools/cut-data-release.sh
+$ nix run .#cut-data-release
 ```
 
 Then commit `manual.txt`, `data-pins.json`, `index.json` and any new file
