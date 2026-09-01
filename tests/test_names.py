@@ -109,32 +109,57 @@ class TestChooseName(unittest.TestCase):
 
 
 class TestApplyReserved(unittest.TestCase):
-    """Tests that a hand-assigned name is freed, over a database where the
-    name it asks for is held by a different repository."""
+    """Tests that names.txt reaches rows nothing else in the run touches,
+    over a database holding the repository a line names, a different
+    repository sitting on the name it asks for, and one already correct.
+
+    This is the only thing that applies a hand-assigned name to a row the
+    run carries over: a known row keeps the name it has and is never put
+    through choose_name again.
+    """
+
+    def row(self, owner, repo, name):
+        return {"name": name, "owner": owner, "repo": repo}
+
+    def test_the_repository_a_line_names_takes_the_name(self):
+        known = {("nixified-ai", "flake"): self.row("nixified-ai", "flake", "flake")}
+        counts = resolve.apply_reserved(
+            known, {("nixified-ai", "flake"): "nixified-ai"}
+        )
+        self.assertEqual(known[("nixified-ai", "flake")]["name"], "nixified-ai")
+        self.assertEqual(counts, (1, 0))
 
     def test_the_incumbent_is_displaced_to_its_qualified_name(self):
-        known = {
-            ("someone", "nixvim"): {
-                "name": "nixvim",
-                "owner": "someone",
-                "repo": "nixvim",
-            },
-        }
-        moved = resolve.apply_reserved(known, {("nix-community", "nixvim"): "nixvim"})
+        known = {("someone", "nixvim"): self.row("someone", "nixvim", "nixvim")}
+        counts = resolve.apply_reserved(known, {("nix-community", "nixvim"): "nixvim"})
         self.assertEqual(known[("someone", "nixvim")]["name"], "nixvim-someone")
-        self.assertEqual(moved, 1)
+        self.assertEqual(counts, (0, 1))
 
     def test_the_repository_the_name_belongs_to_is_left_alone(self):
         known = {
-            ("nix-community", "nixvim"): {
-                "name": "nixvim",
-                "owner": "nix-community",
-                "repo": "nixvim",
-            },
+            ("nix-community", "nixvim"): self.row("nix-community", "nixvim", "nixvim")
         }
-        moved = resolve.apply_reserved(known, {("nix-community", "nixvim"): "nixvim"})
+        counts = resolve.apply_reserved(known, {("nix-community", "nixvim"): "nixvim"})
         self.assertEqual(known[("nix-community", "nixvim")]["name"], "nixvim")
-        self.assertEqual(moved, 0)
+        self.assertEqual(counts, (0, 0))
+
+    def test_a_row_both_displaced_and_named_takes_its_own_name(self):
+        # hyprwm/Hyprland is reserved "hyprland" while IceDOS/hyprland
+        # holds it. Were the two repositories reversed in one line each,
+        # the assignment has to win or the row loses the name given to it.
+        known = {("a", "x"): self.row("a", "x", "y")}
+        counts = resolve.apply_reserved(known, {("b", "y"): "y", ("a", "x"): "z"})
+        self.assertEqual(known[("a", "x")]["name"], "z")
+        self.assertEqual(counts, (1, 0))
+
+    def test_a_denied_name_is_given_up(self):
+        # A line whose name is "-" means the repository gets no bare name,
+        # which load_reserved reads as its qualified one.
+        reserved = resolve.load_reserved_entries(["akirak/git-hooks -"])
+        known = {("akirak", "git-hooks"): self.row("akirak", "git-hooks", "git-hooks")}
+        counts = resolve.apply_reserved(known, reserved)
+        self.assertEqual(known[("akirak", "git-hooks")]["name"], "git-hooks-akirak")
+        self.assertEqual(counts, (1, 0))
 
 
 if __name__ == "__main__":

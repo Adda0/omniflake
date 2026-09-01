@@ -36,9 +36,11 @@ Attribute names are otherwise sticky, which matters because they are API.
 A name already assigned in the known set keeps its owner forever, so a
 repo that later gains stars cannot take a bare name out from under a
 consumer that already writes omniflake.flakes.<name>. A names.txt line is
-the one thing that outranks stickiness: it is how a name that was already
-assigned gets corrected, and the repository holding it is displaced to its
-qualified name.
+the one thing that outranks stickiness. It is applied to the database
+before anything is resolved, since a known row is carried over rather than
+named again: the repository the line names takes the name, and whoever
+held it is displaced to its qualified form. A line whose name is "-" asks
+for no bare name at all.
 
 Output: JSON lines of {name, owner, repo, rev, inputs, stars}, sorted by
 attribute name. Processing order still decides which repo wins a new name
@@ -127,19 +129,29 @@ def sanitize(repo):
     return out
 
 
-def load_reserved(path):
-    """Read names.txt into {(owner, repo): attribute name}.
+# A names.txt line whose name is this asks for no bare name at all: the
+# repository is named as though its repository name were contested.
+DENY = "-"
+
+
+def qualified_name(owner, repo):
+    """The name a repository gets when it does not hold the bare one."""
+    return f"{sanitize(repo)}-{sanitize(owner)}"
+
+
+def load_reserved_entries(lines):
+    """Parse names.txt lines into {(owner, repo): attribute name}.
 
     One entry per line, "owner/repo" then the name, whitespace separated;
-    blank lines and # comments ignored. Keys are lowercased because GitHub
-    is case-insensitive about both and the file is written by hand.
+    blank lines and # comments ignored. A name of "-" is read as the
+    repository's qualified name, which is how a line says that a bare name
+    belongs to nobody -- akirak/git-hooks holds "git-hooks" and 319
+    indexed flakes mean cachix/git-hooks.nix by it.
+
+    Keys are lowercased because GitHub is case-insensitive about owners
+    and repositories and the file is written by hand.
     """
     reserved = {}
-    try:
-        with open(path) as fh:
-            lines = fh.read().splitlines()
-    except FileNotFoundError:
-        return reserved
     for line in lines:
         entry = line.split("#", 1)[0].split()
         if not entry:
@@ -149,26 +161,54 @@ def load_reserved(path):
             continue
         ref, name = entry
         owner, repo = ref.split("/", 1)
+        if name == DENY:
+            name = qualified_name(owner, repo)
         reserved[(owner.lower(), repo.lower())] = name
     return reserved
 
 
-def apply_reserved(known, reserved):
-    """Free every hand-assigned name that a different repository holds.
+def load_reserved(path):
+    """Read names.txt. See load_reserved_entries for the format."""
+    try:
+        with open(path) as fh:
+            lines = fh.read().splitlines()
+    except FileNotFoundError:
+        return {}
+    return load_reserved_entries(lines)
 
-    A names.txt line outranks stickiness, so the incumbent has to move.
-    It moves to its qualified name, which is where it would have been had
-    the line existed when it was first resolved. Returns how many moved.
+
+def apply_reserved(known, reserved):
+    """Give every hand-assigned name to the repository a line names.
+
+    This is the only thing that applies names.txt to a row the run carries
+    over. A known row keeps the name it has and never goes through
+    choose_name again, so without this a line would take effect only on
+    whichever day the row came round for a refresh.
+
+    Two directions, and assignment wins over displacement so a repository
+    named by one line cannot be moved off it by another: the repository a
+    line names takes the name, and any other repository holding that name
+    is displaced to its qualified form. Returns (assigned, displaced).
     """
     wanted = {name: key for key, name in reserved.items()}
-    moved = 0
+    assigned = displaced = 0
     for key, row in known.items():
-        owner_of_name = wanted.get(row["name"])
-        if owner_of_name is None or owner_of_name == (key[0].lower(), key[1].lower()):
+        lowered = (key[0].lower(), key[1].lower())
+
+        # The repository this line is about, whatever it was called before.
+        hand_assigned = reserved.get(lowered)
+        if hand_assigned is not None:
+            if row["name"] != hand_assigned:
+                row["name"] = hand_assigned
+                assigned += 1
             continue
-        row["name"] = f"{sanitize(row['repo'])}-{sanitize(row['owner'])}"
-        moved += 1
-    return moved
+
+        # Somebody else sitting on a name a line hands over.
+        if wanted.get(row["name"], lowered) == lowered:
+            continue
+        row["name"] = qualified_name(row["owner"], row["repo"])
+        displaced += 1
+    return assigned, displaced
 
 
 def choose_name(owner, repo, prior, reserved, claims, taken, used):
@@ -189,7 +229,7 @@ def choose_name(owner, repo, prior, reserved, claims, taken, used):
         return prior["name"]
 
     base = sanitize(repo)
-    qualified = f"{base}-{sanitize(owner)}"
+    qualified = qualified_name(owner, repo)
 
     # A bare name is worth having only when it says which repository it
     # means, so a contested one goes to nobody.
@@ -354,10 +394,12 @@ def main():
     # claims is freed before any of this run's rows are named. taken is
     # rebuilt from the moved rows rather than patched.
     reserved = load_reserved(args.names)
-    moved = apply_reserved(known, reserved)
-    if moved:
+    assigned, displaced = apply_reserved(known, reserved)
+    if assigned or displaced:
         print(
-            f"# names: displaced {moved} row(s) from a reserved name", file=sys.stderr
+            f"# names: assigned {assigned} row(s) a reserved name, "
+            f"displaced {displaced}",
+            file=sys.stderr,
         )
         taken = {e["name"]: (e["owner"], e["repo"]) for e in known.values()}
 

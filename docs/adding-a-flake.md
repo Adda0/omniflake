@@ -90,6 +90,19 @@ gets a bare name at all. And it corrects a derived name that says nothing:
 `nixified-ai/flake` derives `flake`, `catppuccin/nix` derives `nix`, and
 both are the repository name doing a poor job of naming the project.
 
+A name of `-` is the third job, and it takes a bare name away:
+
+```
+akirak/git-hooks  -
+```
+
+The repository is then named `git-hooks-akirak` and nothing holds
+`git-hooks`. Reach for it when one repository holds a name that people
+overwhelmingly use for a different project, which matters beyond the
+attribute: an index name is what `unified` substitutes on, so a bare name
+on the wrong repository rewrites that input for every flake declaring it.
+319 indexed flakes declare `git-hooks` and mean `cachix/git-hooks.nix`.
+
 Leaving a contested repository out is the normal case. It stays reachable
 by its qualified name, which is unambiguous, and a bare name is reserved
 only when it carries real information. `postgres` does not obviously mean
@@ -97,6 +110,7 @@ only when it carries real information. `postgres` does not obviously mean
 
 A name never changes once assigned. A repository that later gains stars does
 not take a bare name from the repository holding it, because consumers refer
-to flakes by name. A `names.txt` line is the one thing that outranks that:
-it is how a name already assigned gets corrected, and the repository holding
-the name is displaced to its qualified form.
+to flakes by name. A `names.txt` line is the one thing that outranks that,
+and it applies on the next run rather than whenever the row next comes round
+for a refresh: the repository the line names takes the name, and whoever was
+holding it is displaced to its qualified form.
