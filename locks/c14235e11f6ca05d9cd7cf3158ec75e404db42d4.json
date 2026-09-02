@@ -1,0 +1,305 @@
+{
+  "nodes": {
+    "apps-flake": {
+      "inputs": {
+        "nixpkgs": [
+          "flakes",
+          "nixpkgs"
+        ],
+        "project-root": [
+          "flakes",
+          "project-root"
+        ]
+      },
+      "locked": {
+        "path": "./apps",
+        "type": "path"
+      },
+      "original": {
+        "path": "./apps",
+        "type": "path"
+      },
+      "parent": [
+        "flakes"
+      ]
+    },
+    "checks-flake": {
+      "inputs": {
+        "crane": [
+          "flakes",
+          "crane"
+        ],
+        "inputs": "inputs",
+        "nixpkgs": [
+          "flakes",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./checks",
+        "type": "path"
+      },
+      "original": {
+        "path": "./checks",
+        "type": "path"
+      },
+      "parent": [
+        "flakes"
+      ]
+    },
+    "crane": {
+      "locked": {
+        "lastModified": 1763938834,
+        "narHash": "sha256-j8iB0Yr4zAvQLueCZ5abxfk6fnG/SJ5JnGUziETjwfg=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "d9e753122e51cee64eb8d2dddfe11148f339f5a2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
+    "devShells-flake": {
+      "inputs": {
+        "nixpkgs": [
+          "flakes",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./devShells",
+        "type": "path"
+      },
+      "original": {
+        "path": "./devShells",
+        "type": "path"
+      },
+      "parent": [
+        "flakes"
+      ]
+    },
+    "flake-schemas": {
+      "locked": {
+        "lastModified": 1761577921,
+        "narHash": "sha256-eK3/xbUOrxp9fFlei09XNjqcdiHXxndzrTXp7jFpOk8=",
+        "rev": "47849c7625e223d36766968cc6dc23ba0e135922",
+        "revCount": 107,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/DeterminateSystems/flake-schemas/0.2.0/019a4a84-544d-7c59-b26d-e334e320c932/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/DeterminateSystems/flake-schemas/%2A.tar.gz"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flakes": {
+      "inputs": {
+        "apps-flake": "apps-flake",
+        "checks-flake": "checks-flake",
+        "crane": "crane",
+        "devShells-flake": "devShells-flake",
+        "flake-schemas": "flake-schemas",
+        "flake-utils": "flake-utils",
+        "formatter-flake": "formatter-flake",
+        "lib-flake": "lib-flake",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "packages-flake": "packages-flake",
+        "project-root": [
+          "project-root"
+        ],
+        "routes-core": "routes-core"
+      },
+      "locked": {
+        "path": "./.flakes",
+        "type": "path"
+      },
+      "original": {
+        "path": "./.flakes",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "formatter-flake": {
+      "inputs": {
+        "nixpkgs": [
+          "flakes",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./formatter",
+        "type": "path"
+      },
+      "original": {
+        "path": "./formatter",
+        "type": "path"
+      },
+      "parent": [
+        "flakes"
+      ]
+    },
+    "inputs": {
+      "flake": false,
+      "locked": {
+        "path": "./inputs",
+        "type": "path"
+      },
+      "original": {
+        "path": "./inputs",
+        "type": "path"
+      },
+      "parent": [
+        "flakes",
+        "checks-flake"
+      ]
+    },
+    "lib-flake": {
+      "inputs": {
+        "flake-utils": [
+          "flakes",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "flakes",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./lib",
+        "type": "path"
+      },
+      "original": {
+        "path": "./lib",
+        "type": "path"
+      },
+      "parent": [
+        "flakes"
+      ]
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787964612,
+        "narHash": "sha256-0N9nghg3nwzX6b6qc77EzjR9cu/Z+UR66FlfsCqiURs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e8be7818e19ada32105a8af937a6a473b38167ca",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "packages-flake": {
+      "inputs": {
+        "crane": [
+          "flakes",
+          "crane"
+        ],
+        "nixpkgs": [
+          "flakes",
+          "nixpkgs"
+        ],
+        "project-root": [
+          "flakes",
+          "project-root"
+        ]
+      },
+      "locked": {
+        "path": "./packages",
+        "type": "path"
+      },
+      "original": {
+        "path": "./packages",
+        "type": "path"
+      },
+      "parent": [
+        "flakes"
+      ]
+    },
+    "project-root": {
+      "flake": false,
+      "locked": {
+        "path": ".",
+        "type": "path"
+      },
+      "original": {
+        "path": ".",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "root": {
+      "inputs": {
+        "flakes": "flakes",
+        "nixpkgs": "nixpkgs",
+        "project-root": "project-root"
+      }
+    },
+    "routes-core": {
+      "inputs": {
+        "nixpkgs": [
+          "flakes",
+          "nixpkgs"
+        ],
+        "project-root": [
+          "flakes",
+          "project-root"
+        ]
+      },
+      "locked": {
+        "path": "./routes",
+        "type": "path"
+      },
+      "original": {
+        "path": "./routes",
+        "type": "path"
+      },
+      "parent": [
+        "flakes"
+      ]
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
