@@ -18,25 +18,46 @@
         "type": "github"
       }
     },
+    "nix-firefox-addons": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791622524,
+        "narHash": "sha256-3oowW11xER9iWbmQ008Hi1cv67xyqvqY2wmkNfYTB5I=",
+        "owner": "OsiPog",
+        "repo": "nix-firefox-addons",
+        "rev": "cbcd702af152438e74e476e4499a88fa1c472e82",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OsiPog",
+        "repo": "nix-firefox-addons",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1790390834,
-        "narHash": "sha256-StRyS/lFHtIw/UgJk+xo+HA66mtoWeDUbkJdvf2Byn4=",
+        "lastModified": 1791456040,
+        "narHash": "sha256-H83yz/do+hjOO0uujHyH8RgtIQP2v7Mw+cLwcZK/xKc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d54020a6ac3211e9f4201631bdf67678818c0cdf",
+        "rev": "e7439b6b14ad3cc35d05608ebca9bce01a25f5f8",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixpkgs-unstable",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "root": {
       "inputs": {
-        "flake-utils": "flake-utils",
+        "nix-firefox-addons": "nix-firefox-addons",
         "nixpkgs": "nixpkgs"
       }
     },
