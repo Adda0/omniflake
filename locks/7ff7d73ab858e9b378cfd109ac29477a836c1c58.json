@@ -1,0 +1,143 @@
+{
+  "nodes": {
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791642191,
+        "narHash": "sha256-0bK0A59rVUn1SRZzo4cNi4VSqAe7vR1gL2/MZl53Frw=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "c58f54c733a7894d84fa2fdff26cc12088c4b78c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1791594108,
+        "narHash": "sha256-XK4KceonkwD8LuMAt/vNrz982mXJM5jeHAxMwsUXXAQ=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6510408d147d8c5e6d76043e899e9251756f6a75",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1791594108,
+        "narHash": "sha256-V0WmebqwEeAVZMqxfv7Dq7hpKkPPM19W50xQf3D1Kf4=",
+        "rev": "6510408d147d8c5e6d76043e899e9251756f6a75",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixos/unstable/nixos-26.11pre1089111.6510408d147d/nixexprs.tar.xz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz"
+      }
+    },
+    "passman": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791115750,
+        "narHash": "sha256-cOg9EuH1TXnjfLO398kJpwv+LgaM6q0Z4qFdx57VamQ=",
+        "owner": "nikitasmen",
+        "repo": "password-manager-",
+        "rev": "0aef52312e2bf147560c2a120a4a2744ea30c6fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nikitasmen",
+        "repo": "password-manager-",
+        "type": "github"
+      }
+    },
+    "passman-tags": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-tgJPbR3ikmAs0pet2SLOKrDMENWC9qBMW6+V6xZD3Dw=",
+        "type": "file",
+        "url": "https://api.github.com/repos/nikitasmen/password-manager-/tags?per_page=100"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://api.github.com/repos/nikitasmen/password-manager-/tags?per_page=100"
+      }
+    },
+    "root": {
+      "inputs": {
+        "home-manager": "home-manager",
+        "nixpkgs": "nixpkgs",
+        "passman": "passman",
+        "passman-tags": "passman-tags",
+        "spicetify-nix": "spicetify-nix",
+        "unixkit": "unixkit"
+      }
+    },
+    "spicetify-nix": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2",
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1791715302,
+        "narHash": "sha256-AkjudSXIY6NAhJTc4it13lso/Ik7NCNwVJ3tJbKHtTo=",
+        "owner": "Gerg-L",
+        "repo": "spicetify-nix",
+        "rev": "50246f67d72e042291e426823dd61567b796fea9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Gerg-L",
+        "repo": "spicetify-nix",
+        "type": "github"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1791244623,
+        "narHash": "sha256-uuanbkFk8a313Zfrxdcz8Us/yQtaxNnKJtX8v0ZPpd8=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "d36eeed142f88b5a636f2e3856a53c61654cf29b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "unixkit": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773755139,
+        "narHash": "sha256-FTXLQUGw6XDOImQ+Jk9FlINS7mdKb3aPwdFkQvtT98s=",
+        "owner": "nikitasmen",
+        "repo": "UnixKit",
+        "rev": "ea70cb68632a5c19774bcb30b6e72b85d25256f2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nikitasmen",
+        "repo": "UnixKit",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
