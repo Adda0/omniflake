@@ -1,0 +1,40 @@
+{
+  "nodes": {
+    "cc-switch-x86_64": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-Ju5ZSvN5ynlMqhdFhGFyWwn4+Tv2KZ9o9euCM395Q28=",
+        "type": "file",
+        "url": "https://github.com/farion1231/cc-switch/releases/download/v4.0.12/CC-Switch-v4.0.12-Linux-x86_64.deb"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/farion1231/cc-switch/releases/download/v4.0.12/CC-Switch-v4.0.12-Linux-x86_64.deb"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1791637130,
+        "narHash": "sha256-TuvwvSjJrpqyIYdjhQ7Wu+ADVfeOpO2Um21/V7TOubw=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ca1659429c950a11a565b5764e37a1b704e17ec8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "cc-switch-x86_64": "cc-switch-x86_64",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
